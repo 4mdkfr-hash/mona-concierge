@@ -2,10 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { generateReply, CLAUDE_MODEL, estimateCostEur } from "@/lib/claude";
 import { sendTextMessage } from "@/lib/whatsapp";
+import { sendDM } from "@/lib/instagram";
+import { sendGbmMessage } from "@/lib/google-bm";
 
 export async function POST(req: NextRequest) {
-  const { conversationId, venueId, channel, customerPhone } =
-    await req.json();
+  const {
+    conversationId,
+    venueId,
+    channel,
+    // WhatsApp
+    customerPhone,
+    // Instagram
+    customerId,
+    pageAccessToken,
+    // Google BM
+    accessToken,
+  } = await req.json();
 
   const supabase = createServiceClient();
 
@@ -81,10 +93,14 @@ If the customer asks to book or make a reservation, collect: name, date/time, pa
 
     // Send via appropriate channel
     let externalMessageId: string | undefined;
+
     if (channel === "whatsapp" && customerPhone) {
       externalMessageId = await sendTextMessage(customerPhone, text);
+    } else if (channel === "instagram" && customerId && pageAccessToken) {
+      externalMessageId = await sendDM(customerId, text, pageAccessToken);
+    } else if (channel === "google_bm" && customerId && accessToken) {
+      externalMessageId = await sendGbmMessage(customerId, text, accessToken);
     }
-    // TODO: Instagram and Google BM send implementations
 
     if (externalMessageId) {
       await supabase

@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServiceClient } from "@/lib/supabase";
+import {
+  type InstagramWebhookBody,
+  type InstagramMessaging,
+} from "@/lib/instagram";
 
+// GET: Instagram webhook verification
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const mode = searchParams.get("hub.mode");
@@ -13,15 +19,100 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 }
 
+// POST: Incoming Instagram DMs
 export async function POST(req: NextRequest) {
+  const body = (await req.json()) as InstagramWebhookBody;
+
+  if (body.object !== "instagram") {
+    return NextResponse.json({ status: "ignored" });
+  }
+
+  const supabase = createServiceClient();
+
+  for (const entry of body.entry) {
+    const igAccountId = entry.id;
+
+    // Find venue for this Instagram account
+    const { data: channel } = await supabase
+      .from("venue_channels")
+      .select("venue_id, access_token")
+      .eq("channel", "instagram")
+      .eq("channel_account_id", igAccountId)
+      .single();
+
+    if (!channel) continue;
+
+    const venueId = channel.venue_id;
+    const pageAccessToken = channel.access_token as string;
+
+    for (const messaging of entry.messaging ?? []) {
+      if (!messaging.message) continue;
+      await handleInboundDM(messaging, venueId, pageAccessToken, supabase);
+    }
+  }
+
+  return NextResponse.json({ status: "ok" });
+}
+
+async function handleInboundDM(
+  messaging: InstagramMessaging,
+  venueId: string,
+  pageAccessToken: string,
+  supabase: ReturnType<typeof createServiceClient>
+) {
+  const senderId = messaging.sender.id;
+  const msgId = messaging.message?.mid ?? "";
+  const content = messaging.message?.text ?? `[attachment]`;
+
+  // Upsert conversation
+  const { data: conversation } = await supabase
+    .from("conversations")
+    .upsert(
+      {
+        venue_id: venueId,
+        channel: "instagram",
+        customer_id: senderId,
+        last_message_at: new Date().toISOString(),
+        status: "open",
+      },
+      {
+        onConflict: "venue_id,channel,customer_id",
+        ignoreDuplicates: false,
+      }
+    )
+    .select("id")
+    .single();
+
+  if (!conversation) return;
+
+  // Save inbound message
+  await supabase.from("messages").insert({
+    conversation_id: conversation.id,
+    direction: "inbound",
+    content,
+    ai_generated: false,
+    status: "delivered",
+    external_message_id: msgId,
+  });
+
+  // Trigger AI response
   try {
-    const body = await req.json();
-    console.log("Instagram webhook received:", JSON.stringify(body, null, 2));
-    return NextResponse.json({ status: "ok" });
-  } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    await fetch(`${baseUrl}/api/ai/respond`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        conversationId: conversation.id,
+        venueId,
+        channel: "instagram",
+        customerId: senderId,
+        pageAccessToken,
+      }),
+    });
+  } catch (err) {
+    console.error("Failed to trigger AI respond:", err);
   }
 }
