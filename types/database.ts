@@ -212,8 +212,10 @@ export interface Database {
           service_type: string | null;
           booked_at: string;
           google_event_id: string | null;
-          status: string;
+          status: 'confirmed' | 'cancelled' | 'completed' | 'no_show' | 'rescheduled';
           confirmation_sent: boolean;
+          no_show_notified_at: string | null;
+          rescheduled_from_booking_id: string | null;
           created_at: string;
         };
         Insert: {
@@ -225,8 +227,10 @@ export interface Database {
           service_type?: string | null;
           booked_at: string;
           google_event_id?: string | null;
-          status?: string;
+          status?: 'confirmed' | 'cancelled' | 'completed' | 'no_show' | 'rescheduled';
           confirmation_sent?: boolean;
+          no_show_notified_at?: string | null;
+          rescheduled_from_booking_id?: string | null;
           created_at?: string;
         };
         Update: {
@@ -238,8 +242,10 @@ export interface Database {
           service_type?: string | null;
           booked_at?: string;
           google_event_id?: string | null;
-          status?: string;
+          status?: 'confirmed' | 'cancelled' | 'completed' | 'no_show' | 'rescheduled';
           confirmation_sent?: boolean;
+          no_show_notified_at?: string | null;
+          rescheduled_from_booking_id?: string | null;
           created_at?: string;
         };
       };
@@ -276,6 +282,100 @@ export interface Database {
         };
       };
     };
-    Functions: Record<string, never>;
+      client_profiles: {
+        Row: {
+          id: string;
+          venue_id: string;
+          phone: string | null;
+          channel: string | null;
+          channel_id: string | null;
+          full_name: string | null;
+          preferred_name: string | null;
+          language: string;
+          favourite_services: string[];
+          disliked_services: string[];
+          preferred_staff: string[];
+          allergies: string[];
+          notes: string | null;
+          visit_count: number;
+          last_visit_at: string | null;
+          last_service: string | null;
+          vip_tier: 'standard' | 'regular' | 'vip';
+          lifetime_spend_eur: number;
+          consent_given: boolean;
+          consent_given_at: string | null;
+          data_deletion_requested_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          venue_id: string;
+          phone?: string | null;
+          channel?: string | null;
+          channel_id?: string | null;
+          full_name?: string | null;
+          preferred_name?: string | null;
+          language?: string;
+          favourite_services?: string[];
+          disliked_services?: string[];
+          preferred_staff?: string[];
+          allergies?: string[];
+          notes?: string | null;
+          visit_count?: number;
+          last_visit_at?: string | null;
+          last_service?: string | null;
+          vip_tier?: 'standard' | 'regular' | 'vip';
+          lifetime_spend_eur?: number;
+          consent_given?: boolean;
+          consent_given_at?: string | null;
+          data_deletion_requested_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          venue_id?: string;
+          phone?: string | null;
+          channel?: string | null;
+          channel_id?: string | null;
+          full_name?: string | null;
+          preferred_name?: string | null;
+          language?: string;
+          favourite_services?: string[];
+          disliked_services?: string[];
+          preferred_staff?: string[];
+          allergies?: string[];
+          notes?: string | null;
+          visit_count?: number;
+          last_visit_at?: string | null;
+          last_service?: string | null;
+          vip_tier?: 'standard' | 'regular' | 'vip';
+          lifetime_spend_eur?: number;
+          consent_given?: boolean;
+          consent_given_at?: string | null;
+          data_deletion_requested_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+    };
+    Functions: {
+      upsert_client_profile_from_booking: {
+        Args: {
+          p_venue_id: string;
+          p_phone: string;
+          p_full_name: string;
+          p_service_type: string;
+          p_channel?: string;
+          p_channel_id?: string | null;
+        };
+        Returns: string;
+      };
+      build_vip_context_snippet: {
+        Args: { p_venue_id: string; p_phone: string };
+        Returns: string | null;
+      };
+    };
   };
 }
