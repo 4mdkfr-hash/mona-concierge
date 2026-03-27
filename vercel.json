@@ -1,10 +1,6 @@
 {
   "crons": [
     {
-      "path": "/api/follow-up/trigger",
-      "schedule": "*/15 * * * *"
-    },
-    {
       "path": "/api/reports/weekly-trigger",
       "schedule": "0 9 * * 1"
     }
