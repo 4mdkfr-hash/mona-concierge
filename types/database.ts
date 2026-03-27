@@ -281,7 +281,6 @@ export interface Database {
           created_at?: string;
         };
       };
-    };
       client_profiles: {
         Row: {
           id: string;

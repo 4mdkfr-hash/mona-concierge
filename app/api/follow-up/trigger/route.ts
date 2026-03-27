@@ -8,7 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
-import { FOLLOW_UP_PROMPT_TEMPLATES } from '@/lib/followup-prompts';
+import { FOLLOW_UP_PROMPT_TEMPLATES, EventType } from '@/lib/followup-prompts';
 import { generateReply } from '@/lib/claude';
 import { sendTextMessage } from '@/lib/whatsapp';
 import { sendDM } from '@/lib/instagram';
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     try {
       // 2. Generate message via Claude
-      const templates = FOLLOW_UP_PROMPT_TEMPLATES[event.event_type];
+      const templates = FOLLOW_UP_PROMPT_TEMPLATES[event.event_type as EventType];
       const systemPrompt = templates[event.language as 'fr' | 'en' | 'ru'] ?? templates.fr;
 
       const userContext = [
