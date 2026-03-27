@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "signin": "Connexion",
+    "demo": "Voir la démo",
+    "tagline": "Pour Monaco & Côte d'Azur"
+  },
+  "hero": {
+    "tag": "Pour Monaco & Côte d'Azur",
+    "title": "L'IA au service\nde votre clientèle",
+    "subtitle": "Automatisez vos réponses WhatsApp, gérez vos réservations et fidélisez vos clients — avec une élégance digne de Monaco.",
+    "cta": "Commencer gratuitement"
+  },
+  "logos": {
+    "label": "Ils nous font confiance"
+  },
+  "features": {
+    "title": "Tout ce dont vous avez besoin",
+    "items": [
+      { "title": "Assistant WhatsApp IA", "desc": "Répondez automatiquement à vos clients en français, anglais et russe — 24h/24, 7j/7." },
+      { "title": "Google Reviews", "desc": "Des réponses personnalisées à chaque avis, générées par l'IA pour soigner votre image." },
+      { "title": "Réservations en ligne", "desc": "Gérez toutes vos réservations depuis un seul tableau de bord, sans effort." },
+      { "title": "Relances intelligentes", "desc": "Fidélisez vos clients après leur visite avec des messages personnalisés et opportuns." }
+    ]
+  },
+  "how": {
+    "title": "Comment ça fonctionne",
+    "steps": [
+      { "label": "Connectez vos canaux", "desc": "WhatsApp, Instagram, Google Business — en quelques minutes." },
+      { "label": "L'IA répond pour vous", "desc": "Des réponses naturelles, personnalisées et multilingues." },
+      { "label": "Vous gardez le contrôle", "desc": "Tableau de bord complet, notifications, prise en main facile." }
+    ]
+  },
+  "pricing": {
+    "title": "Tarifs simples et transparents",
+    "tier": "Essential",
+    "price": "€200",
+    "period": "/ mois",
+    "features": [
+      "Assistant WhatsApp IA multilingue",
+      "Réponses automatiques Google Reviews",
+      "Gestion des réservations",
+      "Relances post-visite",
+      "Support prioritaire"
+    ],
+    "cta": "Démarrer maintenant"
+  },
+  "cta": {
+    "title": "Prêt à transformer\nvotre service client ?",
+    "subtitle": "Rejoignez les établissements d'exception qui font confiance à MonaConcierge."
+  },
+  "signup": {
+    "placeholder": "votre@email.com",
+    "button": "Accès par lien magique",
+    "sending": "Envoi en cours…",
+    "sent_title": "Vérifiez votre email",
+    "sent_desc": "Nous avons envoyé un lien magique à"
+  },
+  "footer": {
+    "tagline": "L'excellence au service de votre clientèle."
+  }
+}

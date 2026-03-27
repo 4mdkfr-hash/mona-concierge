@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "signin": "Sign In",
+    "demo": "View demo",
+    "tagline": "For Monaco & Côte d'Azur"
+  },
+  "hero": {
+    "tag": "For Monaco & Côte d'Azur",
+    "title": "AI-powered\ncustomer engagement",
+    "subtitle": "Automate WhatsApp replies, manage bookings, and delight your guests — with the elegance Monaco deserves.",
+    "cta": "Get started for free"
+  },
+  "logos": {
+    "label": "Trusted by"
+  },
+  "features": {
+    "title": "Everything you need",
+    "items": [
+      { "title": "WhatsApp AI Assistant", "desc": "Reply to every customer automatically in French, English, and Russian — around the clock." },
+      { "title": "Google Reviews", "desc": "Personalised AI-generated responses to every review, protecting and elevating your reputation." },
+      { "title": "Online Bookings", "desc": "Manage all reservations from a single elegant dashboard, effortlessly." },
+      { "title": "Smart Follow-ups", "desc": "Re-engage guests after their visit with timely, personalised messages." }
+    ]
+  },
+  "how": {
+    "title": "How it works",
+    "steps": [
+      { "label": "Connect your channels", "desc": "WhatsApp, Instagram, Google Business — up in minutes." },
+      { "label": "AI replies for you", "desc": "Natural, personalised, multilingual responses." },
+      { "label": "You stay in control", "desc": "Full dashboard, notifications, easy management." }
+    ]
+  },
+  "pricing": {
+    "title": "Simple, transparent pricing",
+    "tier": "Essential",
+    "price": "€200",
+    "period": "/ month",
+    "features": [
+      "Multilingual WhatsApp AI assistant",
+      "Automated Google Review responses",
+      "Booking management",
+      "Post-visit follow-ups",
+      "Priority support"
+    ],
+    "cta": "Start now"
+  },
+  "cta": {
+    "title": "Ready to transform\nyour guest experience?",
+    "subtitle": "Join the finest establishments that trust MonaConcierge."
+  },
+  "signup": {
+    "placeholder": "your@email.com",
+    "button": "Sign in with Magic Link",
+    "sending": "Sending…",
+    "sent_title": "Check your email",
+    "sent_desc": "We sent a magic link to"
+  },
+  "footer": {
+    "tagline": "Excellence in customer engagement."
+  }
+}
