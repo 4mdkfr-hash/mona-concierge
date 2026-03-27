@@ -52,6 +52,18 @@ export async function POST(req: NextRequest) {
       const contactName = value.contacts?.[0]?.profile?.name ?? null;
 
       for (const msg of value.messages ?? []) {
+        // STOP opt-out: if message is from owner_phone and body matches STOP/СТОП
+        if (msg.type === "text" && msg.text?.body) {
+          const body = msg.text.body.trim();
+          if (/^(STOP|СТОП)$/i.test(body)) {
+            await supabase
+              .from("venues")
+              .update({ weekly_report_enabled: false })
+              .eq("id", venueId)
+              .eq("owner_phone", msg.from);
+            continue;
+          }
+        }
         await handleInboundMessage(msg, venueId, contactName, supabase);
       }
 
