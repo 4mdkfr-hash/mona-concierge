@@ -14,9 +14,12 @@
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.49.4",
     "googleapis": "^171.4.0",
+    "lucide-react": "^1.7.0",
     "next": "14.2.29",
+    "next-intl": "^4.8.3",
     "react": "^18",
     "react-dom": "^18",
+    "recharts": "^3.8.1",
     "stripe": "^17.7.0"
   },
   "devDependencies": {
