@@ -13,9 +13,31 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-display",
 });
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://monaconcierge.com";
+
 export const metadata: Metadata = {
-  title: "MonaConcierge",
-  description: "AI-powered customer engagement for Monaco & Côte d'Azur venues",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "MonaConcierge",
+    template: "%s | MonaConcierge",
+  },
+  description:
+    "AI-powered customer engagement for Monaco & Côte d'Azur venues — WhatsApp, Instagram, Google Reviews, in French, English & Russian.",
+  openGraph: {
+    title: "MonaConcierge",
+    description:
+      "AI-powered customer engagement for Monaco & Côte d'Azur venues",
+    siteName: "MonaConcierge",
+    locale: "fr_FR",
+    type: "website",
+    url: BASE_URL,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "MonaConcierge",
+    description:
+      "AI-powered customer engagement for Monaco & Côte d'Azur venues",
+  },
 };
 
 export default function RootLayout({
