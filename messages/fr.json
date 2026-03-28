@@ -1,59 +1,59 @@
 {
   "nav": {
     "signin": "Connexion",
-    "demo": "Voir la demo",
+    "demo": "Voir la démo",
     "start": "Commencer gratuitement"
   },
   "hero": {
-    "tag": "Monaco & Cote d'Azur",
+    "tag": "Monaco & Côte d'Azur",
     "title": "Le concierge IA\npour votre business",
-    "subtitle": "Automatisez vos reponses clients, gerez les reservations et les avis — avec l'elegance que Monaco merite.",
+    "subtitle": "Automatisez vos réponses clients, gérez les réservations et les avis — avec l'élégance que Monaco mérite.",
     "cta": "Commencer gratuitement",
-    "demo": "Voir la demo"
+    "demo": "Voir la démo"
   },
   "social": {
-    "label": "Ils nous font confiance a Monaco"
+    "label": "Restaurants et salons de Monaco et de la Côte d'Azur"
   },
   "features": {
     "title": "Tout ce dont vous avez besoin",
-    "subtitle": "Une plateforme complete pour gerer l'experience client de A a Z.",
+    "subtitle": "Une plateforme complète pour gérer l'expérience client de A à Z.",
     "items": [
       {
         "title": "Assistant WhatsApp IA",
-        "desc": "Reponses automatiques en francais, anglais et russe. Vos clients obtiennent une reponse instantanee, 24h/24."
+        "desc": "Réponses automatiques en français, anglais et russe. Vos clients obtiennent une réponse instantanée, 24h/24."
       },
       {
         "title": "Google Reviews IA",
-        "desc": "Reponses personnalisees a chaque avis pour proteger et renforcer votre reputation en ligne."
+        "desc": "Réponses personnalisées à chaque avis pour protéger et renforcer votre réputation en ligne."
       },
       {
-        "title": "Reservations intelligentes",
-        "desc": "Reservations via WhatsApp, synchronisees avec Google Calendar. Confirmations automatiques."
+        "title": "Réservations intelligentes",
+        "desc": "Réservations via WhatsApp, synchronisées avec Google Calendar. Confirmations automatiques."
       },
       {
         "title": "Smart Upsell",
-        "desc": "Relances post-visite personnalisees. Augmentez la frequence de retour et le panier moyen."
+        "desc": "Relances post-visite personnalisées. Augmentez la fréquence de retour et le panier moyen."
       }
     ]
   },
   "how": {
-    "title": "Comment ca marche",
-    "subtitle": "Trois etapes pour transformer votre service client.",
+    "title": "Comment ça marche",
+    "subtitle": "Trois étapes pour transformer votre service client.",
     "steps": [
       {
         "num": "01",
         "label": "Connectez vos canaux",
-        "desc": "WhatsApp, Instagram, Google Business — configuration en quelques minutes, sans competences techniques."
+        "desc": "WhatsApp, Instagram, Google Business — configuration en quelques minutes, sans compétences techniques."
       },
       {
         "num": "02",
         "label": "L'IA travaille pour vous",
-        "desc": "Reponses naturelles et multilingues, gestion des reservations, suivi des avis — en pilote automatique."
+        "desc": "Réponses naturelles et multilingues, gestion des réservations, suivi des avis — en pilote automatique."
       },
       {
         "num": "03",
-        "label": "Vous gardez le controle",
-        "desc": "Dashboard en temps reel, notifications instantanees, possibilite d'intervenir a tout moment."
+        "label": "Vous gardez le contrôle",
+        "desc": "Dashboard en temps réel, notifications instantanées, possibilité d'intervenir à tout moment."
       }
     ]
   },
@@ -66,38 +66,38 @@
     "period": "/ mois",
     "features": [
       "Assistant WhatsApp IA multilingue",
-      "Reponses automatiques Google Reviews",
-      "Systeme de reservations integre",
+      "Réponses automatiques Google Reviews",
+      "Système de réservations intégré",
       "Relances post-visite Smart Upsell",
-      "Dashboard temps reel",
+      "Dashboard temps réel",
       "Support prioritaire"
     ],
     "cta": "14 jours gratuits",
-    "guarantee": "Sans engagement. Annulez a tout moment."
+    "guarantee": "Sans engagement. Annulez à tout moment."
   },
   "cta": {
-    "title": "Pret a transformer\nvotre experience client ?",
-    "subtitle": "Rejoignez les etablissements d'exception de Monaco et de la Cote d'Azur."
+    "title": "Prêt à transformer\nvotre expérience client ?",
+    "subtitle": "Rejoignez les établissements d'exception de Monaco et de la Côte d'Azur."
   },
   "signup": {
     "placeholder": "votre@email.com",
-    "button": "Acces par lien magique",
-    "sending": "Envoi en cours...",
-    "sent_title": "Verifiez votre email",
-    "sent_desc": "Nous avons envoye un lien magique a"
+    "button": "Accès par lien magique",
+    "sending": "Envoi en cours…",
+    "sent_title": "Vérifiez votre email",
+    "sent_desc": "Nous avons envoyé un lien magique à"
   },
   "footer": {
-    "tagline": "L'excellence au service de votre clientele.",
+    "tagline": "L'excellence au service de votre clientèle.",
     "product": "Produit",
     "company": "Entreprise",
     "links": {
-      "features": "Fonctionnalites",
+      "features": "Fonctionnalités",
       "pricing": "Tarifs",
-      "demo": "Demo",
-      "about": "A propos",
-      "privacy": "Confidentialite",
+      "demo": "Démo",
+      "about": "À propos",
+      "privacy": "Confidentialité",
       "contact": "Contact"
     },
-    "copy": "Tous droits reserves."
+    "copy": "Tous droits réservés."
   }
 }

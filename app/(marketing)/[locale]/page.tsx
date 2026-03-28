@@ -18,12 +18,10 @@ import {
 const FEATURE_ICONS = [MessageSquare, Star, CalendarCheck, TrendingUp];
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
 const DEMO_VENUES = [
-  "Le Grill",
-  "Hotel Hermitage",
+  "Le Jardin Monégasque",
   "Maison Blanc",
-  "Atelier Lumiere",
-  "Cafe Riviera",
-  "Buddha-Bar",
+  "Atelier Lumière",
+  "Café Riviera",
 ];
 
 function useFadeIn() {
@@ -233,7 +231,7 @@ export default function LandingPage() {
       </section>
 
       {/* ────────── FEATURES ────────── */}
-      <section ref={fade} className="fade-section py-32 px-6">
+      <section id="features" ref={fade} className="fade-section py-32 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20 space-y-4">
             <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
@@ -295,7 +293,7 @@ export default function LandingPage() {
       </section>
 
       {/* ────────── PRICING ────────── */}
-      <section ref={fade} className="fade-section py-32 px-6">
+      <section id="pricing" ref={fade} className="fade-section py-32 px-6">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-16 space-y-4">
             <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
@@ -465,12 +463,12 @@ export default function LandingPage() {
                 >
                   {t("footer.links.privacy")}
                 </Link>
-                <a
-                  href="mailto:contact@monaconcierge.com"
+                <button
+                  onClick={() => scrollTo("signup")}
                   className="block text-sm text-fog hover:text-mist transition-colors"
                 >
                   {t("footer.links.contact")}
-                </a>
+                </button>
               </div>
             </div>
           </div>
