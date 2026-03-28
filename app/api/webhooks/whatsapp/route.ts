@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { generateReply, CLAUDE_MODEL, estimateCostEur } from "@/lib/claude";
 import {
+  sendTextMessage,
   markMessageRead,
   type WhatsAppWebhookBody,
   type WhatsAppMessage,
@@ -133,26 +135,74 @@ async function handleTwilioWebhook(req: NextRequest) {
     external_message_id: messageSid,
   });
 
-  // Trigger AI response
+  // Generate AI response and send directly
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    // Load venue info
+    const { data: venue } = await supabase
+      .from("venues")
+      .select("name, type, tone_brief, languages")
+      .eq("id", venueId)
+      .single();
 
-    await fetch(`${baseUrl}/api/ai/respond`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        conversationId: conversation.id,
-        venueId,
-        channel: "whatsapp",
-        customerPhone: phone,
-      }),
-    });
+    if (venue) {
+      // Load recent messages for context
+      const { data: messages } = await supabase
+        .from("messages")
+        .select("direction, content")
+        .eq("conversation_id", conversation.id)
+        .order("created_at", { ascending: true })
+        .limit(20);
+
+      const history = (messages ?? []).map((m) => ({
+        role: m.direction === "inbound" ? ("user" as const) : ("assistant" as const),
+        content: m.content,
+      }));
+
+      const langs = (venue.languages as string[]).join(", ");
+      const systemPrompt = `You are a friendly AI concierge for ${venue.name}, a ${venue.type} in Monaco.
+${venue.tone_brief ?? "Be warm, professional, and helpful."}
+You respond in the language the customer writes in. You speak: ${langs}.
+Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.`;
+
+      const { text: aiText, promptTokens, completionTokens } = await generateReply({
+        systemPrompt,
+        messages: history,
+        maxTokens: 300,
+      });
+
+      // Save AI reply
+      await supabase.from("messages").insert({
+        conversation_id: conversation.id,
+        direction: "outbound",
+        content: aiText,
+        ai_generated: true,
+        ai_model: CLAUDE_MODEL,
+        status: "pending",
+      });
+
+      // Log usage
+      await supabase.from("ai_usage_logs").insert({
+        venue_id: venueId,
+        conversation_id: conversation.id,
+        model: CLAUDE_MODEL,
+        prompt_tokens: promptTokens,
+        completion_tokens: completionTokens,
+        cost_eur: estimateCostEur(promptTokens, completionTokens),
+      });
+
+      // Send via Twilio
+      const msgId = await sendTextMessage(phone, aiText);
+      await supabase
+        .from("messages")
+        .update({ status: "delivered", external_message_id: msgId })
+        .eq("conversation_id", conversation.id)
+        .eq("direction", "outbound")
+        .eq("content", aiText);
+    }
   } catch (err) {
-    console.error("Failed to trigger AI respond:", err);
+    console.error("AI respond error:", err);
   }
 
-  // Return empty TwiML (we send reply async via API)
   return new NextResponse(
     '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
     { headers: { "Content-Type": "text/xml" } }

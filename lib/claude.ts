@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 
 export const claude = new Anthropic({
-  apiKey: process.env.CLAUDE_API_KEY,
+  apiKey: process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY,
 });
 
 export const CLAUDE_MODEL = "claude-sonnet-4-6";
