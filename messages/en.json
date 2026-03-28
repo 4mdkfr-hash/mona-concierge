@@ -2,60 +2,102 @@
   "nav": {
     "signin": "Sign In",
     "demo": "View demo",
-    "tagline": "For Monaco & Côte d'Azur"
+    "start": "Get started free"
   },
   "hero": {
-    "tag": "For Monaco & Côte d'Azur",
-    "title": "AI-powered\ncustomer engagement",
-    "subtitle": "Automate WhatsApp replies, manage bookings, and delight your guests — with the elegance Monaco deserves.",
-    "cta": "Get started for free"
+    "tag": "Monaco & Cote d'Azur",
+    "title": "The AI concierge\nfor your business",
+    "subtitle": "Automate customer replies, manage bookings and reviews — with the elegance Monaco deserves.",
+    "cta": "Get started free",
+    "demo": "View demo"
   },
-  "logos": {
-    "label": "Trusted by"
+  "social": {
+    "label": "Trusted by venues across Monaco"
   },
   "features": {
     "title": "Everything you need",
+    "subtitle": "One platform to manage the entire customer experience.",
     "items": [
-      { "title": "WhatsApp AI Assistant", "desc": "Reply to every customer automatically in French, English, and Russian — around the clock." },
-      { "title": "Google Reviews", "desc": "Personalised AI-generated responses to every review, protecting and elevating your reputation." },
-      { "title": "Online Bookings", "desc": "Manage all reservations from a single elegant dashboard, effortlessly." },
-      { "title": "Smart Follow-ups", "desc": "Re-engage guests after their visit with timely, personalised messages." }
+      {
+        "title": "WhatsApp AI Assistant",
+        "desc": "Automatic replies in French, English, and Russian. Your guests get an instant response, around the clock."
+      },
+      {
+        "title": "AI Google Reviews",
+        "desc": "Personalised responses to every review, protecting and elevating your online reputation."
+      },
+      {
+        "title": "Smart Bookings",
+        "desc": "WhatsApp-based reservations synced with Google Calendar. Automatic confirmations."
+      },
+      {
+        "title": "Smart Upsell",
+        "desc": "Personalised post-visit follow-ups. Increase return visits and average spend."
+      }
     ]
   },
   "how": {
     "title": "How it works",
+    "subtitle": "Three steps to transform your customer service.",
     "steps": [
-      { "label": "Connect your channels", "desc": "WhatsApp, Instagram, Google Business — up in minutes." },
-      { "label": "AI replies for you", "desc": "Natural, personalised, multilingual responses." },
-      { "label": "You stay in control", "desc": "Full dashboard, notifications, easy management." }
+      {
+        "num": "01",
+        "label": "Connect your channels",
+        "desc": "WhatsApp, Instagram, Google Business — set up in minutes, no technical skills required."
+      },
+      {
+        "num": "02",
+        "label": "AI works for you",
+        "desc": "Natural multilingual replies, booking management, review monitoring — all on autopilot."
+      },
+      {
+        "num": "03",
+        "label": "You stay in control",
+        "desc": "Real-time dashboard, instant notifications, step in at any moment."
+      }
     ]
   },
   "pricing": {
-    "title": "Simple, transparent pricing",
+    "title": "Simple pricing",
+    "subtitle": "All-inclusive. No commitment. 14-day free trial.",
     "tier": "Essential",
-    "price": "€200",
+    "price": "200",
+    "currency": "EUR",
     "period": "/ month",
     "features": [
       "Multilingual WhatsApp AI assistant",
       "Automated Google Review responses",
-      "Booking management",
-      "Post-visit follow-ups",
+      "Integrated booking system",
+      "Smart Upsell post-visit follow-ups",
+      "Real-time dashboard",
       "Priority support"
     ],
-    "cta": "Start now"
+    "cta": "14 days free",
+    "guarantee": "No commitment. Cancel anytime."
   },
   "cta": {
     "title": "Ready to transform\nyour guest experience?",
-    "subtitle": "Join the finest establishments that trust MonaConcierge."
+    "subtitle": "Join the finest establishments in Monaco and the Cote d'Azur."
   },
   "signup": {
     "placeholder": "your@email.com",
     "button": "Sign in with Magic Link",
-    "sending": "Sending…",
+    "sending": "Sending...",
     "sent_title": "Check your email",
     "sent_desc": "We sent a magic link to"
   },
   "footer": {
-    "tagline": "Excellence in customer engagement."
+    "tagline": "Excellence in customer engagement.",
+    "product": "Product",
+    "company": "Company",
+    "links": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "demo": "Demo",
+      "about": "About",
+      "privacy": "Privacy",
+      "contact": "Contact"
+    },
+    "copy": "All rights reserved."
   }
 }

@@ -1,42 +1,69 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useRouter } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
   MessageSquare,
   Star,
-  Calendar,
-  Sparkles,
-  ChevronRight,
+  CalendarCheck,
+  TrendingUp,
+  ArrowRight,
+  Play,
+  Check,
+  Globe,
 } from "lucide-react";
 
-const FEATURE_ICONS = [MessageSquare, Star, Calendar, Sparkles];
-
+const FEATURE_ICONS = [MessageSquare, Star, CalendarCheck, TrendingUp];
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
-
 const DEMO_VENUES = [
-  "Le Jardin Monégasque",
+  "Le Grill",
+  "Hotel Hermitage",
   "Maison Blanc",
-  "Atelier Lumière",
-  "Café Riviera",
+  "Atelier Lumiere",
+  "Cafe Riviera",
+  "Buddha-Bar",
 ];
+
+function useFadeIn() {
+  const observe = useCallback((node: HTMLElement | null) => {
+    if (!node) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          io.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15 }
+    );
+    io.observe(node);
+  }, []);
+  return observe;
+}
 
 export default function LandingPage() {
   const t = useTranslations();
   const locale = useLocale();
-  const router = useRouter();
   const signupRef = useRef<HTMLDivElement>(null);
+  const fade = useFadeIn();
 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [langOpen, setLangOpen] = useState(false);
 
-  const features = t.raw("features.items") as { title: string; desc: string }[];
-  const steps = t.raw("how.steps") as { label: string; desc: string }[];
+  const features = t.raw("features.items") as {
+    title: string;
+    desc: string;
+  }[];
+  const steps = t.raw("how.steps") as {
+    num: string;
+    label: string;
+    desc: string;
+  }[];
   const pricingFeatures = t.raw("pricing.features") as string[];
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -56,123 +83,187 @@ export default function LandingPage() {
     else setSent(true);
   };
 
-  const scrollToSignup = () => {
-    signupRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen bg-void text-ivory font-body">
-      {/* ── NAVBAR ── */}
-      <nav className="sticky top-0 z-50 border-b border-graphite bg-void/90 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-gold-400 text-xl">✦</span>
-            <span className="font-display text-xl font-semibold">MonaConcierge</span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {/* Lang switcher */}
-            <div className="flex gap-1">
-              {(["fr", "en", "ru"] as const).map((l) => (
-                <Link
-                  key={l}
-                  href={`/${l}`}
-                  className={`text-xs px-2 py-1 rounded transition-colors ${
-                    locale === l
-                      ? "text-gold-400 font-semibold"
-                      : "text-fog hover:text-mist"
-                  }`}
-                >
-                  {LOCALE_LABELS[l]}
-                </Link>
-              ))}
-            </div>
-
+    <div className="min-h-screen bg-void text-ivory font-body antialiased">
+      {/* ────────── NAVBAR ────────── */}
+      <nav className="fixed top-0 left-0 right-0 z-50">
+        <div className="mx-auto max-w-7xl px-6 py-4">
+          <div className="glass rounded-2xl border border-white/[0.06] px-6 py-3 flex items-center justify-between">
+            {/* Logo */}
             <Link
-              href="/demo"
-              className="text-sm text-mist hover:text-ivory transition-colors"
+              href={`/${locale}`}
+              className="flex items-center gap-2.5 group"
             >
-              {t("nav.demo")}
+              <span className="text-gold-400 text-lg transition-transform group-hover:rotate-45">
+                &#10022;
+              </span>
+              <span className="font-display text-lg font-semibold tracking-tight">
+                MonaConcierge
+              </span>
             </Link>
 
-            <button
-              onClick={scrollToSignup}
-              className="text-sm px-4 py-1.5 border border-gold-400/40 text-gold-400 rounded-full hover:bg-gold-400/10 transition-colors"
-            >
-              {t("nav.signin")}
-            </button>
+            {/* Right */}
+            <div className="flex items-center gap-3">
+              {/* Language */}
+              <div className="relative">
+                <button
+                  onClick={() => setLangOpen(!langOpen)}
+                  className="flex items-center gap-1.5 text-xs text-fog hover:text-mist transition-colors px-2 py-1.5 rounded-lg hover:bg-white/[0.04]"
+                >
+                  <Globe size={14} />
+                  {LOCALE_LABELS[locale]}
+                </button>
+                {langOpen && (
+                  <div className="absolute top-full right-0 mt-2 glass rounded-xl border border-white/[0.08] py-1 min-w-[80px]">
+                    {(["fr", "en", "ru"] as const).map((l) => (
+                      <Link
+                        key={l}
+                        href={`/${l}`}
+                        onClick={() => setLangOpen(false)}
+                        className={`block px-4 py-1.5 text-xs transition-colors ${
+                          locale === l
+                            ? "text-gold-400 font-medium"
+                            : "text-fog hover:text-ivory"
+                        }`}
+                      >
+                        {LOCALE_LABELS[l]}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Link
+                href="/demo"
+                className="text-sm text-mist hover:text-ivory transition-colors hidden sm:block"
+              >
+                {t("nav.demo")}
+              </Link>
+
+              <button
+                onClick={() => scrollTo("signup")}
+                className="text-sm text-fog hover:text-ivory transition-colors hidden sm:block"
+              >
+                {t("nav.signin")}
+              </button>
+
+              <button
+                onClick={() => scrollTo("signup")}
+                className="text-sm px-5 py-2 bg-gold-400 text-void font-semibold rounded-xl hover:bg-gold-500 transition-colors"
+              >
+                {t("nav.start")}
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section className="relative py-32 px-6 text-center overflow-hidden">
-        {/* Radial glow */}
+      {/* ────────── HERO ────────── */}
+      <section className="relative pt-40 pb-32 px-6 text-center overflow-hidden">
+        {/* Ambient glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212,175,55,0.08) 0%, transparent 70%)",
+              "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.07) 0%, transparent 70%)",
+          }}
+        />
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "radial-gradient(circle 300px at 30% 20%, rgba(212,175,55,0.04) 0%, transparent 100%)",
           }}
         />
 
-        <div className="relative max-w-3xl mx-auto space-y-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-gold-400/30 rounded-full text-xs text-gold-400 tracking-widest uppercase">
-            <span>✦</span>
+        <div className="relative max-w-4xl mx-auto space-y-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 glass border border-white/[0.08] rounded-full text-xs text-gold-400 tracking-widest uppercase">
+            <span>&#10022;</span>
             <span>{t("hero.tag")}</span>
           </div>
 
-          <h1 className="font-display text-5xl md:text-6xl font-light leading-tight tracking-tight text-ivory whitespace-pre-line">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-light leading-[1.1] tracking-tight text-ivory whitespace-pre-line">
             {t("hero.title")}
           </h1>
 
-          <p className="text-lg text-mist max-w-xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-mist/80 max-w-2xl mx-auto leading-relaxed">
             {t("hero.subtitle")}
           </p>
 
-          <button
-            onClick={scrollToSignup}
-            className="inline-flex items-center gap-2 bg-gold-400 text-void px-8 py-3.5 rounded-full font-semibold text-sm hover:bg-gold-500 transition-colors"
-          >
-            {t("hero.cta")}
-            <ChevronRight size={16} />
-          </button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button
+              onClick={() => scrollTo("signup")}
+              className="inline-flex items-center gap-2.5 bg-gold-400 text-void px-8 py-4 rounded-2xl font-semibold text-sm hover:bg-gold-500 transition-all hover:shadow-[0_0_40px_rgba(212,175,55,0.2)]"
+            >
+              {t("hero.cta")}
+              <ArrowRight size={16} />
+            </button>
+            <Link
+              href="/demo"
+              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm text-mist border border-white/[0.08] hover:border-white/[0.16] hover:text-ivory transition-all"
+            >
+              <Play size={14} />
+              {t("hero.demo")}
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* ── LOGOS BAR ── */}
-      <section className="py-8 border-y border-graphite">
-        <div className="max-w-6xl mx-auto px-6 flex items-center gap-8 overflow-x-auto">
-          <span className="text-xs text-fog tracking-widest uppercase whitespace-nowrap">
-            {t("logos.label")}
-          </span>
-          {DEMO_VENUES.map((v) => (
-            <span key={v} className="text-sm text-mist/60 whitespace-nowrap font-display italic">
-              {v}
-            </span>
-          ))}
+      {/* ────────── SOCIAL PROOF ────────── */}
+      <section className="py-12 border-y border-white/[0.04]">
+        <div className="max-w-7xl mx-auto px-6">
+          <p className="text-xs text-fog/60 tracking-widest uppercase text-center mb-8">
+            {t("social.label")}
+          </p>
+          <div className="flex items-center justify-center gap-10 flex-wrap">
+            {DEMO_VENUES.map((v) => (
+              <span
+                key={v}
+                className="text-sm text-mist/30 font-display italic tracking-wide"
+              >
+                {v}
+              </span>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── FEATURES ── */}
-      <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-light text-center text-ivory mb-12">
-            {t("features.title")}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* ────────── FEATURES ────────── */}
+      <section ref={fade} className="fade-section py-32 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
+              {t("features.title")}
+            </h2>
+            <p className="text-mist/60 text-lg max-w-xl mx-auto">
+              {t("features.subtitle")}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {features.map((f, i) => {
               const Icon = FEATURE_ICONS[i];
               return (
                 <div
                   key={f.title}
-                  className="bg-carbon border border-graphite rounded-card p-6 space-y-3 hover:border-gold-400/30 transition-colors"
+                  className="stagger-child group glass border border-white/[0.06] rounded-3xl p-8 hover:border-gold-400/20 transition-all duration-500"
                 >
-                  <div className="w-10 h-10 rounded-full bg-gold-400/10 flex items-center justify-center">
-                    <Icon size={20} className="text-gold-400" />
+                  <div className="flex items-start gap-5">
+                    <div className="w-12 h-12 rounded-2xl bg-gold-400/[0.08] border border-gold-400/[0.12] flex items-center justify-center flex-shrink-0 group-hover:bg-gold-400/[0.14] transition-colors">
+                      <Icon size={22} className="text-gold-400" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-ivory">
+                        {f.title}
+                      </h3>
+                      <p className="text-sm text-fog leading-relaxed">
+                        {f.desc}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-ivory">{f.title}</h3>
-                  <p className="text-sm text-fog leading-relaxed">{f.desc}</p>
                 </div>
               );
             })}
@@ -180,19 +271,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── HOW IT WORKS ── */}
-      <section className="py-24 px-6 bg-carbon/30">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-light text-center text-ivory mb-16">
-            {t("how.title")}
-          </h2>
+      {/* ────────── HOW IT WORKS ────────── */}
+      <section ref={fade} className="fade-section py-32 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-20 space-y-4">
+            <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
+              {t("how.title")}
+            </h2>
+            <p className="text-mist/60 text-lg">{t("how.subtitle")}</p>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((s, i) => (
-              <div key={s.label} className="text-center space-y-4">
-                <div className="w-12 h-12 rounded-full border border-gold-400/40 flex items-center justify-center mx-auto font-display text-xl text-gold-400">
-                  {i + 1}
-                </div>
-                <h3 className="font-semibold text-ivory">{s.label}</h3>
+            {steps.map((s) => (
+              <div key={s.num} className="stagger-child space-y-5">
+                <span className="font-display text-5xl font-light text-gold-400/20">
+                  {s.num}
+                </span>
+                <h3 className="text-lg font-semibold text-ivory">{s.label}</h3>
                 <p className="text-sm text-fog leading-relaxed">{s.desc}</p>
               </div>
             ))}
@@ -200,83 +294,113 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── PRICING ── */}
-      <section className="py-24 px-6">
-        <div className="max-w-md mx-auto">
-          <h2 className="font-display text-3xl md:text-4xl font-light text-center text-ivory mb-12">
-            {t("pricing.title")}
-          </h2>
-          <div className="bg-carbon border border-gold-400/20 rounded-card p-8 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-gold-400/10 to-transparent rounded-bl-full" />
+      {/* ────────── PRICING ────────── */}
+      <section ref={fade} className="fade-section py-32 px-6">
+        <div className="max-w-lg mx-auto">
+          <div className="text-center mb-16 space-y-4">
+            <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
+              {t("pricing.title")}
+            </h2>
+            <p className="text-mist/60">{t("pricing.subtitle")}</p>
+          </div>
 
-            <div className="inline-block px-3 py-1 border border-gold-400/40 rounded text-[10px] tracking-widest uppercase text-gold-400 mb-6">
-              {t("pricing.tier")}
+          <div className="glass border border-gold-400/[0.12] rounded-3xl p-10 relative overflow-hidden">
+            {/* Corner glow */}
+            <div
+              className="absolute -top-20 -right-20 w-60 h-60 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)",
+              }}
+            />
+
+            <div className="relative space-y-8">
+              <div className="inline-block px-3 py-1.5 border border-gold-400/30 rounded-lg text-[10px] tracking-[0.2em] uppercase text-gold-400">
+                {t("pricing.tier")}
+              </div>
+
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg text-mist/50">&#8364;</span>
+                <span className="text-6xl font-display font-light text-ivory">
+                  {t("pricing.price")}
+                </span>
+                <span className="text-mist/40 text-sm ml-1">
+                  {t("pricing.period")}
+                </span>
+              </div>
+
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+
+              <ul className="space-y-4">
+                {pricingFeatures.map((f, i) => (
+                  <li key={i} className="flex items-center gap-3 text-sm">
+                    <div className="w-5 h-5 rounded-full bg-gold-400/10 flex items-center justify-center flex-shrink-0">
+                      <Check size={12} className="text-gold-400" />
+                    </div>
+                    <span className="text-mist">{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              <button
+                onClick={() => scrollTo("signup")}
+                className="w-full py-4 rounded-2xl font-semibold text-sm bg-gold-400 text-void hover:bg-gold-500 transition-all hover:shadow-[0_0_40px_rgba(212,175,55,0.15)]"
+              >
+                {t("pricing.cta")}
+              </button>
+
+              <p className="text-xs text-fog/50 text-center">
+                {t("pricing.guarantee")}
+              </p>
             </div>
-
-            <div className="mb-8">
-              <span className="text-5xl font-display font-light text-ivory">
-                {t("pricing.price")}
-              </span>
-              <span className="text-mist/50 ml-1 text-sm">{t("pricing.period")}</span>
-            </div>
-
-            <ul className="space-y-3 mb-8">
-              {pricingFeatures.map((f, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-3 text-sm text-mist border-b border-graphite/50 pb-3 last:border-0"
-                >
-                  <span className="text-gold-400 flex-shrink-0">✓</span>
-                  {f}
-                </li>
-              ))}
-            </ul>
-
-            <button
-              onClick={scrollToSignup}
-              className="w-full bg-gradient-to-r from-gold-400 via-[#E8CC7A] to-gold-400 text-void py-3 rounded font-semibold text-sm tracking-wide hover:opacity-90 transition-opacity"
-            >
-              {t("pricing.cta")}
-            </button>
           </div>
         </div>
       </section>
 
-      {/* ── SIGN UP CTA ── */}
+      {/* ────────── SIGN UP CTA ────────── */}
       <section
+        id="signup"
         ref={signupRef}
-        className="py-24 px-6 bg-gradient-to-b from-obsidian to-void text-center"
+        className="py-32 px-6 text-center"
       >
-        <div className="max-w-lg mx-auto space-y-8">
-          <div className="w-10 h-px bg-gradient-to-r from-transparent via-gold-400 to-transparent mx-auto" />
+        <div ref={fade} className="fade-section max-w-lg mx-auto space-y-10">
+          <div className="w-16 h-px bg-gradient-to-r from-transparent via-gold-400/50 to-transparent mx-auto" />
 
-          <h2 className="font-display text-3xl md:text-4xl font-light text-ivory whitespace-pre-line">
+          <h2 className="font-display text-4xl md:text-5xl font-light text-ivory whitespace-pre-line leading-tight">
             {t("cta.title")}
           </h2>
-          <p className="text-mist/60 text-sm leading-relaxed">{t("cta.subtitle")}</p>
+          <p className="text-mist/50 leading-relaxed">{t("cta.subtitle")}</p>
 
           {sent ? (
-            <div className="p-6 border border-gold-400/30 rounded-card bg-gold-400/5 space-y-1">
-              <p className="font-semibold text-gold-400">{t("signup.sent_title")}</p>
-              <p className="text-sm text-mist/70">
-                {t("signup.sent_desc")} <strong className="text-ivory">{email}</strong>
+            <div className="glass border border-gold-400/20 rounded-2xl p-8 space-y-2">
+              <p className="font-semibold text-gold-400">
+                {t("signup.sent_title")}
+              </p>
+              <p className="text-sm text-mist/60">
+                {t("signup.sent_desc")}{" "}
+                <strong className="text-ivory">{email}</strong>
               </p>
             </div>
           ) : (
-            <form onSubmit={handleLogin} className="flex flex-col gap-3">
+            <form
+              onSubmit={handleLogin}
+              className="flex flex-col gap-3"
+            >
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t("signup.placeholder")}
-                className="w-full px-4 py-3 rounded bg-ivory/5 border border-gold-400/25 text-ivory placeholder:text-fog focus:border-gold-400/60 focus:outline-none transition-colors"
+                className="w-full px-5 py-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] text-ivory placeholder:text-fog/50 focus:border-gold-400/40 focus:outline-none transition-all"
               />
-              {error && <p className="text-xs text-red-400 text-left">{error}</p>}
+              {error && (
+                <p className="text-xs text-red-400 text-left">{error}</p>
+              )}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 rounded font-semibold text-sm tracking-wide bg-gradient-to-r from-gold-400 via-[#E8CC7A] to-gold-400 text-void hover:opacity-90 disabled:opacity-50 transition-opacity"
+                className="w-full py-4 rounded-2xl font-semibold text-sm bg-gold-400 text-void hover:bg-gold-500 disabled:opacity-50 transition-all hover:shadow-[0_0_40px_rgba(212,175,55,0.15)]"
               >
                 {loading ? t("signup.sending") : t("signup.button")}
               </button>
@@ -285,13 +409,93 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="py-8 px-6 border-t border-gold-400/10 text-center">
-        <p className="text-xs text-ivory/30 tracking-wide">
-          <span className="text-gold-400/50">MonaConcierge</span>
-          {" · "}
-          {t("footer.tagline")}
-        </p>
+      {/* ────────── FOOTER ────────── */}
+      <footer className="py-16 px-6 border-t border-white/[0.04]">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            {/* Brand */}
+            <div className="md:col-span-2 space-y-4">
+              <div className="flex items-center gap-2.5">
+                <span className="text-gold-400 text-lg">&#10022;</span>
+                <span className="font-display text-lg font-semibold">
+                  MonaConcierge
+                </span>
+              </div>
+              <p className="text-sm text-fog/60 max-w-xs leading-relaxed">
+                {t("footer.tagline")}
+              </p>
+            </div>
+
+            {/* Product links */}
+            <div className="space-y-4">
+              <h4 className="text-xs text-fog/40 tracking-widest uppercase">
+                {t("footer.product")}
+              </h4>
+              <div className="space-y-2.5">
+                <button
+                  onClick={() => scrollTo("features")}
+                  className="block text-sm text-fog hover:text-mist transition-colors"
+                >
+                  {t("footer.links.features")}
+                </button>
+                <button
+                  onClick={() => scrollTo("pricing")}
+                  className="block text-sm text-fog hover:text-mist transition-colors"
+                >
+                  {t("footer.links.pricing")}
+                </button>
+                <Link
+                  href="/demo"
+                  className="block text-sm text-fog hover:text-mist transition-colors"
+                >
+                  {t("footer.links.demo")}
+                </Link>
+              </div>
+            </div>
+
+            {/* Company links */}
+            <div className="space-y-4">
+              <h4 className="text-xs text-fog/40 tracking-widest uppercase">
+                {t("footer.company")}
+              </h4>
+              <div className="space-y-2.5">
+                <Link
+                  href="/privacy"
+                  className="block text-sm text-fog hover:text-mist transition-colors"
+                >
+                  {t("footer.links.privacy")}
+                </Link>
+                <a
+                  href="mailto:contact@monaconcierge.com"
+                  className="block text-sm text-fog hover:text-mist transition-colors"
+                >
+                  {t("footer.links.contact")}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-xs text-fog/30">
+              &copy; {new Date().getFullYear()} MonaConcierge. {t("footer.copy")}
+            </p>
+            <div className="flex gap-1">
+              {(["fr", "en", "ru"] as const).map((l) => (
+                <Link
+                  key={l}
+                  href={`/${l}`}
+                  className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
+                    locale === l
+                      ? "text-gold-400 bg-gold-400/[0.08]"
+                      : "text-fog/40 hover:text-fog"
+                  }`}
+                >
+                  {LOCALE_LABELS[l]}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
