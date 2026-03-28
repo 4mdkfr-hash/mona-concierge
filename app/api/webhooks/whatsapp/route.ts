@@ -202,11 +202,6 @@ Keep responses concise (under 200 words). Do not mention you are an AI unless di
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : String(err);
     console.error("AI respond error:", errMsg);
-    // Return error in TwiML for debugging
-    return new NextResponse(
-      `<?xml version="1.0" encoding="UTF-8"?><Response><Message>DEBUG: ${errMsg.slice(0, 200)}</Message></Response>`,
-      { headers: { "Content-Type": "text/xml" } }
-    );
   }
 
   return new NextResponse(
