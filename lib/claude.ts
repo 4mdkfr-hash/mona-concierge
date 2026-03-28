@@ -4,7 +4,7 @@ export const claude = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || process.env.CLAUDE_API_KEY,
 });
 
-export const CLAUDE_MODEL = "claude-sonnet-4-6";
+export const CLAUDE_MODEL = "claude-haiku-4-5-20251001";
 
 export async function generateReply({
   systemPrompt,
