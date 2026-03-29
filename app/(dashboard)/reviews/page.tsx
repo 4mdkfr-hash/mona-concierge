@@ -29,34 +29,34 @@ const SENTIMENT_COLOR: Record<string, string> = {
 
 const DEMO_REVIEWS: Review[] = [
   {
-    id: "1", author_name: "Pierre L.", rating: 5,
-    text: "Service exceptionnel, le personnel est aux petits soins. La vue sur le port est magnifique. Je recommande vivement !",
-    ai_reply: "Merci beaucoup Pierre pour ces mots chaleureux ! Nous sommes ravis que vous ayez apprecie notre service et la vue. Au plaisir de vous revoir bientot.",
-    reply_status: "replied", sentiment: "positive", created_at: "2026-03-27T14:00:00Z",
+    id: "1", author_name: "Claire D.", rating: 5,
+    text: "Une expérience absolument inoubliable. La cuisine est raffinée, le service irréprochable et l'ambiance magique. Je recommande vivement !",
+    ai_reply: null,
+    reply_status: "pending", sentiment: "positive", created_at: "2026-03-28T14:00:00Z",
   },
   {
-    id: "2", author_name: "Sarah K.", rating: 4,
-    text: "Very good food and ambiance. The terrace is lovely. Only small issue was the waiting time for the main course.",
-    ai_reply: "Thank you Sarah for your kind review! We're glad you enjoyed the food and our terrace. We apologize for the wait — we're working on improving our kitchen flow. Hope to welcome you again soon!",
-    reply_status: "replied", sentiment: "positive", created_at: "2026-03-26T18:30:00Z",
+    id: "2", author_name: "Michael B.", rating: 3,
+    text: "Decent place but not worth the price. Food was average, nothing special. Service was okay. Expected more for Monaco.",
+    ai_reply: null,
+    reply_status: "pending", sentiment: "neutral", created_at: "2026-03-28T10:00:00Z",
   },
   {
-    id: "3", author_name: "Dmitri V.", rating: 2,
-    text: "Overpriced for what it is. The pasta was cold and the waiter was dismissive. Expected much better for Monaco standards.",
+    id: "3", author_name: "Анна С.", rating: 1,
+    text: "Ужасный опыт. Еда была холодной, официанты грубыми. Ждали заказ больше часа. Никогда не вернёмся!",
     ai_reply: null,
     reply_status: "pending", sentiment: "negative", created_at: "2026-03-27T20:00:00Z",
   },
   {
-    id: "4", author_name: "Marie-Claire B.", rating: 5,
-    text: "Un diner parfait pour notre anniversaire. Le chef a meme prepare un dessert special. Merci pour cette attention !",
-    ai_reply: "Quel bonheur de lire votre message Marie-Claire ! Felicitations pour votre anniversaire. C'est un vrai plaisir pour notre equipe de rendre ces moments speciaux. A tres bientot !",
-    reply_status: "replied", sentiment: "positive", created_at: "2026-03-25T12:00:00Z",
+    id: "4", author_name: "Pierre L.", rating: 5,
+    text: "Service exceptionnel, le personnel est aux petits soins. La vue sur le port est magnifique. Je recommande vivement !",
+    ai_reply: "Merci beaucoup Pierre pour ces mots chaleureux ! Nous sommes ravis que vous ayez apprécié notre service et la vue. Au plaisir de vous revoir bientôt.",
+    reply_status: "replied", sentiment: "positive", created_at: "2026-03-27T14:00:00Z",
   },
   {
-    id: "5", author_name: "John D.", rating: 3,
-    text: "Decent place, nice location but nothing special. Food was okay, not memorable.",
-    ai_reply: null,
-    reply_status: "pending", sentiment: "neutral", created_at: "2026-03-27T09:00:00Z",
+    id: "5", author_name: "Sarah K.", rating: 4,
+    text: "Very good food and ambiance. The terrace is lovely. Only small issue was the waiting time for the main course.",
+    ai_reply: "Thank you Sarah for your kind review! We're glad you enjoyed the food and our terrace. We apologize for the wait — we're working on improving our kitchen flow. Hope to welcome you again soon!",
+    reply_status: "replied", sentiment: "positive", created_at: "2026-03-26T18:30:00Z",
   },
 ];
 
