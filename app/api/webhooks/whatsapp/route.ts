@@ -199,20 +199,19 @@ async function handleTwilioWebhook(req: NextRequest) {
       // Load active services for AI context
       const { data: services } = await supabase
         .from("venue_services")
-        .select("name, price, duration_min, description")
+        .select("name, price, duration_minutes, category")
         .eq("venue_id", venueId)
-        .eq("active", true);
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
 
       const servicesText =
         services && services.length > 0
-          ? `\nServices disponibles: ${services
+          ? `\nOur services:\n${services
               .map(
                 (s) =>
-                  `${s.name}${s.price != null ? ` — ${s.price} EUR` : ""}${
-                    s.duration_min != null ? `, ${s.duration_min} min` : ""
-                  }${s.description ? ` (${s.description})` : ""}`
+                  `- ${s.name} — €${s.price}, ${s.duration_minutes} min (${s.category})`
               )
-              .join("; ")}.`
+              .join("\n")}`
           : "";
 
       // Load VIP client profile
