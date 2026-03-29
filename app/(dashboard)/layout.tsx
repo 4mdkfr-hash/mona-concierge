@@ -13,6 +13,7 @@ import {
   LogOut,
   Users,
 } from "lucide-react";
+import { VenueContext } from "@/contexts/VenueContext";
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -29,6 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const supabaseRef = useRef<SupabaseClient | null>(null);
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [venueId, setVenueId] = useState<string | null>(null);
 
   useEffect(() => {
     const sb = createClient(
@@ -36,12 +38,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     supabaseRef.current = sb;
-    sb.auth.getSession().then(({ data: { session } }) => {
-      if (!session) router.replace("/");
-      else {
-        setUserEmail(session.user.email ?? null);
-        setReady(true);
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) {
+        router.replace("/");
+        return;
       }
+      setUserEmail(session.user.email ?? null);
+
+      // Find venue linked to this user
+      const { data: venue } = await sb
+        .from("venues")
+        .select("id")
+        .eq("owner_id", session.user.id)
+        .maybeSingle();
+
+      if (!venue) {
+        router.replace("/onboarding");
+        return;
+      }
+
+      setVenueId(venue.id);
+      setReady(true);
     });
   }, [router]);
 
@@ -108,7 +125,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <main className="flex-1 overflow-auto flex flex-col bg-obsidian">
-        {children}
+        <VenueContext.Provider value={{ venueId: venueId! }}>
+          {children}
+        </VenueContext.Provider>
       </main>
     </div>
   );
