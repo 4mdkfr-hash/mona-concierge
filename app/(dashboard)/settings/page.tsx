@@ -13,6 +13,9 @@ import {
   Trash2,
   Pencil,
   X,
+  Sparkles,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 
 const TONES = [
@@ -54,6 +57,7 @@ interface ServiceForm {
   category: string;
 }
 
+const CATEGORIES = ["Face", "Body", "Massage", "Nails", "Hair", "Other"];
 const EMPTY_FORM: ServiceForm = { name: "", description: "", price: "", duration_min: "", category: "" };
 
 // For demo, use the first demo venue id from seed data
@@ -74,6 +78,11 @@ export default function SettingsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ServiceForm>(EMPTY_FORM);
   const [savingService, setSavingService] = useState(false);
+
+  // AI Preview
+  const [aiPreview, setAiPreview] = useState<string | null>(null);
+  const [aiPreviewLoading, setAiPreviewLoading] = useState(false);
+  const [aiPreviewError, setAiPreviewError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/settings/services?venueId=${DEMO_VENUE_ID}`)
@@ -163,6 +172,25 @@ export default function SettingsPage() {
     }
   };
 
+  const loadAiPreview = async () => {
+    setAiPreviewLoading(true);
+    setAiPreviewError(null);
+    try {
+      const res = await fetch("/api/settings/services/ai-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ venueId: DEMO_VENUE_ID }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed");
+      setAiPreview(data.preview);
+    } catch (e) {
+      setAiPreviewError(e instanceof Error ? e.message : "Error");
+    } finally {
+      setAiPreviewLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 space-y-8 max-w-3xl">
       <div>
@@ -239,12 +267,16 @@ export default function SettingsPage() {
               </div>
               <div>
                 <label className="block text-xs text-fog mb-1">Category</label>
-                <input
+                <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  placeholder="e.g. Beauty, Food"
                   className="w-full px-3 py-2 rounded-lg bg-carbon border border-graphite text-sm text-ivory focus:border-gold-400/40 focus:outline-none transition-colors"
-                />
+                >
+                  <option value="">— Select —</option>
+                  {CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-xs text-fog mb-1">Description</label>
@@ -321,6 +353,49 @@ export default function SettingsPage() {
             ))}
           </div>
         )}
+        {/* AI Preview */}
+        <div className="mt-4 border-t border-graphite/40 pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-xs font-semibold text-ivory flex items-center gap-2">
+              <Sparkles size={13} className="text-gold-400" />
+              AI Preview
+            </h3>
+            <button
+              onClick={loadAiPreview}
+              disabled={aiPreviewLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold-400/10 text-gold-400 text-xs font-medium hover:bg-gold-400/20 transition-all disabled:opacity-50"
+            >
+              <RefreshCw size={12} className={aiPreviewLoading ? "animate-spin" : ""} />
+              {aiPreviewLoading ? "Generating…" : "Preview"}
+            </button>
+          </div>
+
+          {aiPreviewError && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-red-500/[0.06] border border-red-500/20 text-xs text-red-400">
+              <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+              {aiPreviewError}
+            </div>
+          )}
+
+          {!aiPreviewError && aiPreview === null && services.length === 0 && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/20 text-xs text-amber-400/80">
+              <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+              No services added yet. Add services so AI can answer customer questions about your menu.
+            </div>
+          )}
+
+          {!aiPreviewError && aiPreview === null && services.length > 0 && (
+            <p className="text-xs text-fog/50 italic">
+              Click "Preview" to see how AI will describe your services to customers.
+            </p>
+          )}
+
+          {aiPreview && (
+            <div className="p-4 rounded-xl bg-gold-400/[0.04] border border-gold-400/15 text-sm text-mist leading-relaxed">
+              {aiPreview}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* AI Tone */}
