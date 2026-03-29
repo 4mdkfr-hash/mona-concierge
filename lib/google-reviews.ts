@@ -1,4 +1,4 @@
-import { claude, CLAUDE_MODEL, estimateCostEur } from "./claude";
+import { generateReply, CLAUDE_MODEL, estimateCostEur } from "./claude";
 
 export type Sentiment = "positive" | "neutral" | "negative";
 
@@ -73,39 +73,29 @@ export async function generateReviewReply({
     ? `Review by ${authorName} (${rating}/5 stars):\n${reviewContent}`
     : `Review (${rating}/5 stars):\n${reviewContent}`;
 
-  const response = await claude.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 250,
-    system: systemPrompt,
+  const { text, promptTokens, completionTokens } = await generateReply({
+    systemPrompt,
     messages: [{ role: "user", content: userMessage }],
+    maxTokens: 250,
   });
 
-  const replyText =
-    response.content[0].type === "text" ? response.content[0].text.trim() : "";
-
   return {
-    replyText,
+    replyText: text.trim(),
     sentiment,
-    promptTokens: response.usage.input_tokens,
-    completionTokens: response.usage.output_tokens,
+    promptTokens,
+    completionTokens,
   };
 }
 
 export async function detectReviewLanguage(text: string): Promise<string> {
-  const response = await claude.messages.create({
-    model: CLAUDE_MODEL,
-    max_tokens: 10,
-    system:
+  const { text: lang } = await generateReply({
+    systemPrompt:
       "Detect the language of the text. Reply with only the ISO 639-1 language code (e.g. en, fr, ru). Nothing else.",
     messages: [{ role: "user", content: text }],
+    maxTokens: 10,
   });
 
-  const lang =
-    response.content[0].type === "text"
-      ? response.content[0].text.trim().toLowerCase().slice(0, 5)
-      : "en";
-
-  return lang || "en";
+  return lang.trim().toLowerCase().slice(0, 5) || "en";
 }
 
 export async function postReviewReply({
