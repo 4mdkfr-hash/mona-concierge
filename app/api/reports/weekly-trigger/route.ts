@@ -93,8 +93,8 @@ export async function POST(req: NextRequest) {
             .select("id", { count: "exact", head: true })
             .eq("venue_id", venue.id)
             .eq("status", "sent")
-            .gte("fired_at", periodStart.toISOString())
-            .lt("fired_at", periodEnd.toISOString()),
+            .gte("fire_at", periodStart.toISOString())
+            .lt("fire_at", periodEnd.toISOString()),
 
           // Avg rating previous 7 days (for delta)
           supabase

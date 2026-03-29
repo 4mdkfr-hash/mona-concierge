@@ -56,8 +56,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const contentType = req.headers.get("content-type") ?? "";
 
-  // Twilio sends form-encoded data
-  if (TWILIO_SID && contentType.includes("application/x-www-form-urlencoded")) {
+  // Twilio sends form-encoded data (route by content-type, not by env presence)
+  if (contentType.includes("application/x-www-form-urlencoded")) {
     return handleTwilioWebhook(req);
   }
 
