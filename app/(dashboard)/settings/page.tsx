@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useVenue } from "@/contexts/VenueContext";
 import {
   Bot,
   Globe,
@@ -61,11 +62,9 @@ interface ServiceForm {
 const CATEGORIES = ["Face", "Body", "Massage", "Nails", "Hair", "Other"];
 const EMPTY_FORM: ServiceForm = { name: "", description: "", price: "", duration_min: "", category: "" };
 
-// For demo, use the first demo venue id from seed data
-const DEMO_VENUE_ID = "00000000-0000-0000-0000-000000000001";
-
 export default function SettingsPage() {
-  const [venueName, setVenueName] = useState("Le Grill Monaco");
+  const { venueId } = useVenue();
+  const [venueName, setVenueName] = useState("");
   const [tone, setTone] = useState("luxury");
   const [activeLangs, setActiveLangs] = useState(["fr", "en", "ru"]);
   const [openTime, setOpenTime] = useState("12:00");
@@ -95,16 +94,18 @@ export default function SettingsPage() {
   const [emailSaved, setEmailSaved] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/settings/services?venueId=${DEMO_VENUE_ID}`)
+    fetch(`/api/settings/services?venueId=${venueId}`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => setServices(Array.isArray(data) ? data : []))
       .catch(() => setServices([]));
-  }, []);
+  }, [venueId]);
 
   useEffect(() => {
-    fetch(`/api/settings?venueId=${DEMO_VENUE_ID}`)
+    fetch(`/api/settings?venueId=${venueId}`)
       .then((r) => (r.ok ? r.json() : {} as Record<string, unknown>))
       .then((data: Record<string, unknown>) => {
+        if (data.name != null) setVenueName(data.name as string);
+        if (data.languages != null) setActiveLangs(data.languages as string[]);
         if (data.owner_email != null) setOwnerEmail(data.owner_email as string);
         if (data.email_notifications_enabled != null) setEmailEnabled(data.email_notifications_enabled as boolean);
         if (data.email_notify_messages != null) setEmailMessages(data.email_notify_messages as boolean);
@@ -112,7 +113,7 @@ export default function SettingsPage() {
         if (data.email_notify_negative_reviews != null) setEmailNegativeReviews(data.email_notify_negative_reviews as boolean);
       })
       .catch(() => {});
-  }, []);
+  }, [venueId]);
 
   const toggleLang = (id: string) => {
     setActiveLangs((prev) =>
@@ -126,7 +127,12 @@ export default function SettingsPage() {
     );
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    await fetch(`/api/settings?venueId=${venueId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: venueName, languages: activeLangs }),
+    });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -175,7 +181,7 @@ export default function SettingsPage() {
         const res = await fetch("/api/settings/services", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ venueId: DEMO_VENUE_ID, ...payload }),
+          body: JSON.stringify({ venueId, ...payload }),
         });
         if (res.ok) {
           const created = await res.json();
@@ -198,7 +204,7 @@ export default function SettingsPage() {
   const saveEmailSettings = async () => {
     setSavingEmail(true);
     try {
-      await fetch(`/api/settings?venueId=${DEMO_VENUE_ID}`, {
+      await fetch(`/api/settings?venueId=${venueId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -223,7 +229,7 @@ export default function SettingsPage() {
       const res = await fetch("/api/settings/services/ai-preview", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ venueId: DEMO_VENUE_ID }),
+        body: JSON.stringify({ venueId }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed");
