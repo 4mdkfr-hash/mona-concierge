@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Users, Star, Phone, Clock, Pencil, Check, X, Loader2, Crown } from "lucide-react";
+import { useVenue } from "@/contexts/VenueContext";
 
 interface ClientProfile {
   id: string;
@@ -20,12 +21,6 @@ interface ClientProfile {
   created_at: string;
 }
 
-const DEMO_CLIENTS: ClientProfile[] = [
-  { id: "1", phone: "+33 6 12 34 56 78", full_name: "Marie Dupont", preferred_name: "Marie", language: "fr", favourite_services: ["Massage 60 min", "Facial"], disliked_services: [], allergies: ["latex"], notes: "Prefers quiet room, arrives early", visit_count: 12, last_visit_at: "2026-03-27T14:00:00Z", last_service: "Massage 60 min", vip_tier: "vip", created_at: "2025-10-01T00:00:00Z" },
-  { id: "2", phone: "+7 916 555 1234", full_name: "Анна Соколова", preferred_name: null, language: "ru", favourite_services: ["Manicure"], disliked_services: ["acrylic"], allergies: [], notes: null, visit_count: 5, last_visit_at: "2026-03-25T10:00:00Z", last_service: "Manicure", vip_tier: "regular", created_at: "2025-12-01T00:00:00Z" },
-  { id: "3", phone: "+44 7911 123456", full_name: "James Wilson", preferred_name: "James", language: "en", favourite_services: ["Deep tissue massage"], disliked_services: [], allergies: [], notes: null, visit_count: 2, last_visit_at: "2026-03-20T16:00:00Z", last_service: "Deep tissue massage", vip_tier: "standard", created_at: "2026-02-01T00:00:00Z" },
-];
-
 const VIP_STYLES: Record<string, { bg: string; text: string; icon?: boolean }> = {
   vip: { bg: "bg-gold-400/10", text: "text-gold-400", icon: true },
   regular: { bg: "bg-emerald-500/10", text: "text-emerald-400" },
@@ -33,6 +28,7 @@ const VIP_STYLES: Record<string, { bg: string; text: string; icon?: boolean }> =
 };
 
 export default function ClientsPage() {
+  const { venueId } = useVenue();
   const [clients, setClients] = useState<ClientProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -41,17 +37,17 @@ export default function ClientsPage() {
   const [savingNotes, setSavingNotes] = useState(false);
 
   useEffect(() => {
-    fetch("/api/clients")
+    fetch(`/api/clients?venueId=${venueId}`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
-        setClients(Array.isArray(data) && data.length > 0 ? data : DEMO_CLIENTS);
+        setClients(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => {
-        setClients(DEMO_CLIENTS);
+        setClients([]);
         setLoading(false);
       });
-  }, []);
+  }, [venueId]);
 
   const selected = clients.find((c) => c.id === selectedId) ?? null;
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useVenue } from "@/contexts/VenueContext";
 
 interface Message {
   id: string;
@@ -40,6 +41,7 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export default function InboxPage() {
+  const { venueId } = useVenue();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selected, setSelected] = useState<Conversation | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -49,11 +51,11 @@ export default function InboxPage() {
 
   useEffect(() => {
     fetchConversations();
-  }, []);
+  }, [venueId]);
 
   async function fetchConversations() {
     setLoading(true);
-    const res = await fetch("/api/conversations");
+    const res = await fetch(`/api/conversations?venueId=${venueId}`);
     if (res.ok) {
       const data = await res.json();
       setConversations(data);

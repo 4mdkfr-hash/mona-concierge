@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Calendar, Clock, Users, MapPin, Check, X, Loader2 } from "lucide-react";
+import { useVenue } from "@/contexts/VenueContext";
 
 interface Booking {
   id: string;
@@ -23,31 +24,24 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
   no_show: { bg: "bg-fog/10", text: "text-fog", label: "No-show" },
 };
 
-const DEMO_BOOKINGS: Booking[] = [
-  { id: "1", customer_name: "Marie Dupont", customer_phone: "+33 6 12 34 56 78", date: "2026-03-28", time: "20:00", party_size: 4, status: "confirmed", channel: "whatsapp", notes: "Table en terrasse", created_at: "2026-03-27T14:00:00Z" },
-  { id: "2", customer_name: "James Wilson", customer_phone: "+44 7911 123456", date: "2026-03-28", time: "19:30", party_size: 2, status: "confirmed", channel: "whatsapp", notes: null, created_at: "2026-03-27T10:30:00Z" },
-  { id: "3", customer_name: "Олег Петров", customer_phone: "+7 916 555 1234", date: "2026-03-29", time: "21:00", party_size: 6, status: "pending", channel: "instagram", notes: "Anniversaire", created_at: "2026-03-27T18:00:00Z" },
-  { id: "4", customer_name: "Sophie Martin", customer_phone: "+33 6 98 76 54 32", date: "2026-03-29", time: "12:30", party_size: 3, status: "confirmed", channel: "google_bm", notes: null, created_at: "2026-03-26T09:00:00Z" },
-  { id: "5", customer_name: "Alessandro Rossi", customer_phone: "+39 333 456 7890", date: "2026-03-30", time: "20:30", party_size: 8, status: "pending", channel: "whatsapp", notes: "Business dinner, private room", created_at: "2026-03-27T16:00:00Z" },
-];
-
 export default function BookingsPage() {
+  const { venueId } = useVenue();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("upcoming");
 
   useEffect(() => {
-    fetch("/api/bookings")
+    fetch(`/api/bookings?venueId=${venueId}`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => {
-        setBookings(Array.isArray(data) && data.length > 0 ? data : DEMO_BOOKINGS);
+        setBookings(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch(() => {
-        setBookings(DEMO_BOOKINGS);
+        setBookings([]);
         setLoading(false);
       });
-  }, []);
+  }, [venueId]);
 
   const today = new Date().toISOString().split("T")[0];
   const filtered = bookings.filter((b) => {

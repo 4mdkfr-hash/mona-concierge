@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 
-const DEMO_VENUE_ID = "00000000-0000-0000-0000-000000000001";
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const venueId = searchParams.get("venueId") ?? DEMO_VENUE_ID;
+  const venueId = searchParams.get("venueId");
+
+  if (!venueId) {
+    return NextResponse.json({ error: "venueId required" }, { status: 400 });
+  }
 
   const supabase = createServiceClient();
   const { data, error } = await supabase

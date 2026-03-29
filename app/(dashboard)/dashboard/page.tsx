@@ -6,6 +6,7 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import ChannelPieChart from "@/components/charts/ChannelPieChart";
 import ActivityBarChart from "@/components/charts/ActivityBarChart";
 import ChannelBadge from "@/components/dashboard/ChannelBadge";
+import { useVenue } from "@/contexts/VenueContext";
 
 interface Stats {
   conversations: { open: number; resolved: number };
@@ -29,20 +30,20 @@ function formatTime(iso: string) {
 }
 
 export default function DashboardPage() {
+  const { venueId } = useVenue();
   const [stats, setStats] = useState<Stats | null>(null);
   const [activity, setActivity] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/dashboard").then((r) => r.ok ? r.json() : null),
-      fetch("/api/dashboard/activity").then((r) => r.ok ? r.json() : []),
-    ]).then(([s, a]) => {
-      setStats(s);
-      setActivity(Array.isArray(a) ? a.slice(0, 10) : []);
-      setLoading(false);
-    });
-  }, []);
+    fetch(`/api/dashboard/stats?venueId=${venueId}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((s) => {
+        setStats(s);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [venueId]);
 
   // Build weekly bar chart data from activity
   const weekData = Array.from({ length: 7 }, (_, i) => {
