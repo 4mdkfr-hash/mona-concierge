@@ -224,6 +224,22 @@ If the customer asks to book or make a reservation, collect: name, date (YYYY-MM
 
       if (bookingIntent) {
         const bookedAt = `${bookingIntent.date}T${bookingIntent.time}:00`;
+
+        // Availability check: look for confirmed/pending bookings within ±60 min window
+        const windowStart = new Date(new Date(bookedAt).getTime() - 60 * 60_000).toISOString();
+        const windowEnd = new Date(new Date(bookedAt).getTime() + 60 * 60_000).toISOString();
+        const { data: conflicts } = await supabase
+          .from("bookings")
+          .select("id, booked_at")
+          .eq("venue_id", venueId)
+          .in("status", ["confirmed", "pending"])
+          .gte("booked_at", windowStart)
+          .lte("booked_at", windowEnd)
+          .limit(1);
+
+        if (conflicts && conflicts.length > 0) {
+          aiText = `Désolé ${bookingIntent.name}, ce créneau (${bookingIntent.date} ${bookingIntent.time}) n'est pas disponible. Pouvez-vous choisir un autre horaire ?`;
+        } else {
         const { data: newBooking } = await supabase
           .from("bookings")
           .insert({
@@ -259,6 +275,7 @@ If the customer asks to book or make a reservation, collect: name, date (YYYY-MM
         aiText =
           `✅ Parfait ${bookingIntent.name} ! Votre réservation chez ${venue.name} est confirmée.\n` +
           `📅 ${dateStr} · ${bookingIntent.guests} pers.\n\nÀ très bientôt ! 🙏`;
+        } // end else (no conflict)
       }
 
       // Save AI reply
