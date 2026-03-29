@@ -73,29 +73,30 @@ export async function generateReviewReply({
     ? `Review by ${authorName} (${rating}/5 stars):\n${reviewContent}`
     : `Review (${rating}/5 stars):\n${reviewContent}`;
 
-  const { text, promptTokens, completionTokens } = await generateReply({
+  const { text: replyText, promptTokens, completionTokens } = await generateReply({
     systemPrompt,
     messages: [{ role: "user", content: userMessage }],
     maxTokens: 250,
   });
 
   return {
-    replyText: text.trim(),
+    replyText: replyText.trim(),
     sentiment,
     promptTokens,
     completionTokens,
   };
 }
 
-export async function detectReviewLanguage(text: string): Promise<string> {
-  const { text: lang } = await generateReply({
+export async function detectReviewLanguage(reviewText: string): Promise<string> {
+  const { text } = await generateReply({
     systemPrompt:
       "Detect the language of the text. Reply with only the ISO 639-1 language code (e.g. en, fr, ru). Nothing else.",
-    messages: [{ role: "user", content: text }],
+    messages: [{ role: "user", content: reviewText }],
     maxTokens: 10,
   });
 
-  return lang.trim().toLowerCase().slice(0, 5) || "en";
+  const lang = text.trim().toLowerCase().slice(0, 5);
+  return lang || "en";
 }
 
 export async function postReviewReply({

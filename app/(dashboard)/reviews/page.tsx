@@ -5,6 +5,7 @@ import { Star, Sparkles, Loader2, ThumbsUp, ThumbsDown, Minus } from "lucide-rea
 
 interface Review {
   id: string;
+  venue_id?: string;
   author_name: string;
   rating: number;
   text: string;
@@ -77,6 +78,7 @@ export default function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "replied">("all");
+  const [generating, setGenerating] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     fetch("/api/reviews")
@@ -90,6 +92,29 @@ export default function ReviewsPage() {
         setLoading(false);
       });
   }, []);
+
+  const generateReply = async (reviewId: string) => {
+    setGenerating((prev) => new Set(prev).add(reviewId));
+    try {
+      const res = await fetch(`/api/reviews/${reviewId}/generate-reply`, { method: "POST" });
+      if (res.ok) {
+        const { replyText, sentiment } = await res.json();
+        setReviews((prev) =>
+          prev.map((r) =>
+            r.id === reviewId
+              ? { ...r, ai_reply: replyText, reply_status: "replied", sentiment }
+              : r
+          )
+        );
+      }
+    } finally {
+      setGenerating((prev) => {
+        const next = new Set(prev);
+        next.delete(reviewId);
+        return next;
+      });
+    }
+  };
 
   const filtered = reviews.filter((r) => {
     if (filter === "pending") return r.reply_status === "pending";
@@ -147,6 +172,7 @@ export default function ReviewsPage() {
         <div className="space-y-4">
           {filtered.map((r) => {
             const SentimentIcon = SENTIMENT_ICON[r.sentiment] ?? Minus;
+            const isGenerating = generating.has(r.id);
             return (
               <div
                 key={r.id}
@@ -184,9 +210,23 @@ export default function ReviewsPage() {
                     <p className="text-sm text-mist/80 leading-relaxed">{r.ai_reply}</p>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-xs text-amber-400/70 bg-amber-400/[0.04] border border-amber-400/[0.1] rounded-xl px-4 py-3">
-                    <Loader2 size={12} className="animate-spin" />
-                    <span>AI response pending...</span>
+                  <div className="flex items-center justify-between bg-amber-400/[0.04] border border-amber-400/[0.1] rounded-xl px-4 py-3">
+                    <div className="flex items-center gap-2 text-xs text-amber-400/70">
+                      <Sparkles size={12} />
+                      <span>No AI response yet</span>
+                    </div>
+                    <button
+                      onClick={() => generateReply(r.id)}
+                      disabled={isGenerating}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gold-400/10 text-gold-400 text-xs font-medium hover:bg-gold-400/20 transition-all disabled:opacity-50"
+                    >
+                      {isGenerating ? (
+                        <Loader2 size={11} className="animate-spin" />
+                      ) : (
+                        <Sparkles size={11} />
+                      )}
+                      {isGenerating ? "Generating…" : "Generate AI Reply"}
+                    </button>
                   </div>
                 )}
               </div>

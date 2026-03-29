@@ -10,6 +10,34 @@ import {
 
 const TWILIO_SID = process.env.TWILIO_ACCOUNT_SID;
 
+interface BookingIntent {
+  intent: "booking";
+  name: string;
+  date: string;
+  time: string;
+  guests: number;
+}
+
+function extractBookingIntent(text: string): BookingIntent | null {
+  const jsonMatch = text.match(/\{[^{}]*"intent"\s*:\s*"booking"[^{}]*\}/);
+  if (!jsonMatch) return null;
+  try {
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (
+      parsed.intent === "booking" &&
+      parsed.name &&
+      parsed.date &&
+      parsed.time &&
+      parsed.guests
+    ) {
+      return parsed as BookingIntent;
+    }
+  } catch {
+    // not valid JSON
+  }
+  return null;
+}
+
 // GET: Meta WhatsApp webhook verification
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -145,6 +173,25 @@ async function handleTwilioWebhook(req: NextRequest) {
       .single();
 
     if (venue) {
+      // Load active services for AI context
+      const { data: services } = await supabase
+        .from("venue_services")
+        .select("name, price, duration_min, description")
+        .eq("venue_id", venueId)
+        .eq("active", true);
+
+      const servicesText =
+        services && services.length > 0
+          ? `\nServices disponibles: ${services
+              .map(
+                (s) =>
+                  `${s.name}${s.price != null ? ` — ${s.price} EUR` : ""}${
+                    s.duration_min != null ? `, ${s.duration_min} min` : ""
+                  }${s.description ? ` (${s.description})` : ""}`
+              )
+              .join("; ")}.`
+          : "";
+
       // Load recent messages for context
       const { data: messages } = await supabase
         .from("messages")
@@ -162,13 +209,57 @@ async function handleTwilioWebhook(req: NextRequest) {
       const systemPrompt = `You are a friendly AI concierge for ${venue.name}, a ${venue.type} in Monaco.
 ${venue.tone_brief ?? "Be warm, professional, and helpful."}
 You respond in the language the customer writes in. You speak: ${langs}.
-Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.`;
+Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.${servicesText}
+If the customer asks to book or make a reservation, collect: name, date (YYYY-MM-DD), time (HH:MM), number of guests. When you have ALL four pieces of information, respond with ONLY this JSON (no other text): {"intent":"booking","name":"","date":"YYYY-MM-DD","time":"HH:MM","guests":0}`;
 
-      const { text: aiText, promptTokens, completionTokens } = await generateReply({
+      const { text: rawAiText, promptTokens, completionTokens } = await generateReply({
         systemPrompt,
         messages: history,
         maxTokens: 300,
       });
+
+      // Check for booking intent
+      const bookingIntent = extractBookingIntent(rawAiText);
+      let aiText = rawAiText;
+
+      if (bookingIntent) {
+        const bookedAt = `${bookingIntent.date}T${bookingIntent.time}:00`;
+        const { data: newBooking } = await supabase
+          .from("bookings")
+          .insert({
+            venue_id: venueId,
+            customer_name: bookingIntent.name,
+            customer_phone: phone,
+            customer_channel: "whatsapp",
+            booked_at: bookedAt,
+            party_size: bookingIntent.guests,
+            status: "confirmed",
+            confirmation_sent: false,
+            conversation_id: conversation.id,
+          })
+          .select("id")
+          .single();
+
+        if (newBooking) {
+          await supabase
+            .from("bookings")
+            .update({ confirmation_sent: true })
+            .eq("id", newBooking.id);
+        }
+
+        const dateObj = new Date(bookedAt);
+        const dateStr = dateObj.toLocaleString("fr-FR", {
+          timeZone: "Europe/Monaco",
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+        aiText =
+          `✅ Parfait ${bookingIntent.name} ! Votre réservation chez ${venue.name} est confirmée.\n` +
+          `📅 ${dateStr} · ${bookingIntent.guests} pers.\n\nÀ très bientôt ! 🙏`;
+      }
 
       // Save AI reply
       await supabase.from("messages").insert({
