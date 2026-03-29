@@ -11,6 +11,7 @@ import {
   Star,
   Settings,
   LogOut,
+  Users,
 } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { href: "/inbox", icon: MessageSquare, label: "Inbox" },
   { href: "/bookings", icon: Calendar, label: "Reservations" },
   { href: "/reviews", icon: Star, label: "Reviews" },
+  { href: "/clients", icon: Users, label: "Clients" },
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 

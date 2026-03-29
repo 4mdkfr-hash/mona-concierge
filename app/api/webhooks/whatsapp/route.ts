@@ -215,6 +215,30 @@ async function handleTwilioWebhook(req: NextRequest) {
               .join("; ")}.`
           : "";
 
+      // Load VIP client profile
+      const { data: clientProfile } = await supabase
+        .from("client_profiles")
+        .select("full_name, preferred_name, favourite_services, allergies, notes, visit_count, last_service, vip_tier")
+        .eq("venue_id", venueId)
+        .eq("phone", phone)
+        .single();
+
+      let vipContext = "";
+      if (clientProfile && clientProfile.visit_count > 0) {
+        const name = clientProfile.preferred_name ?? clientProfile.full_name;
+        vipContext = `\n\n## Client Context`;
+        if (name) vipContext += `\nName: ${name}`;
+        vipContext += `\nVisits: ${clientProfile.visit_count}`;
+        if (clientProfile.last_service) vipContext += `\nLast service: ${clientProfile.last_service}`;
+        if (clientProfile.favourite_services?.length > 0)
+          vipContext += `\nFavourite services: ${clientProfile.favourite_services.join(", ")}`;
+        if (clientProfile.allergies?.length > 0)
+          vipContext += `\n⚠️ Allergies: ${clientProfile.allergies.join(", ")}`;
+        if (clientProfile.notes) vipContext += `\nStaff notes: ${clientProfile.notes}`;
+        if (clientProfile.vip_tier !== "standard")
+          vipContext += `\nTier: ${clientProfile.vip_tier.toUpperCase()}`;
+      }
+
       // Load recent messages for context
       const { data: messages } = await supabase
         .from("messages")
@@ -232,7 +256,7 @@ async function handleTwilioWebhook(req: NextRequest) {
       const systemPrompt = `You are a friendly AI concierge for ${venue.name}, a ${venue.type} in Monaco.
 ${venue.tone_brief ?? "Be warm, professional, and helpful."}
 You respond in the language the customer writes in. You speak: ${langs}.
-Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.${servicesText}
+Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.${servicesText}${vipContext}
 If the customer asks to book or make a reservation, collect: name, date (YYYY-MM-DD), time (HH:MM), number of guests. When you have ALL four pieces of information, respond with ONLY this JSON (no other text): {"intent":"booking","name":"","date":"YYYY-MM-DD","time":"HH:MM","guests":0}`;
 
       const { text: rawAiText, promptTokens, completionTokens } = await generateReply({
@@ -310,6 +334,25 @@ If the customer asks to book or make a reservation, collect: name, date (YYYY-MM
         ai_model: CLAUDE_MODEL,
         status: "pending",
       });
+
+      // Upsert client profile (non-fatal)
+      try {
+        await supabase.from("client_profiles").upsert(
+          {
+            venue_id: venueId,
+            phone,
+            full_name: profileName ?? clientProfile?.full_name ?? null,
+            channel: "whatsapp",
+            channel_id: phone,
+            consent_given: true,
+            consent_given_at: clientProfile?.visit_count ? undefined : new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "venue_id,phone", ignoreDuplicates: false }
+        );
+      } catch (err) {
+        console.error("Client profile upsert error:", err);
+      }
 
       // Log usage
       await supabase.from("ai_usage_logs").insert({
