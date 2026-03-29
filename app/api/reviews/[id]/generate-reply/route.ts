@@ -50,6 +50,30 @@ export async function POST(
     .update({ reply_text: replyText, replied_at: now, sentiment })
     .eq("id", params.id);
 
+  // Email alert for negative reviews (1-2★)
+  if (review.rating <= 2) {
+    try {
+      const { data: venueEmail } = await supabase
+        .from("venues")
+        .select("owner_email, email_notifications_enabled, email_notify_negative_reviews")
+        .eq("id", review.venue_id)
+        .single();
+
+      if (venueEmail?.owner_email && venueEmail.email_notifications_enabled && venueEmail.email_notify_negative_reviews) {
+        const { sendNegativeReviewAlert } = await import("@/lib/email");
+        await sendNegativeReviewAlert({
+          ownerEmail: venueEmail.owner_email,
+          venueName: venue.name,
+          authorName: review.author_name ?? "Anonymous",
+          rating: review.rating,
+          reviewText: reviewContent,
+        });
+      }
+    } catch (err) {
+      console.error("Email negative review alert error:", err);
+    }
+  }
+
   const costEur = estimateCostEur(promptTokens, completionTokens);
   await supabase.from("ai_usage_logs").insert({
     venue_id: review.venue_id,

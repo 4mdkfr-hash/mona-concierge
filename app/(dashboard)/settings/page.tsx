@@ -16,6 +16,7 @@ import {
   Sparkles,
   AlertTriangle,
   RefreshCw,
+  Mail,
 } from "lucide-react";
 
 const TONES = [
@@ -84,11 +85,33 @@ export default function SettingsPage() {
   const [aiPreviewLoading, setAiPreviewLoading] = useState(false);
   const [aiPreviewError, setAiPreviewError] = useState<string | null>(null);
 
+  // Email notifications
+  const [ownerEmail, setOwnerEmail] = useState("");
+  const [emailEnabled, setEmailEnabled] = useState(false);
+  const [emailMessages, setEmailMessages] = useState(true);
+  const [emailBookings, setEmailBookings] = useState(true);
+  const [emailNegativeReviews, setEmailNegativeReviews] = useState(true);
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [emailSaved, setEmailSaved] = useState(false);
+
   useEffect(() => {
     fetch(`/api/settings/services?venueId=${DEMO_VENUE_ID}`)
       .then((r) => (r.ok ? r.json() : []))
       .then((data) => setServices(Array.isArray(data) ? data : []))
       .catch(() => setServices([]));
+  }, []);
+
+  useEffect(() => {
+    fetch(`/api/settings?venueId=${DEMO_VENUE_ID}`)
+      .then((r) => (r.ok ? r.json() : {} as Record<string, unknown>))
+      .then((data: Record<string, unknown>) => {
+        if (data.owner_email != null) setOwnerEmail(data.owner_email as string);
+        if (data.email_notifications_enabled != null) setEmailEnabled(data.email_notifications_enabled as boolean);
+        if (data.email_notify_messages != null) setEmailMessages(data.email_notify_messages as boolean);
+        if (data.email_notify_bookings != null) setEmailBookings(data.email_notify_bookings as boolean);
+        if (data.email_notify_negative_reviews != null) setEmailNegativeReviews(data.email_notify_negative_reviews as boolean);
+      })
+      .catch(() => {});
   }, []);
 
   const toggleLang = (id: string) => {
@@ -169,6 +192,27 @@ export default function SettingsPage() {
     const res = await fetch(`/api/settings/services?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       setServices((prev) => prev.filter((s) => s.id !== id));
+    }
+  };
+
+  const saveEmailSettings = async () => {
+    setSavingEmail(true);
+    try {
+      await fetch(`/api/settings?venueId=${DEMO_VENUE_ID}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          owner_email: ownerEmail.trim() || null,
+          email_notifications_enabled: emailEnabled,
+          email_notify_messages: emailMessages,
+          email_notify_bookings: emailBookings,
+          email_notify_negative_reviews: emailNegativeReviews,
+        }),
+      });
+      setEmailSaved(true);
+      setTimeout(() => setEmailSaved(false), 2000);
+    } finally {
+      setSavingEmail(false);
     }
   };
 
@@ -521,6 +565,68 @@ export default function SettingsPage() {
             </button>
           ))}
         </div>
+      </section>
+
+      {/* Email Notifications */}
+      <section className="bg-carbon border border-graphite rounded-2xl p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-ivory flex items-center gap-2">
+          <Mail size={16} className="text-gold-400" />
+          Email Notifications
+        </h2>
+
+        <div>
+          <label className="block text-xs text-fog mb-1.5">Owner email</label>
+          <input
+            type="email"
+            value={ownerEmail}
+            onChange={(e) => setOwnerEmail(e.target.value)}
+            placeholder="you@example.com"
+            className="w-full px-4 py-2.5 rounded-xl bg-void border border-graphite text-sm text-ivory focus:border-gold-400/40 focus:outline-none transition-colors"
+          />
+        </div>
+
+        <div className="flex items-center justify-between py-3 px-4 rounded-xl border border-graphite/50">
+          <span className="text-sm text-ivory">Enable email notifications</span>
+          <button
+            onClick={() => setEmailEnabled(!emailEnabled)}
+            className={`w-10 h-5 rounded-full transition-all relative ${emailEnabled ? "bg-gold-400" : "bg-graphite"}`}
+          >
+            <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-void transition-all ${emailEnabled ? "left-5.5" : "left-0.5"}`} />
+          </button>
+        </div>
+
+        {emailEnabled && (
+          <div className="space-y-2 pl-1">
+            {[
+              { key: "messages", label: "New messages (WhatsApp / Instagram)", value: emailMessages, set: setEmailMessages },
+              { key: "bookings", label: "New bookings", value: emailBookings, set: setEmailBookings },
+              { key: "reviews", label: "Negative reviews (1–2★)", value: emailNegativeReviews, set: setEmailNegativeReviews },
+            ].map(({ key, label, value, set }) => (
+              <label key={key} className="flex items-center gap-3 cursor-pointer group">
+                <div
+                  onClick={() => set(!value)}
+                  className={`w-4 h-4 rounded flex items-center justify-center border transition-all ${value ? "bg-gold-400 border-gold-400" : "border-graphite group-hover:border-gold-400/40"}`}
+                >
+                  {value && <Check size={10} className="text-void" />}
+                </div>
+                <span className="text-sm text-mist">{label}</span>
+              </label>
+            ))}
+          </div>
+        )}
+
+        <button
+          onClick={saveEmailSettings}
+          disabled={savingEmail}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 ${
+            emailSaved
+              ? "bg-emerald-500/20 text-emerald-400"
+              : "bg-gold-400/10 text-gold-400 hover:bg-gold-400/20"
+          }`}
+        >
+          {emailSaved ? <Check size={13} /> : <Save size={13} />}
+          {emailSaved ? "Saved!" : "Save email settings"}
+        </button>
       </section>
 
       {/* Save */}

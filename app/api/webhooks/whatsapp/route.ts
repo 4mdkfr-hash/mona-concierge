@@ -163,6 +163,29 @@ async function handleTwilioWebhook(req: NextRequest) {
     external_message_id: messageSid,
   });
 
+  // Email notification for new inbound message
+  try {
+    const { data: venueEmail } = await supabase
+      .from("venues")
+      .select("name, owner_email, email_notifications_enabled, email_notify_messages")
+      .eq("id", venueId)
+      .single();
+
+    if (venueEmail?.owner_email && venueEmail.email_notifications_enabled && venueEmail.email_notify_messages) {
+      const { sendNewMessageNotification } = await import("@/lib/email");
+      await sendNewMessageNotification({
+        ownerEmail: venueEmail.owner_email,
+        venueName: venueEmail.name,
+        customerName: profileName ?? phone,
+        channel: "WhatsApp",
+        messageSummary: body.length > 120 ? body.slice(0, 120) + "…" : body,
+      });
+    }
+  } catch (err) {
+    console.error("Email message notification error:", err);
+    // Non-fatal
+  }
+
   // Generate AI response and send directly
   try {
     // Load venue info

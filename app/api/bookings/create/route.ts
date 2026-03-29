@@ -133,6 +133,30 @@ export async function POST(req: NextRequest) {
     // Non-fatal
   }
 
+  // Email notification for new booking
+  try {
+    const { data: venueEmail } = await supabase
+      .from("venues")
+      .select("owner_email, email_notifications_enabled, email_notify_bookings")
+      .eq("id", venueId)
+      .single();
+
+    if (venueEmail?.owner_email && venueEmail.email_notifications_enabled && venueEmail.email_notify_bookings) {
+      const { sendNewBookingNotification } = await import("@/lib/email");
+      await sendNewBookingNotification({
+        ownerEmail: venueEmail.owner_email,
+        venueName: venue.name,
+        customerName,
+        customerPhone: customerPhone ?? null,
+        service: serviceType ?? "Booking",
+        dateTime: startDt.toLocaleString("fr-FR", { timeZone: "Europe/Monaco", weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }),
+      });
+    }
+  } catch (err) {
+    console.error("Email booking notification error:", err);
+    // Non-fatal
+  }
+
   // Schedule follow-up events for this booking
   let followUpEventsCreated = 0;
   try {
