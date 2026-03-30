@@ -51,6 +51,7 @@ export interface InstagramMessaging {
   message?: {
     mid: string;
     text?: string;
+    is_echo?: boolean;
     attachments?: Array<{ type: string; payload: { url?: string } }>;
   };
 }

@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
 
     for (const messaging of entry.messaging ?? []) {
       if (!messaging.message) continue;
+      if (messaging.message.is_echo) continue; // skip outbound echoes to prevent loop
       await handleInboundDM(messaging, venueId, pageAccessToken, supabase);
     }
   }
@@ -97,9 +98,8 @@ async function handleInboundDM(
 
   // Trigger AI response
   try {
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001");
 
     await fetch(`${baseUrl}/api/ai/respond`, {
       method: "POST",
