@@ -6,54 +6,78 @@
   },
   "hero": {
     "tag": "Monaco & Côte d'Azur",
-    "title": "Le concierge IA\npour votre business",
-    "subtitle": "Automatisez vos réponses clients, gérez les réservations et les avis — avec l'élégance que Monaco mérite.",
-    "cta": "Commencer gratuitement",
-    "demo": "Voir la démo"
+    "title": "Votre business ne dort jamais.\nVotre concierge non plus.",
+    "subtitle": "MonaConcierge répond à vos clients en moins de 5 secondes, 24h/24, dans leur langue.",
+    "cta": "Démarrer le pilote gratuit",
+    "demo": "Voir la démo",
+    "proof": "Lancement avec une sélection d'établissements à Monaco"
   },
   "social": {
     "label": "Restaurants et salons de Monaco et de la Côte d'Azur"
+  },
+  "problem": {
+    "title": "Vous perdez des clients sans le savoir",
+    "items": [
+      {
+        "title": "Messages manqués la nuit = clients perdus",
+        "desc": "Un client qui n'obtient pas de réponse avant minuit réserve chez votre concurrent le lendemain matin."
+      },
+      {
+        "title": "Clients FR, EN, RU difficiles à servir",
+        "desc": "Monaco attire le monde entier. Répondre en trois langues avec la même qualité est impossible sans aide."
+      },
+      {
+        "title": "Temps perdu sur des questions répétitives",
+        "desc": "Horaires, menu, disponibilités — vos équipes répondent dix fois par jour aux mêmes questions."
+      }
+    ]
+  },
+  "solution": {
+    "title": "MonaConcierge règle tout ça",
+    "tagline": "Répond en 5 secondes. 24h/24. Dans leur langue.",
+    "items": [
+      {
+        "title": "Zéro message manqué",
+        "desc": "Chaque message reçoit une réponse instantanée, à toute heure. Votre établissement ne dort jamais."
+      },
+      {
+        "title": "FR, EN, RU en automatique",
+        "desc": "Détection de langue instantanée. Vos clients russes, anglais et français sont tous servis parfaitement."
+      },
+      {
+        "title": "Vos équipes libérées",
+        "desc": "L'IA prend en charge les questions courantes. Votre personnel se concentre sur l'expérience en salle."
+      }
+    ],
+    "channels_label": "Disponible sur"
   },
   "features": {
     "title": "Tout ce dont vous avez besoin",
     "subtitle": "Une plateforme complète pour gérer l'expérience client de A à Z.",
     "items": [
       {
-        "title": "Assistant WhatsApp IA",
-        "desc": "Réponses automatiques en français, anglais et russe. Vos clients obtiennent une réponse instantanée, 24h/24."
+        "title": "Concierge IA",
+        "desc": "Répond comme votre meilleur employé — naturel, précis, disponible à toute heure."
       },
       {
-        "title": "Google Reviews IA",
-        "desc": "Réponses personnalisées à chaque avis pour protéger et renforcer votre réputation en ligne."
+        "title": "3 langues",
+        "desc": "Détection automatique FR/EN/RU. Zéro configuration, zéro erreur de traduction."
       },
       {
         "title": "Réservations intelligentes",
-        "desc": "Réservations via WhatsApp, synchronisées avec Google Calendar. Confirmations automatiques."
+        "desc": "Les clients réservent directement par chat, synchronisé avec Google Calendar."
       },
       {
-        "title": "Smart Upsell",
-        "desc": "Relances post-visite personnalisées. Augmentez la fréquence de retour et le panier moyen."
-      }
-    ]
-  },
-  "how": {
-    "title": "Comment ça marche",
-    "subtitle": "Trois étapes pour transformer votre service client.",
-    "steps": [
-      {
-        "num": "01",
-        "label": "Connectez vos canaux",
-        "desc": "WhatsApp, Instagram, Google Business — configuration en quelques minutes, sans compétences techniques."
+        "title": "Mémoire VIP",
+        "desc": "Reconnaît et personnalise l'accueil de chaque client fidèle à son retour."
       },
       {
-        "num": "02",
-        "label": "L'IA travaille pour vous",
-        "desc": "Réponses naturelles et multilingues, gestion des réservations, suivi des avis — en pilote automatique."
+        "title": "Google Reviews IA",
+        "desc": "Réponses personnalisées et professionnelles rédigées pour chaque avis en ligne."
       },
       {
-        "num": "03",
-        "label": "Vous gardez le contrôle",
-        "desc": "Dashboard en temps réel, notifications instantanées, possibilité d'intervenir à tout moment."
+        "title": "Dashboard temps réel",
+        "desc": "Tous vos messages, réservations et avis en un seul endroit. Intervenez à tout moment."
       }
     ]
   },
@@ -65,15 +89,25 @@
     "currency": "EUR",
     "period": "/ mois",
     "features": [
-      "Assistant WhatsApp IA multilingue",
+      "Concierge IA multilingue 24h/24",
       "Réponses automatiques Google Reviews",
-      "Système de réservations intégré",
-      "Relances post-visite Smart Upsell",
+      "Réservations intelligentes via chat",
+      "Mémoire VIP clients fidèles",
       "Dashboard temps réel",
       "Support prioritaire"
     ],
-    "cta": "14 jours gratuits",
+    "cta": "Démarrer le pilote gratuit",
     "guarantee": "Sans engagement. Annulez à tout moment."
+  },
+  "trust": {
+    "label": "En lancement avec une sélection d'établissements à Monaco",
+    "stats": [
+      { "value": "< 5s", "label": "temps de réponse" },
+      { "value": "24/7", "label": "disponibilité" },
+      { "value": "3", "label": "langues" }
+    ],
+    "quote": "Exactement ce qu'il manquait à Monaco — un concierge digital à la hauteur de notre clientèle.",
+    "quote_author": "— Directeur, Établissement de la Principauté"
   },
   "cta": {
     "title": "Prêt à transformer\nvotre expérience client ?",
@@ -88,6 +122,7 @@
   },
   "footer": {
     "tagline": "L'excellence au service de votre clientèle.",
+    "made_in": "Conçu pour Monaco. Né sur la Côte d'Azur.",
     "product": "Produit",
     "company": "Entreprise",
     "links": {

@@ -29,6 +29,8 @@
 .stagger-child:nth-child(2) { transition-delay: 0.2s; }
 .stagger-child:nth-child(3) { transition-delay: 0.3s; }
 .stagger-child:nth-child(4) { transition-delay: 0.4s; }
+.stagger-child:nth-child(5) { transition-delay: 0.5s; }
+.stagger-child:nth-child(6) { transition-delay: 0.6s; }
 
 /* Glassmorphism helper */
 .glass {

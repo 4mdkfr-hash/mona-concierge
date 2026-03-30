@@ -6,54 +6,78 @@
   },
   "hero": {
     "tag": "Monaco & Cote d'Azur",
-    "title": "The AI concierge\nfor your business",
-    "subtitle": "Automate customer replies, manage bookings and reviews — with the elegance Monaco deserves.",
-    "cta": "Get started free",
-    "demo": "View demo"
+    "title": "Your business never sleeps.\nNeither should your concierge.",
+    "subtitle": "MonaConcierge replies to your guests in under 5 seconds, around the clock, in their language.",
+    "cta": "Start free pilot",
+    "demo": "View demo",
+    "proof": "Launching with select establishments in Monaco"
   },
   "social": {
-    "label": "Trusted by venues across Monaco"
+    "label": "Trusted by venues across Monaco and the Cote d'Azur"
   },
-  "features": {
-    "title": "Everything you need",
-    "subtitle": "One platform to manage the entire customer experience.",
+  "problem": {
+    "title": "You're losing clients without knowing it",
     "items": [
       {
-        "title": "WhatsApp AI Assistant",
-        "desc": "Automatic replies in French, English, and Russian. Your guests get an instant response, around the clock."
+        "title": "Missed messages at night = lost clients",
+        "desc": "A guest who doesn't hear back before midnight books your competitor by morning."
       },
       {
-        "title": "AI Google Reviews",
-        "desc": "Personalised responses to every review, protecting and elevating your online reputation."
+        "title": "FR, EN, RU clients are hard to serve",
+        "desc": "Monaco draws the world. Responding in three languages at the same quality is impossible without help."
       },
       {
-        "title": "Smart Bookings",
-        "desc": "WhatsApp-based reservations synced with Google Calendar. Automatic confirmations."
-      },
-      {
-        "title": "Smart Upsell",
-        "desc": "Personalised post-visit follow-ups. Increase return visits and average spend."
+        "title": "Staff time wasted on repetitive questions",
+        "desc": "Hours, menu, availability — your team answers the same questions ten times a day."
       }
     ]
   },
-  "how": {
-    "title": "How it works",
-    "subtitle": "Three steps to transform your customer service.",
-    "steps": [
+  "solution": {
+    "title": "MonaConcierge solves all of this",
+    "tagline": "Responds in 5 seconds. 24/7. In their language.",
+    "items": [
       {
-        "num": "01",
-        "label": "Connect your channels",
-        "desc": "WhatsApp, Instagram, Google Business — set up in minutes, no technical skills required."
+        "title": "Zero missed messages",
+        "desc": "Every message gets an instant reply, at any hour. Your establishment never goes dark."
       },
       {
-        "num": "02",
-        "label": "AI works for you",
-        "desc": "Natural multilingual replies, booking management, review monitoring — all on autopilot."
+        "title": "FR, EN, RU — automatic",
+        "desc": "Instant language detection. Your Russian, English and French guests are all served flawlessly."
       },
       {
-        "num": "03",
-        "label": "You stay in control",
-        "desc": "Real-time dashboard, instant notifications, step in at any moment."
+        "title": "Your team freed up",
+        "desc": "AI handles routine questions. Your staff focuses on the in-person experience."
+      }
+    ],
+    "channels_label": "Available on"
+  },
+  "features": {
+    "title": "Everything you need",
+    "subtitle": "One platform to manage the entire guest experience.",
+    "items": [
+      {
+        "title": "AI Concierge",
+        "desc": "Responds like your best employee — natural, precise, available around the clock."
+      },
+      {
+        "title": "3 Languages",
+        "desc": "Automatic FR/EN/RU detection. Zero setup, zero translation errors."
+      },
+      {
+        "title": "Smart Booking",
+        "desc": "Guests book directly via chat, synced with Google Calendar."
+      },
+      {
+        "title": "VIP Memory",
+        "desc": "Recognises and personalises the welcome for every returning guest."
+      },
+      {
+        "title": "AI Google Reviews",
+        "desc": "Personalised, professional replies drafted for every online review."
+      },
+      {
+        "title": "Real-time Dashboard",
+        "desc": "All your messages, bookings and reviews in one place. Step in at any moment."
       }
     ]
   },
@@ -65,15 +89,25 @@
     "currency": "EUR",
     "period": "/ month",
     "features": [
-      "Multilingual WhatsApp AI assistant",
+      "Multilingual AI concierge 24/7",
       "Automated Google Review responses",
-      "Integrated booking system",
-      "Smart Upsell post-visit follow-ups",
+      "Smart bookings via chat",
+      "VIP memory for returning guests",
       "Real-time dashboard",
       "Priority support"
     ],
-    "cta": "14 days free",
+    "cta": "Start free pilot",
     "guarantee": "No commitment. Cancel anytime."
+  },
+  "trust": {
+    "label": "Launching with select establishments in Monaco",
+    "stats": [
+      { "value": "< 5s", "label": "response time" },
+      { "value": "24/7", "label": "availability" },
+      { "value": "3", "label": "languages" }
+    ],
+    "quote": "Exactly what Monaco was missing — a digital concierge worthy of our clientele.",
+    "quote_author": "— Director, Principality Establishment"
   },
   "cta": {
     "title": "Ready to transform\nyour guest experience?",
@@ -87,7 +121,8 @@
     "sent_desc": "We sent a magic link to"
   },
   "footer": {
-    "tagline": "Excellence in customer engagement.",
+    "tagline": "Excellence in guest engagement.",
+    "made_in": "Made for Monaco. Built on the French Riviera.",
     "product": "Product",
     "company": "Company",
     "links": {
