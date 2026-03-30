@@ -31,7 +31,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [venueId, setVenueId] = useState<string | null>(null);
-  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const sb = createClient(
@@ -39,18 +38,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
     supabaseRef.current = sb;
-    sb.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session) {
-        router.replace("/");
-        return;
-      }
-      setUserEmail(session.user.email ?? null);
+    let initialized = false;
+
+    const handleSession = async (userId: string, email: string | undefined) => {
+      if (initialized) return;
+      initialized = true;
+      setUserEmail(email ?? null);
 
       // Find venue linked to this user
       const { data: venue } = await sb
         .from("venues")
-        .select("id, subscription_status")
-        .eq("owner_id", session.user.id)
+        .select("id")
+        .eq("owner_id", userId)
         .maybeSingle();
 
       if (!venue) {
@@ -59,9 +58,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
 
       setVenueId(venue.id);
-      setSubscriptionStatus(venue.subscription_status ?? null);
       setReady(true);
-    });
+    };
+
+    // onAuthStateChange handles both existing sessions and magic link redirects
+    // INITIAL_SESSION fires immediately with current session (or null)
+    const { data: { subscription } } = sb.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
+          if (!session) {
+            if (event === "INITIAL_SESSION") router.replace("/");
+            return;
+          }
+          await handleSession(session.user.id, session.user.email);
+        } else if (event === "SIGNED_OUT") {
+          router.replace("/");
+        }
+      }
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [router]);
 
   const handleSignOut = async () => {
@@ -127,23 +145,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <main className="flex-1 overflow-auto flex flex-col bg-obsidian">
-        {subscriptionStatus && ['past_due', 'cancelled'].includes(subscriptionStatus) && (
-          <div className={`px-4 py-3 text-sm flex items-center gap-2 ${
-            subscriptionStatus === 'cancelled'
-              ? 'bg-red-950/50 text-red-300 border-b border-red-900/40'
-              : 'bg-amber-950/50 text-amber-300 border-b border-amber-900/40'
-          }`}>
-            <span>{subscriptionStatus === 'cancelled' ? '🔴' : '⚠️'}</span>
-            <span>
-              {subscriptionStatus === 'cancelled'
-                ? "Votre abonnement est annulé. L'IA est désactivée."
-                : "Votre abonnement est en retard de paiement. L'IA ne répond plus aux clients."}
-            </span>
-            <a href="/api/billing/portal" className="underline font-medium ml-1">
-              {subscriptionStatus === 'cancelled' ? 'Réactiver' : 'Mettre à jour le paiement'} →
-            </a>
-          </div>
-        )}
         <VenueContext.Provider value={{ venueId: venueId! }}>
           {children}
         </VenueContext.Provider>
