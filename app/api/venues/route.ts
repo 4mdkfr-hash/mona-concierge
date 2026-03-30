@@ -20,6 +20,9 @@ export async function POST(request: Request) {
 
     const db = createServiceClient();
 
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 14);
+
     const { data, error } = await db
       .from("venues")
       .insert({
@@ -30,6 +33,7 @@ export async function POST(request: Request) {
         tone_brief: address ? `Address: ${address}\nTone: ${tone ?? "luxury"}` : `Tone: ${tone ?? "luxury"}`,
         languages: languages && languages.length > 0 ? languages : ["fr", "en", "ru"],
         subscription_status: "trialing",
+        trial_ends_at: trialEndsAt.toISOString(),
         ...(userId ? { owner_id: userId } : {}),
       })
       .select("id")

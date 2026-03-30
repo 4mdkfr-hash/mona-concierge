@@ -191,11 +191,25 @@ async function handleTwilioWebhook(req: NextRequest) {
     // Load venue info
     const { data: venue } = await supabase
       .from("venues")
-      .select("name, type, tone_brief, languages")
+      .select("name, type, tone_brief, languages, subscription_status")
       .eq("id", venueId)
       .single();
 
     if (venue) {
+      const allowedStatuses = ['active', 'trialing'];
+      if (!allowedStatuses.includes(venue.subscription_status as string)) {
+        const lang = (venue.languages as string[])?.[0] ?? 'fr';
+        const fallback = lang === 'en'
+          ? "Our booking service is temporarily unavailable. Please contact us directly."
+          : lang === 'ru'
+          ? "Наш сервис временно недоступен. Пожалуйста, свяжитесь с нами напрямую."
+          : "Notre service de réservation est temporairement indisponible. Veuillez nous contacter directement.";
+        await sendTextMessage(phone, fallback);
+        return new NextResponse(
+          '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+          { headers: { "Content-Type": "text/xml" } }
+        );
+      }
       // Load active services for AI context
       const { data: services } = await supabase
         .from("venue_services")

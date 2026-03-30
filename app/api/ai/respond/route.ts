@@ -52,12 +52,17 @@ export async function POST(req: NextRequest) {
   // Load venue tone and language
   const { data: venue } = await supabase
     .from("venues")
-    .select("name, type, tone_brief, languages")
+    .select("name, type, tone_brief, languages, subscription_status")
     .eq("id", venueId)
     .single();
 
   if (!venue) {
     return NextResponse.json({ error: "Venue not found" }, { status: 404 });
+  }
+
+  const allowedStatuses = ['active', 'trialing'];
+  if (!allowedStatuses.includes((venue as { subscription_status: string }).subscription_status)) {
+    return NextResponse.json({ error: "Subscription inactive" }, { status: 402 });
   }
 
   // Load active services for AI context

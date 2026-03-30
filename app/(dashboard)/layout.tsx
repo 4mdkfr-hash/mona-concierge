@@ -31,6 +31,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [venueId, setVenueId] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
 
   useEffect(() => {
     const sb = createClient(
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       // Find venue linked to this user
       const { data: venue } = await sb
         .from("venues")
-        .select("id")
+        .select("id, subscription_status")
         .eq("owner_id", session.user.id)
         .maybeSingle();
 
@@ -58,6 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
 
       setVenueId(venue.id);
+      setSubscriptionStatus(venue.subscription_status ?? null);
       setReady(true);
     });
   }, [router]);
@@ -125,6 +127,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <main className="flex-1 overflow-auto flex flex-col bg-obsidian">
+        {subscriptionStatus && ['past_due', 'cancelled'].includes(subscriptionStatus) && (
+          <div className={`px-4 py-3 text-sm flex items-center gap-2 ${
+            subscriptionStatus === 'cancelled'
+              ? 'bg-red-950/50 text-red-300 border-b border-red-900/40'
+              : 'bg-amber-950/50 text-amber-300 border-b border-amber-900/40'
+          }`}>
+            <span>{subscriptionStatus === 'cancelled' ? '🔴' : '⚠️'}</span>
+            <span>
+              {subscriptionStatus === 'cancelled'
+                ? "Votre abonnement est annulé. L'IA est désactivée."
+                : "Votre abonnement est en retard de paiement. L'IA ne répond plus aux clients."}
+            </span>
+            <a href="/api/billing/portal" className="underline font-medium ml-1">
+              {subscriptionStatus === 'cancelled' ? 'Réactiver' : 'Mettre à jour le paiement'} →
+            </a>
+          </div>
+        )}
         <VenueContext.Provider value={{ venueId: venueId! }}>
           {children}
         </VenueContext.Provider>
