@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from("venues")
-    .select("name, languages, tone_brief, owner_email, email_notifications_enabled, email_notify_messages, email_notify_bookings, email_notify_negative_reviews")
+    .select("name, languages, tone_brief, owner_email, email_notifications_enabled, email_notify_messages, email_notify_bookings, email_notify_negative_reviews, subscription_status, stripe_customer_id")
     .eq("id", venueId)
     .single();
 

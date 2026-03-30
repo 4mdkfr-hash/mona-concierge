@@ -18,6 +18,9 @@ import {
   AlertTriangle,
   RefreshCw,
   Mail,
+  CreditCard,
+  ExternalLink,
+  Loader2,
 } from "lucide-react";
 
 const TONES = [
@@ -84,6 +87,11 @@ export default function SettingsPage() {
   const [aiPreviewLoading, setAiPreviewLoading] = useState(false);
   const [aiPreviewError, setAiPreviewError] = useState<string | null>(null);
 
+  // Billing
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [stripeCustomerId, setStripeCustomerId] = useState<string | null>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+
   // Email notifications
   const [ownerEmail, setOwnerEmail] = useState("");
   const [emailEnabled, setEmailEnabled] = useState(false);
@@ -111,6 +119,8 @@ export default function SettingsPage() {
         if (data.email_notify_messages != null) setEmailMessages(data.email_notify_messages as boolean);
         if (data.email_notify_bookings != null) setEmailBookings(data.email_notify_bookings as boolean);
         if (data.email_notify_negative_reviews != null) setEmailNegativeReviews(data.email_notify_negative_reviews as boolean);
+        if (data.subscription_status != null) setSubscriptionStatus(data.subscription_status as string);
+        if (data.stripe_customer_id != null) setStripeCustomerId(data.stripe_customer_id as string);
       })
       .catch(() => {});
   }, [venueId]);
@@ -198,6 +208,36 @@ export default function SettingsPage() {
     const res = await fetch(`/api/settings/services?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       setServices((prev) => prev.filter((s) => s.id !== id));
+    }
+  };
+
+  const handleSubscribe = async () => {
+    setBillingLoading(true);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ venueId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setBillingLoading(false);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    setBillingLoading(true);
+    try {
+      const res = await fetch("/api/billing/portal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ venueId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } finally {
+      setBillingLoading(false);
     }
   };
 
@@ -633,6 +673,54 @@ export default function SettingsPage() {
           {emailSaved ? <Check size={13} /> : <Save size={13} />}
           {emailSaved ? "Saved!" : "Save email settings"}
         </button>
+      </section>
+
+      {/* Billing */}
+      <section className="bg-carbon border border-graphite rounded-2xl p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-ivory flex items-center gap-2">
+          <CreditCard size={16} className="text-gold-400" />
+          Subscription
+        </h2>
+
+        <div className="flex items-center justify-between py-3 px-4 rounded-xl border border-graphite/50">
+          <div>
+            <div className="text-sm text-ivory">Plan</div>
+            <div className="text-xs text-fog mt-0.5">MonaConcierge — €200 / month</div>
+          </div>
+          <span
+            className={`text-[10px] tracking-wider uppercase px-2.5 py-1 rounded-lg font-medium ${
+              subscriptionStatus === "active"
+                ? "bg-emerald-500/10 text-emerald-400"
+                : subscriptionStatus === "trialing"
+                ? "bg-amber-500/10 text-amber-400"
+                : subscriptionStatus === "past_due"
+                ? "bg-red-500/10 text-red-400"
+                : "bg-fog/10 text-fog"
+            }`}
+          >
+            {subscriptionStatus ?? "inactive"}
+          </span>
+        </div>
+
+        {subscriptionStatus === "active" || stripeCustomerId ? (
+          <button
+            onClick={handleManageBilling}
+            disabled={billingLoading}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-gold-400/10 text-gold-400 hover:bg-gold-400/20 transition-all disabled:opacity-50"
+          >
+            {billingLoading ? <Loader2 size={13} className="animate-spin" /> : <ExternalLink size={13} />}
+            Manage subscription
+          </button>
+        ) : (
+          <button
+            onClick={handleSubscribe}
+            disabled={billingLoading}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gold-400 text-void hover:bg-gold-500 transition-all disabled:opacity-50"
+          >
+            {billingLoading ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />}
+            Subscribe — €200 / month
+          </button>
+        )}
       </section>
 
       {/* Save */}
