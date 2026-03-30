@@ -1,5 +1,5 @@
 const RESEND_API_URL = "https://api.resend.com/emails";
-const FROM_ADDRESS = "MonaConcierge <notifications@monaconcierge.ai>";
+const FROM_ADDRESS = process.env.RESEND_FROM_EMAIL || "MonaConcierge <onboarding@resend.dev>";
 
 async function sendEmail(to: string, subject: string, html: string) {
   const apiKey = process.env.RESEND_API_KEY;
