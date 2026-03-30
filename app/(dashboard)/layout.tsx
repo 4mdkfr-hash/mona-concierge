@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   LayoutDashboard,
@@ -27,10 +27,14 @@ const NAV_ITEMS = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const supabaseRef = useRef<SupabaseClient | null>(null);
   const [ready, setReady] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [venueId, setVenueId] = useState<string | null>(null);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
+  const [bannerLoading, setBannerLoading] = useState(false);
+  const [paymentToast, setPaymentToast] = useState<"success" | "cancelled" | null>(null);
 
   useEffect(() => {
     const sb = createClient(
@@ -58,6 +62,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       }
 
       setVenueId(venue.id);
+
+      // Fetch subscription status
+      fetch(`/api/settings?venueId=${venue.id}`)
+        .then((r) => (r.ok ? r.json() : {}))
+        .then((data: Record<string, unknown>) => {
+          if (data.subscription_status != null) {
+            setSubscriptionStatus(data.subscription_status as string);
+          }
+        })
+        .catch(() => {});
+
       setReady(true);
     };
 
@@ -82,9 +97,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
   }, [router]);
 
+  useEffect(() => {
+    const billing = searchParams.get("billing");
+    if (billing === "success") {
+      setSubscriptionStatus("active");
+      setPaymentToast("success");
+      setTimeout(() => setPaymentToast(null), 4000);
+    } else if (billing === "cancelled") {
+      setPaymentToast("cancelled");
+      setTimeout(() => setPaymentToast(null), 3000);
+    }
+  }, [searchParams]);
+
   const handleSignOut = async () => {
     await supabaseRef.current?.auth.signOut();
     router.replace("/");
+  };
+
+  const handleSubscribeBanner = async () => {
+    if (!venueId) return;
+    setBannerLoading(true);
+    const res = await fetch("/api/billing/checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ venueId }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    setBannerLoading(false);
   };
 
   if (!ready) {
@@ -145,10 +185,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <main className="flex-1 overflow-auto flex flex-col bg-obsidian">
+        {/* Subscription banner */}
+        {subscriptionStatus !== "active" && subscriptionStatus !== "trialing" && (
+          <div className="flex items-center justify-between gap-4 px-6 py-3 bg-gold-400/[0.08] border-b border-gold-400/20">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gold-400 font-semibold">Activez MonaConcierge</span>
+              <span className="text-mist/70">— €200/mois, tout inclus</span>
+            </div>
+            <button
+              onClick={handleSubscribeBanner}
+              disabled={bannerLoading}
+              className="flex-shrink-0 px-4 py-1.5 rounded-lg bg-gold-400 text-void text-xs font-semibold hover:bg-gold-500 disabled:opacity-60 transition-all"
+            >
+              {bannerLoading ? "…" : "S'abonner →"}
+            </button>
+          </div>
+        )}
         <VenueContext.Provider value={{ venueId: venueId! }}>
           {children}
         </VenueContext.Provider>
       </main>
+
+      {/* Payment toast */}
+      {paymentToast && (
+        <div className={`fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl text-sm font-medium shadow-lg transition-all ${
+          paymentToast === "success"
+            ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-300"
+            : "bg-fog/10 border border-graphite text-fog"
+        }`}>
+          {paymentToast === "success"
+            ? "✓ Abonnement activé — bienvenue !"
+            : "Paiement annulé."}
+        </div>
+      )}
     </div>
   );
 }
