@@ -1,0 +1,8 @@
+{
+  "install": 42,
+  "terminals": [
+    {
+      "name": "app"
+    }
+  ]
+}

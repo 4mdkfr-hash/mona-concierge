@@ -1,0 +1,18 @@
+{
+  "totalRules": 385,
+  "categoryCount": 36,
+  "autofixCount": 124,
+  "uniqueTools": [
+    "amp",
+    "claude-code",
+    "cline",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "github-copilot",
+    "kiro",
+    "opencode",
+    "roo-code",
+    "windsurf"
+  ]
+}

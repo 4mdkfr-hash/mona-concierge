@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If memory/hot-cache.md exists in the user's project, read it silently and use it as project context for this session. If memory/open-loops.md exists and contains items with dates older than 7 days, briefly remind the user: 'You have open items from [date] — want to review them?' Do not block on this; proceed with the user's request."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If memory/hot-cache.md was loaded this session, keep its priorities, hero keywords, and active veto items in mind when responding. This is a silent reminder — do not mention it to the user unless directly relevant."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "If you just produced or substantially edited content (article, blog post, landing page, product description, meta tags), recommend running content-quality-auditor before the user publishes. Say: 'I can run a quick CORE-EEAT quality check on this content before you publish — want me to?' If the content has a target keyword, note it for the audit. Do not auto-run the audit; wait for user confirmation."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Before ending this turn: if this session produced SEO/GEO findings, audit results, keyword research, or other reusable data, ask the user: 'Save these results for future sessions?' If they agree, write a dated summary to the appropriate memory/ path per the state model. If any veto-level issue was found during this session (CORE-EEAT T04, C01, R10 or CITE T03, T05, T09), append a one-line alert to memory/hot-cache.md without asking."
+          }
+        ]
+      }
+    ]
+  }
+}

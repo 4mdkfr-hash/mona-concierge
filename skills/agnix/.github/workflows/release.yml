@@ -1,0 +1,579 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: agnix
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact: agnix
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            artifact: agnix
+            cross: true
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact: agnix
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact: agnix.exe
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Install musl tools
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2
+        with:
+          key: release-${{ matrix.target }}
+          save-if: ${{ startsWith(github.ref, 'refs/tags/') }}
+
+      - name: Install cross
+        if: matrix.cross
+        uses: taiki-e/install-action@704f92c11daa75bff5b4e01fcb083350c16c47b9 # v2.69.13
+        with:
+          tool: cross@0.2.5
+
+      - name: Build release binary
+        if: ${{ !matrix.cross }}
+        run: cargo build --release --target ${{ matrix.target }} -p agnix-cli -p agnix-lsp -p agnix-mcp
+
+      - name: Build release binary (cross)
+        if: matrix.cross
+        run: cross build --release --target ${{ matrix.target }} -p agnix-cli -p agnix-lsp -p agnix-mcp
+
+      - name: Create CLI archive (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          set -euo pipefail
+          cd target/${{ matrix.target }}/release
+          tar czvf ../../../agnix-${{ matrix.target }}.tar.gz ${{ matrix.artifact }}
+          cd ../../..
+          shasum -a 256 agnix-${{ matrix.target }}.tar.gz > agnix-${{ matrix.target }}.tar.gz.sha256
+
+      - name: Create LSP archive (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          set -euo pipefail
+          cd target/${{ matrix.target }}/release
+          if [ -f agnix-lsp ]; then
+            tar czvf ../../../agnix-lsp-${{ matrix.target }}.tar.gz agnix-lsp
+            cd ../../..
+            shasum -a 256 agnix-lsp-${{ matrix.target }}.tar.gz > agnix-lsp-${{ matrix.target }}.tar.gz.sha256
+          fi
+
+      - name: Create CLI archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          Compress-Archive -Path ${{ matrix.artifact }} -DestinationPath ../../../agnix-${{ matrix.target }}.zip
+          cd ../../..
+          (Get-FileHash agnix-${{ matrix.target }}.zip -Algorithm SHA256).Hash.ToLower() + "  agnix-${{ matrix.target }}.zip" | Out-File -Encoding ASCII agnix-${{ matrix.target }}.zip.sha256
+
+      - name: Create LSP archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          if (Test-Path agnix-lsp.exe) {
+            Compress-Archive -Path agnix-lsp.exe -DestinationPath ../../../agnix-lsp-${{ matrix.target }}.zip
+            cd ../../..
+            (Get-FileHash agnix-lsp-${{ matrix.target }}.zip -Algorithm SHA256).Hash.ToLower() + "  agnix-lsp-${{ matrix.target }}.zip" | Out-File -Encoding ASCII agnix-lsp-${{ matrix.target }}.zip.sha256
+          }
+
+      - name: Create MCP archive (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          set -euo pipefail
+          cd target/${{ matrix.target }}/release
+          if [ -f agnix-mcp ]; then
+            tar czvf ../../../agnix-mcp-${{ matrix.target }}.tar.gz agnix-mcp
+            cd ../../..
+            shasum -a 256 agnix-mcp-${{ matrix.target }}.tar.gz > agnix-mcp-${{ matrix.target }}.tar.gz.sha256
+          fi
+
+      - name: Create MCP archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          cd target/${{ matrix.target }}/release
+          if (Test-Path agnix-mcp.exe) {
+            Compress-Archive -Path agnix-mcp.exe -DestinationPath ../../../agnix-mcp-${{ matrix.target }}.zip
+            cd ../../..
+            (Get-FileHash agnix-mcp-${{ matrix.target }}.zip -Algorithm SHA256).Hash.ToLower() + "  agnix-mcp-${{ matrix.target }}.zip" | Out-File -Encoding ASCII agnix-mcp-${{ matrix.target }}.zip.sha256
+          }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: agnix-${{ matrix.target }}
+          path: |
+            agnix-${{ matrix.target }}.*
+            agnix-lsp-${{ matrix.target }}.*
+            agnix-mcp-${{ matrix.target }}.*
+          if-no-files-found: error
+
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          # Extract changelog section for this version
+          if grep -q "## \[${VERSION#v}\]" CHANGELOG.md 2>/dev/null; then
+            sed -n "/## \[${VERSION#v}\]/,/## \[/p" CHANGELOG.md | sed '1d;$d' > release_notes.md
+          else
+            echo "Release $VERSION" > release_notes.md
+          fi
+
+      - name: Create draft release with assets
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2
+        with:
+          name: ${{ steps.notes.outputs.version }}
+          body_path: release_notes.md
+          files: artifacts/*
+          draft: true
+          prerelease: ${{ contains(github.ref, '-') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish release
+        run: |
+          set -euo pipefail
+          RELEASE_ID=$(gh api "repos/${REPO}/releases" \
+            --jq ".[] | select(.tag_name == \"${TAG}\" and .draft == true) | .id")
+          if [ -z "$RELEASE_ID" ]; then
+            echo "Error: Draft release for ${TAG} not found"
+            exit 1
+          fi
+          gh api "repos/${REPO}/releases/${RELEASE_ID}" \
+            --method PATCH --field draft=false
+          echo "Published release ${TAG} (id: ${RELEASE_ID})"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.notes.outputs.version }}
+
+  publish:
+    name: Publish to crates.io
+    needs: build
+    runs-on: ubuntu-latest
+    # Skip prereleases (tags with hyphens like v0.1.0-beta)
+    if: ${{ !contains(github.ref, '-') }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: dtolnay/rust-toolchain@4be9e76fd7c4901c61fb841f559994984270fce7 # stable
+
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2
+
+      - name: Verify version matches tag
+        id: version
+        run: |
+          set -euo pipefail
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          CARGO_VERSION=$(sed -n '/\[workspace\.package\]/,/^\[/p' Cargo.toml | grep '^version' | head -1 | sed 's/.*"\(.*\)".*/\1/')
+          if [ "$TAG_VERSION" != "$CARGO_VERSION" ]; then
+            echo "Error: Tag version ($TAG_VERSION) doesn't match Cargo.toml version ($CARGO_VERSION)"
+            exit 1
+          fi
+          echo "version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create crate indexing wait helper
+        run: |
+          set -euo pipefail
+          cat > /tmp/wait-for-crate.sh << 'SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          if [ $# -ne 2 ]; then
+            echo "Usage: $0 <crate> <version>" >&2
+            exit 1
+          fi
+          crate="$1"
+          version="$2"
+          # crates.io indexing is typically <60s, allow 5 min (30 x 10s) for high-load scenarios
+          max_retries=30
+          interval=10
+          ua="User-Agent: agnix-ci (https://github.com/agent-sh/agnix)"
+          echo "Waiting for $crate $version to appear on crates.io..."
+          for i in $(seq 1 $max_retries); do
+            status=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 10 --max-time 30 -H "$ua" "https://crates.io/api/v1/crates/$crate/$version" || printf '000')
+            if [ "$status" = "200" ]; then
+              echo "$crate $version available after $(((i - 1) * interval))s"
+              exit 0
+            fi
+            if [ "$i" -lt "$max_retries" ]; then
+              echo "Attempt $i/$max_retries: $crate $version not yet available (HTTP $status), retrying in ${interval}s..."
+              sleep "$interval"
+            fi
+          done
+          echo "Error: $crate $version not available after $((max_retries * interval))s"
+          exit 1
+          SCRIPT
+          chmod +x /tmp/wait-for-crate.sh
+
+      - name: Create idempotent publish helper
+        run: |
+          set -euo pipefail
+          cat > /tmp/publish-crate.sh << 'SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          if [ $# -ne 2 ]; then
+            echo "Usage: $0 <crate> <version>" >&2
+            exit 1
+          fi
+          crate="$1"
+          version="$2"
+          echo "Publishing $crate $version..."
+          if cargo publish -p "$crate" 2>&1; then
+            echo "$crate $version published successfully"
+          else
+            # Check if version already exists on crates.io (handles re-runs after partial failures)
+            status=$(curl -s -o /dev/null -w "%{http_code}" -H "User-Agent: agnix-ci (https://github.com/agent-sh/agnix)" "https://crates.io/api/v1/crates/$crate/$version")
+            if [ "$status" = "200" ]; then
+              echo "$crate $version already published, skipping"
+            else
+              echo "Publish failed and $crate $version not found on crates.io (HTTP $status)"
+              exit 1
+            fi
+          fi
+          SCRIPT
+          chmod +x /tmp/publish-crate.sh
+
+      # Publish order: agnix-rules (leaf) -> agnix-core -> agnix-cli/agnix-lsp/agnix-mcp
+      - name: Publish agnix-rules
+        run: /tmp/publish-crate.sh agnix-rules ${{ steps.version.outputs.version }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for agnix-rules indexing
+        run: /tmp/wait-for-crate.sh agnix-rules ${{ steps.version.outputs.version }}
+
+      - name: Publish agnix-core
+        run: /tmp/publish-crate.sh agnix-core ${{ steps.version.outputs.version }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Wait for agnix-core indexing
+        run: /tmp/wait-for-crate.sh agnix-core ${{ steps.version.outputs.version }}
+
+      - name: Publish agnix-cli
+        run: /tmp/publish-crate.sh agnix-cli ${{ steps.version.outputs.version }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish agnix-lsp
+        run: /tmp/publish-crate.sh agnix-lsp ${{ steps.version.outputs.version }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Publish agnix-mcp
+        run: /tmp/publish-crate.sh agnix-mcp ${{ steps.version.outputs.version }}
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+  vscode:
+    name: Publish VS Code Extension
+    needs: build
+    runs-on: ubuntu-latest
+    # Skip prereleases
+    if: ${{ !contains(github.ref, '-') }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: editors/vscode
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync all versions from tag
+        working-directory: .
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          bash scripts/sync-versions.sh "${TAG_VERSION}"
+
+      - name: Compile extension
+        run: npm run compile -- --production
+
+      - name: Package extension
+        run: npx vsce package
+
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: vscode-extension
+          path: editors/vscode/*.vsix
+
+  npm:
+    name: Publish npm Package
+    needs: release
+    runs-on: ubuntu-latest
+    # Skip prereleases
+    if: ${{ !contains(github.ref, '-') }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: npm
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Sync all versions from tag
+        working-directory: .
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          bash scripts/sync-versions.sh "${TAG_VERSION}"
+
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  jetbrains:
+    name: Publish JetBrains Plugin
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref, '-') }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: editors/jetbrains
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Sync version from tag
+        working-directory: .
+        run: |
+          set -euo pipefail
+          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+          bash scripts/sync-versions.sh "${TAG_VERSION}"
+
+      - name: Build and publish plugin
+        run: ./gradlew publishPlugin
+        env:
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+
+  zed:
+    name: Publish Zed Extension
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref, '-') }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Update Zed extension registry
+        env:
+          GH_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          export VERSION
+          TAG="v${VERSION}"
+          TAG_SHA="$(git rev-list -n 1 "$TAG")"
+          BRANCH="update-agnix-v${VERSION}"
+
+          WORKDIR="$(mktemp -d)"
+          trap 'rm -rf "$WORKDIR"' EXIT
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/avifenesh/extensions.git" "$WORKDIR/extensions"
+          cd "$WORKDIR/extensions"
+
+          git checkout -B "$BRANCH" origin/main
+          git submodule update --init extensions/agnix
+          git -C extensions/agnix fetch origin "$TAG_SHA"
+          git -C extensions/agnix checkout "$TAG_SHA"
+
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          version = os.environ["VERSION"]
+          path = Path("extensions.toml")
+          lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+
+          in_agnix = False
+          found_version = False
+          for i, line in enumerate(lines):
+            stripped = line.strip()
+            if stripped.startswith("[") and stripped.endswith("]"):
+              in_agnix = stripped == "[agnix]"
+              continue
+            if in_agnix and stripped.startswith("version = "):
+              found_version = True
+              eol = "\r\n" if line.endswith("\r\n") else "\n"
+              lines[i] = f'version = "{version}"{eol}'
+              break
+
+          if not found_version:
+            raise SystemExit("Could not find [agnix] version line in extensions.toml")
+
+          path.write_text("".join(lines), encoding="utf-8")
+          PY
+
+          git add extensions/agnix extensions.toml
+          if git diff --cached --quiet; then
+            echo "No Zed registry changes required for v${VERSION}"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update agnix to v${VERSION}"
+          git push --force-with-lease origin "$BRANCH"
+
+          EXISTING_PR="$(gh pr list --repo avifenesh/extensions --state open --head "avifenesh:${BRANCH}" --json number --jq '.[0].number // empty')"
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #${EXISTING_PR} already exists for ${BRANCH}"
+          else
+            gh pr create \
+              --repo avifenesh/extensions \
+              --base main \
+              --head "$BRANCH" \
+              --title "Update agnix to v${VERSION}" \
+              --body "Auto-generated update for the agnix Zed extension release v${VERSION}."
+          fi
+
+  version-docs:
+    name: Version Docs & Push to Main
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.ref, '-') }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.COMMITTER_TOKEN }}
+
+      - uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.x'
+
+      - name: Extract and validate version from tag
+        id: version
+        run: |
+          set -euo pipefail
+          VERSION="${GITHUB_REF#refs/tags/v}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: $VERSION"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Install website dependencies
+        run: npm --prefix website ci
+
+      - name: Regenerate site data and rule docs
+        run: python3 scripts/generate-docs-rules.py
+
+      - name: Verify site data was generated
+        run: |
+          set -euo pipefail
+          if [ ! -f website/src/data/siteData.json ]; then
+            echo "siteData.json was not generated"
+            exit 1
+          fi
+          python3 -c "import json; json.load(open('website/src/data/siteData.json'))"
+
+      - name: Cut versioned docs snapshot
+        run: npm --prefix website run version:cut -- "${{ steps.version.outputs.version }}"
+
+      - name: Commit and push versioned docs
+        env:
+          GH_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add website/src/data/siteData.json website/docs/rules/ website/versioned_docs/ website/versioned_sidebars/ website/versions.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            BRANCH="docs/version-${{ steps.version.outputs.version }}"
+            git checkout -B "$BRANCH"
+            git commit -m "docs: version ${{ steps.version.outputs.version }} docs and update site data"
+            # Force-push to update the auto-generated docs branch on workflow re-runs
+            git push --force-with-lease origin "$BRANCH"
+            # Create PR only if one doesn't already exist for this branch
+            EXISTING_PR="$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')"
+            if [ -n "$EXISTING_PR" ]; then
+              echo "PR #${EXISTING_PR} already exists for $BRANCH, updated with force push"
+            else
+              gh pr create \
+                --base main \
+                --head "$BRANCH" \
+                --title "docs: version ${{ steps.version.outputs.version }} docs" \
+                --body "Auto-generated versioned docs snapshot for v${{ steps.version.outputs.version }}, including updated rule docs and site data." \
+                --label "documentation"
+            fi
+          fi
