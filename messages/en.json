@@ -2,67 +2,51 @@
   "nav": {
     "signin": "Sign In",
     "demo": "View demo",
-    "start": "Get started free"
+    "start": "Get started"
   },
   "hero": {
-    "tag": "Monaco & Cote d'Azur",
-    "title": "The AI concierge\nfor your business",
-    "subtitle": "Automate customer replies, manage bookings and reviews — with the elegance Monaco deserves.",
-    "cta": "Get started free",
-    "demo": "View demo"
+    "headline": "Your business never sleeps.\nNeither does your concierge.",
+    "subtitle": "AI Concierge for hotels, restaurants and boutiques in Monaco",
+    "cta": "Get started"
   },
-  "social": {
-    "label": "Trusted by venues across Monaco"
+  "problem": {
+    "items": [
+      { "num": "01", "text": "Clients message at midnight — nobody answers. They go elsewhere." },
+      { "num": "02", "text": "FR / EN / RU — your team can't cover every language." },
+      { "num": "03", "text": "Hours wasted answering the same questions: prices, hours, bookings." }
+    ]
+  },
+  "solution": {
+    "title": "A concierge that never sleeps",
+    "features": [
+      { "title": "24/7 Replies", "desc": "Every message gets an instant response" },
+      { "title": "FR · EN · RU", "desc": "In your client's language" },
+      { "title": "Auto Bookings", "desc": "Direct from WhatsApp" }
+    ],
+    "chat": {
+      "messages": [
+        { "from": "client", "text": "Good evening, a table for 2 tonight?", "time": "21:43" },
+        { "from": "bot", "text": "Good evening! Yes, available at 8:30 or 10 PM. Which do you prefer?", "time": "21:43" },
+        { "from": "client", "text": "8:30 perfect", "time": "21:44" },
+        { "from": "bot", "text": "Confirmed! Reserved for 2. Name for the booking?", "time": "21:44" }
+      ]
+    }
   },
   "features": {
     "title": "Everything you need",
-    "subtitle": "One platform to manage the entire customer experience.",
     "items": [
-      {
-        "title": "WhatsApp AI Assistant",
-        "desc": "Automatic replies in French, English, and Russian. Your guests get an instant response, around the clock."
-      },
-      {
-        "title": "AI Google Reviews",
-        "desc": "Personalised responses to every review, protecting and elevating your online reputation."
-      },
-      {
-        "title": "Smart Bookings",
-        "desc": "WhatsApp-based reservations synced with Google Calendar. Automatic confirmations."
-      },
-      {
-        "title": "Smart Upsell",
-        "desc": "Personalised post-visit follow-ups. Increase return visits and average spend."
-      }
-    ]
-  },
-  "how": {
-    "title": "How it works",
-    "subtitle": "Three steps to transform your customer service.",
-    "steps": [
-      {
-        "num": "01",
-        "label": "Connect your channels",
-        "desc": "WhatsApp, Instagram, Google Business — set up in minutes, no technical skills required."
-      },
-      {
-        "num": "02",
-        "label": "AI works for you",
-        "desc": "Natural multilingual replies, booking management, review monitoring — all on autopilot."
-      },
-      {
-        "num": "03",
-        "label": "You stay in control",
-        "desc": "Real-time dashboard, instant notifications, step in at any moment."
-      }
+      { "title": "AI Concierge", "desc": "Replies to clients 24/7" },
+      { "title": "Three Languages", "desc": "French, English, Russian natively" },
+      { "title": "Smart Bookings", "desc": "Via WhatsApp, synced Calendar" },
+      { "title": "VIP Memory", "desc": "Recognises your regular guests" },
+      { "title": "Google Reviews", "desc": "Auto-replies to every review" },
+      { "title": "Dashboard", "desc": "Real-time control panel" }
     ]
   },
   "pricing": {
-    "title": "Simple pricing",
-    "subtitle": "All-inclusive. No commitment. 14-day free trial.",
+    "title": "Simple",
     "tier": "Essential",
     "price": "200",
-    "currency": "EUR",
     "period": "/ month",
     "features": [
       "Multilingual WhatsApp AI assistant",
@@ -72,12 +56,11 @@
       "Real-time dashboard",
       "Priority support"
     ],
-    "cta": "14 days free",
-    "guarantee": "No commitment. Cancel anytime."
+    "cta": "Get started now",
+    "guarantee": "No commitment — cancel anytime"
   },
-  "cta": {
-    "title": "Ready to transform\nyour guest experience?",
-    "subtitle": "Join the finest establishments in Monaco and the Cote d'Azur."
+  "trust": {
+    "label": "Launching with select Monaco businesses"
   },
   "signup": {
     "google": "Continue with Google",
@@ -89,17 +72,11 @@
     "sent_desc": "We sent a magic link to"
   },
   "footer": {
-    "tagline": "Excellence in customer engagement.",
-    "product": "Product",
-    "company": "Company",
+    "tagline": "Designed for Monaco",
     "links": {
-      "features": "Features",
-      "pricing": "Pricing",
-      "demo": "Demo",
-      "about": "About",
       "privacy": "Privacy",
       "contact": "Contact"
     },
-    "copy": "All rights reserved."
+    "copy": "© 2026 MonaConcierge. All rights reserved."
   }
 }

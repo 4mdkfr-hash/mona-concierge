@@ -1,28 +1,21 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import {
   MessageSquare,
-  Star,
-  CalendarCheck,
-  TrendingUp,
-  ArrowRight,
-  Play,
-  Check,
   Globe,
+  CalendarCheck,
+  Brain,
+  Star,
+  LayoutDashboard,
+  Check,
 } from "lucide-react";
 
-const FEATURE_ICONS = [MessageSquare, Star, CalendarCheck, TrendingUp];
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
-const DEMO_VENUES = [
-  "Le Jardin Monégasque",
-  "Maison Blanc",
-  "Atelier Lumière",
-  "Café Riviera",
-];
+const FEATURE_ICONS = [MessageSquare, Globe, CalendarCheck, Brain, Star, LayoutDashboard];
 
 function useFadeIn() {
   const observe = useCallback((node: HTMLElement | null) => {
@@ -34,7 +27,7 @@ function useFadeIn() {
           io.unobserve(entry.target);
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.12 }
     );
     io.observe(node);
   }, []);
@@ -44,7 +37,6 @@ function useFadeIn() {
 export default function LandingPage() {
   const t = useTranslations();
   const locale = useLocale();
-  const signupRef = useRef<HTMLDivElement>(null);
   const fade = useFadeIn();
 
   const [email, setEmail] = useState("");
@@ -53,15 +45,10 @@ export default function LandingPage() {
   const [error, setError] = useState("");
   const [langOpen, setLangOpen] = useState(false);
 
-  const features = t.raw("features.items") as {
-    title: string;
-    desc: string;
-  }[];
-  const steps = t.raw("how.steps") as {
-    num: string;
-    label: string;
-    desc: string;
-  }[];
+  const problemItems = t.raw("problem.items") as { num: string; text: string }[];
+  const solutionFeatures = t.raw("solution.features") as { title: string; desc: string }[];
+  const chatMessages = t.raw("solution.chat.messages") as { from: string; text: string; time: string }[];
+  const featureItems = t.raw("features.items") as { title: string; desc: string }[];
   const pricingFeatures = t.raw("pricing.features") as string[];
 
   const handleGoogleLogin = async () => {
@@ -85,194 +72,265 @@ export default function LandingPage() {
     );
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/inbox` },
+      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
     });
     setLoading(false);
     if (error) setError(error.message);
     else setSent(true);
   };
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const scrollToSignup = () => {
+    document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
-    <div className="min-h-screen bg-void text-ivory font-body antialiased">
+    <div
+      className="min-h-screen text-ivory antialiased"
+      style={{ background: "#080B12", fontFamily: "var(--font-body), Inter, system-ui, sans-serif" }}
+    >
+
       {/* ────────── NAVBAR ────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50">
-        <div className="mx-auto max-w-7xl px-6 py-4">
-          <div className="glass rounded-2xl border border-white/[0.06] px-6 py-3 flex items-center justify-between">
-            {/* Logo */}
-            <Link
-              href={`/${locale}`}
-              className="flex items-center gap-2.5 group"
+      <nav
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5"
+        style={{ background: "rgba(8,11,18,0.85)", backdropFilter: "blur(16px)" }}
+      >
+        <Link href={`/${locale}`} className="font-display text-base tracking-widest text-ivory/90 font-light">
+          MONA<span className="text-gold-400">·</span>CONCIERGE
+        </Link>
+
+        <div className="flex items-center gap-6">
+          {/* Language switcher */}
+          <div className="relative">
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="flex items-center gap-1.5 text-xs text-fog hover:text-mist transition-colors"
             >
-              <span className="text-gold-400 text-lg transition-transform group-hover:rotate-45">
-                &#10022;
-              </span>
-              <span className="font-display text-lg font-semibold tracking-tight">
-                MonaConcierge
-              </span>
-            </Link>
-
-            {/* Right */}
-            <div className="flex items-center gap-3">
-              {/* Language */}
-              <div className="relative">
-                <button
-                  onClick={() => setLangOpen(!langOpen)}
-                  className="flex items-center gap-1.5 text-xs text-fog hover:text-mist transition-colors px-2 py-1.5 rounded-lg hover:bg-white/[0.04]"
-                >
-                  <Globe size={14} />
-                  {LOCALE_LABELS[locale]}
-                </button>
-                {langOpen && (
-                  <div className="absolute top-full right-0 mt-2 glass rounded-xl border border-white/[0.08] py-1 min-w-[80px]">
-                    {(["fr", "en", "ru"] as const).map((l) => (
-                      <Link
-                        key={l}
-                        href={`/${l}`}
-                        onClick={() => setLangOpen(false)}
-                        className={`block px-4 py-1.5 text-xs transition-colors ${
-                          locale === l
-                            ? "text-gold-400 font-medium"
-                            : "text-fog hover:text-ivory"
-                        }`}
-                      >
-                        {LOCALE_LABELS[l]}
-                      </Link>
-                    ))}
-                  </div>
-                )}
+              <Globe size={13} />
+              {LOCALE_LABELS[locale]}
+            </button>
+            {langOpen && (
+              <div
+                className="absolute top-full right-0 mt-2 py-1 rounded-xl border border-white/[0.08] min-w-[64px]"
+                style={{ background: "rgba(20,24,32,0.95)", backdropFilter: "blur(12px)" }}
+              >
+                {(["fr", "en", "ru"] as const).map((l) => (
+                  <Link
+                    key={l}
+                    href={`/${l}`}
+                    onClick={() => setLangOpen(false)}
+                    className={`block px-4 py-1.5 text-xs transition-colors ${
+                      locale === l ? "text-gold-400" : "text-fog hover:text-ivory"
+                    }`}
+                  >
+                    {LOCALE_LABELS[l]}
+                  </Link>
+                ))}
               </div>
-
-              <Link
-                href="/demo"
-                className="text-sm text-mist hover:text-ivory transition-colors hidden sm:block"
-              >
-                {t("nav.demo")}
-              </Link>
-
-              <button
-                onClick={() => scrollTo("signup")}
-                className="text-sm text-fog hover:text-ivory transition-colors hidden sm:block"
-              >
-                {t("nav.signin")}
-              </button>
-
-              <button
-                onClick={() => scrollTo("signup")}
-                className="text-sm px-5 py-2 bg-gold-400 text-void font-semibold rounded-xl hover:bg-gold-500 transition-colors"
-              >
-                {t("nav.start")}
-              </button>
-            </div>
+            )}
           </div>
+
+          <button
+            onClick={scrollToSignup}
+            className="text-xs px-5 py-2 border border-gold-400/60 text-gold-400 rounded-full hover:bg-gold-400/[0.08] transition-all tracking-wider"
+          >
+            {t("nav.start")}
+          </button>
         </div>
       </nav>
 
-      {/* ────────── HERO ────────── */}
-      <section className="relative pt-40 pb-32 px-6 text-center overflow-hidden">
-        {/* Ambient glow */}
+      {/* ────────── HERO (100vh) ────────── */}
+      <section
+        className="relative flex flex-col items-center justify-center text-center px-6"
+        style={{ minHeight: "100vh", paddingTop: "80px" }}
+      >
+        {/* Subtle gold radial glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background:
-              "radial-gradient(ellipse 60% 40% at 50% 0%, rgba(212,175,55,0.07) 0%, transparent 70%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "radial-gradient(circle 300px at 30% 20%, rgba(212,175,55,0.04) 0%, transparent 100%)",
+            background: "radial-gradient(ellipse 50% 35% at 50% 30%, rgba(212,175,55,0.06) 0%, transparent 70%)",
           }}
         />
 
-        <div className="relative max-w-4xl mx-auto space-y-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 glass border border-white/[0.08] rounded-full text-xs text-gold-400 tracking-widest uppercase">
-            <span>&#10022;</span>
-            <span>{t("hero.tag")}</span>
-          </div>
-
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-light leading-[1.1] tracking-tight text-ivory whitespace-pre-line">
-            {t("hero.title")}
+        <div className="relative max-w-3xl mx-auto space-y-8">
+          <h1
+            className="font-display font-light leading-[1.15] tracking-tight"
+            style={{
+              fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
+              color: "#F5F0E8",
+              letterSpacing: "-0.01em",
+              whiteSpace: "pre-line",
+            }}
+          >
+            {t("hero.headline")}
           </h1>
 
-          <p className="text-lg md:text-xl text-mist/80 max-w-2xl mx-auto leading-relaxed">
+          {/* Thin gold line */}
+          <span className="gold-line" />
+
+          <p
+            className="text-mist/60 font-light tracking-wide"
+            style={{ fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)", fontWeight: 300 }}
+          >
             {t("hero.subtitle")}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={() => scrollTo("signup")}
-              className="inline-flex items-center gap-2.5 bg-gold-400 text-void px-8 py-4 rounded-2xl font-semibold text-sm hover:bg-gold-500 transition-all hover:shadow-[0_0_40px_rgba(212,175,55,0.2)]"
-            >
-              {t("hero.cta")}
-              <ArrowRight size={16} />
-            </button>
-            <Link
-              href="/demo"
-              className="inline-flex items-center gap-2.5 px-8 py-4 rounded-2xl text-sm text-mist border border-white/[0.08] hover:border-white/[0.16] hover:text-ivory transition-all"
-            >
-              <Play size={14} />
-              {t("hero.demo")}
-            </Link>
-          </div>
+          <button
+            onClick={scrollToSignup}
+            className="inline-flex items-center gap-2 px-8 py-3.5 border border-gold-400/60 text-gold-400 text-sm font-light tracking-widest rounded-full hover:bg-gold-400/[0.06] transition-all uppercase"
+          >
+            {t("hero.cta")}
+          </button>
         </div>
       </section>
 
-      {/* ────────── SOCIAL PROOF ────────── */}
-      <section className="py-12 border-y border-white/[0.04]">
-        <div className="max-w-7xl mx-auto px-6">
-          <p className="text-xs text-fog/60 tracking-widest uppercase text-center mb-8">
-            {t("social.label")}
-          </p>
-          <div className="flex items-center justify-center gap-10 flex-wrap">
-            {DEMO_VENUES.map((v) => (
+      {/* ────────── PROBLEM ────────── */}
+      <section
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+      >
+        <div className="max-w-2xl mx-auto space-y-14">
+          {problemItems.map((item) => (
+            <div key={item.num} className="stagger-child flex items-start gap-8">
               <span
-                key={v}
-                className="text-sm text-mist/30 font-display italic tracking-wide"
+                className="font-display font-light flex-shrink-0 leading-none"
+                style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: "rgba(212,175,55,0.25)", letterSpacing: "-0.02em" }}
               >
-                {v}
+                {item.num}
               </span>
-            ))}
+              <p
+                className="font-light leading-relaxed"
+                style={{ fontSize: "clamp(1rem, 1.8vw, 1.25rem)", color: "#A8A8B3", fontWeight: 300, paddingTop: "0.3em" }}
+              >
+                {item.text}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ────────── SOLUTION ────────── */}
+      <section
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+      >
+        <div className="max-w-5xl mx-auto">
+          <h2
+            className="font-display font-light text-center mb-16 tracking-tight"
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#F5F0E8" }}
+          >
+            {t("solution.title")}
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            {/* WhatsApp chat mockup — custom CSS, no screenshot */}
+            <div className="stagger-child order-2 md:order-1">
+              <div
+                className="rounded-2xl overflow-hidden"
+                style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.06)" }}
+              >
+                {/* Chat header */}
+                <div
+                  className="flex items-center gap-3 px-4 py-3"
+                  style={{ background: "#111b21", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-void"
+                    style={{ background: "#D4AF37" }}
+                  >
+                    ✦
+                  </div>
+                  <div>
+                    <div className="text-xs text-ivory font-medium">MonaConcierge</div>
+                    <div className="text-[10px]" style={{ color: "#25D366" }}>en ligne</div>
+                  </div>
+                </div>
+                {/* Messages */}
+                <div className="px-4 py-4 space-y-3" style={{ minHeight: "220px" }}>
+                  {chatMessages.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.from === "client" ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className="max-w-[78%] px-3 py-2 text-xs text-ivory leading-relaxed"
+                        style={{
+                          background: msg.from === "client" ? "#005c4b" : "#1e2d31",
+                          borderRadius: msg.from === "client"
+                            ? "16px 4px 16px 16px"
+                            : "4px 16px 16px 16px",
+                        }}
+                      >
+                        {msg.text}
+                        <span
+                          className="ml-2 text-[10px]"
+                          style={{ color: "rgba(255,255,255,0.35)", fontVariantNumeric: "tabular-nums" }}
+                        >
+                          {msg.time}
+                          {msg.from === "bot" && " ✓✓"}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Features list */}
+            <div className="stagger-child order-1 md:order-2 space-y-8">
+              {solutionFeatures.map((f) => (
+                <div key={f.title} className="flex items-start gap-4">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.15)" }}
+                  >
+                    <span className="text-gold-400 text-sm">✦</span>
+                  </div>
+                  <div>
+                    <div className="text-ivory text-sm font-medium">{f.title}</div>
+                    <div className="text-fog text-sm font-light mt-0.5">{f.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ────────── FEATURES ────────── */}
-      <section id="features" ref={fade} className="fade-section py-32 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
-              {t("features.title")}
-            </h2>
-            <p className="text-mist/60 text-lg max-w-xl mx-auto">
-              {t("features.subtitle")}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {features.map((f, i) => {
+      {/* ────────── FEATURES (6 cards, 2×3) ────────── */}
+      <section
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+      >
+        <div className="max-w-4xl mx-auto">
+          <h2
+            className="font-display font-light text-center mb-16 tracking-tight"
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#F5F0E8" }}
+          >
+            {t("features.title")}
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+            {featureItems.map((f, i) => {
               const Icon = FEATURE_ICONS[i];
               return (
                 <div
                   key={f.title}
-                  className="stagger-child group glass border border-white/[0.06] rounded-3xl p-8 hover:border-gold-400/20 transition-all duration-500"
+                  className="stagger-child group p-6 rounded-2xl transition-all duration-500"
+                  style={{
+                    background: "transparent",
+                    border: "1px solid rgba(255,255,255,0.05)",
+                    cursor: "default",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(212,175,55,0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.05)";
+                  }}
                 >
-                  <div className="flex items-start gap-5">
-                    <div className="w-12 h-12 rounded-2xl bg-gold-400/[0.08] border border-gold-400/[0.12] flex items-center justify-center flex-shrink-0 group-hover:bg-gold-400/[0.14] transition-colors">
-                      <Icon size={22} className="text-gold-400" />
-                    </div>
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-semibold text-ivory">
-                        {f.title}
-                      </h3>
-                      <p className="text-sm text-fog leading-relaxed">
-                        {f.desc}
-                      </p>
-                    </div>
-                  </div>
+                  <Icon size={20} className="text-gold-400 mb-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="text-ivory text-sm font-medium mb-1">{f.title}</div>
+                  <div className="text-fog text-xs font-light leading-relaxed">{f.desc}</div>
                 </div>
               );
             })}
@@ -280,85 +338,72 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ────────── HOW IT WORKS ────────── */}
-      <section ref={fade} className="fade-section py-32 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-20 space-y-4">
-            <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
-              {t("how.title")}
-            </h2>
-            <p className="text-mist/60 text-lg">{t("how.subtitle")}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {steps.map((s) => (
-              <div key={s.num} className="stagger-child space-y-5">
-                <span className="font-display text-5xl font-light text-gold-400/20">
-                  {s.num}
-                </span>
-                <h3 className="text-lg font-semibold text-ivory">{s.label}</h3>
-                <p className="text-sm text-fog leading-relaxed">{s.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ────────── PRICING ────────── */}
-      <section id="pricing" ref={fade} className="fade-section py-32 px-6">
-        <div className="max-w-lg mx-auto">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="font-display text-4xl md:text-5xl font-light text-ivory">
-              {t("pricing.title")}
-            </h2>
-            <p className="text-mist/60">{t("pricing.subtitle")}</p>
-          </div>
+      <section
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+      >
+        <div className="max-w-md mx-auto text-center">
+          <h2
+            className="font-display font-light mb-12 tracking-tight"
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#F5F0E8" }}
+          >
+            {t("pricing.title")}
+          </h2>
 
-          <div className="glass border border-gold-400/[0.12] rounded-3xl p-10 relative overflow-hidden">
+          <div
+            className="rounded-3xl p-10 relative overflow-hidden"
+            style={{ border: "1px solid rgba(212,175,55,0.15)", background: "rgba(20,24,32,0.6)" }}
+          >
             {/* Corner glow */}
             <div
-              className="absolute -top-20 -right-20 w-60 h-60 pointer-events-none"
-              style={{
-                background:
-                  "radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%)",
-              }}
+              className="absolute -top-24 -right-24 w-64 h-64 pointer-events-none"
+              style={{ background: "radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%)" }}
             />
 
             <div className="relative space-y-8">
-              <div className="inline-block px-3 py-1.5 border border-gold-400/30 rounded-lg text-[10px] tracking-[0.2em] uppercase text-gold-400">
+              <div
+                className="inline-block px-3 py-1 text-[10px] tracking-[0.2em] uppercase"
+                style={{ border: "1px solid rgba(212,175,55,0.3)", borderRadius: "6px", color: "#D4AF37" }}
+              >
                 {t("pricing.tier")}
               </div>
 
-              <div className="flex items-baseline gap-1">
-                <span className="text-lg text-mist/50">&#8364;</span>
-                <span className="text-6xl font-display font-light text-ivory">
+              <div className="flex items-baseline justify-center gap-1">
+                <span className="text-xl" style={{ color: "rgba(245,240,232,0.4)" }}>€</span>
+                <span
+                  className="font-display font-light"
+                  style={{ fontSize: "clamp(3rem, 8vw, 4.5rem)", color: "#D4AF37", lineHeight: 1 }}
+                >
                   {t("pricing.price")}
                 </span>
-                <span className="text-mist/40 text-sm ml-1">
+                <span className="text-sm ml-1" style={{ color: "rgba(168,168,179,0.5)" }}>
                   {t("pricing.period")}
                 </span>
               </div>
 
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+              <div style={{ height: "1px", background: "linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)" }} />
 
-              <ul className="space-y-4">
+              <ul className="space-y-3 text-left">
                 {pricingFeatures.map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm">
-                    <div className="w-5 h-5 rounded-full bg-gold-400/10 flex items-center justify-center flex-shrink-0">
-                      <Check size={12} className="text-gold-400" />
-                    </div>
-                    <span className="text-mist">{f}</span>
+                  <li key={i} className="flex items-center gap-3 text-sm font-light" style={{ color: "#A8A8B3" }}>
+                    <Check size={14} className="text-gold-400 flex-shrink-0" />
+                    {f}
                   </li>
                 ))}
               </ul>
 
+              {/* ONLY filled gold CTA button on the page */}
               <button
-                onClick={() => scrollTo("signup")}
-                className="w-full py-4 rounded-2xl font-semibold text-sm bg-gold-400 text-void hover:bg-gold-500 transition-all hover:shadow-[0_0_40px_rgba(212,175,55,0.15)]"
+                onClick={scrollToSignup}
+                className="w-full py-4 rounded-2xl font-semibold text-sm text-void transition-all hover:opacity-90"
+                style={{ background: "#D4AF37" }}
               >
                 {t("pricing.cta")}
               </button>
 
-              <p className="text-xs text-fog/50 text-center">
+              <p className="text-xs font-light" style={{ color: "rgba(107,107,122,0.7)" }}>
                 {t("pricing.guarantee")}
               </p>
             </div>
@@ -366,33 +411,45 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ────────── SIGN UP CTA ────────── */}
+      {/* ────────── TRUST ────────── */}
+      <section
+        className="px-6 py-16 text-center"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+      >
+        <p className="text-xs tracking-widest uppercase" style={{ color: "rgba(107,107,122,0.5)" }}>
+          {t("trust.label")}
+        </p>
+        {/* Channel logos — muted placeholders */}
+        <div className="flex items-center justify-center gap-10 mt-6 flex-wrap">
+          {["WhatsApp", "Google", "Instagram"].map((ch) => (
+            <span key={ch} className="text-sm font-light" style={{ color: "rgba(107,107,122,0.25)", letterSpacing: "0.05em" }}>
+              {ch}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ────────── SIGNUP CTA ────────── */}
       <section
         id="signup"
-        ref={signupRef}
-        className="py-32 px-6 text-center"
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px" }}
       >
-        <div ref={fade} className="fade-section max-w-lg mx-auto space-y-10">
-          <div className="w-16 h-px bg-gradient-to-r from-transparent via-gold-400/50 to-transparent mx-auto" />
-
-          <h2 className="font-display text-4xl md:text-5xl font-light text-ivory whitespace-pre-line leading-tight">
-            {t("cta.title")}
-          </h2>
-          <p className="text-mist/50 leading-relaxed">{t("cta.subtitle")}</p>
-
+        <div className="max-w-sm mx-auto">
           {sent ? (
-            <div className="glass border border-gold-400/20 rounded-2xl p-8 space-y-2">
-              <p className="font-semibold text-gold-400">
-                {t("signup.sent_title")}
-              </p>
-              <p className="text-sm text-mist/60">
-                {t("signup.sent_desc")}{" "}
-                <strong className="text-ivory">{email}</strong>
+            <div
+              className="rounded-2xl p-8 text-center space-y-2"
+              style={{ background: "rgba(20,24,32,0.6)", border: "1px solid rgba(212,175,55,0.2)" }}
+            >
+              <p className="font-semibold text-gold-400">{t("signup.sent_title")}</p>
+              <p className="text-sm font-light" style={{ color: "rgba(168,168,179,0.7)" }}>
+                {t("signup.sent_desc")} <strong className="text-ivory">{email}</strong>
               </p>
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {/* Google OAuth button */}
+              {/* Google OAuth — primary button */}
               <button
                 onClick={handleGoogleLogin}
                 className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-white text-[#1a1a1a] font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm"
@@ -408,12 +465,12 @@ export default function LandingPage() {
 
               {/* Divider */}
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px bg-white/[0.06]" />
-                <span className="text-xs text-fog/50">{t("signup.divider")}</span>
-                <div className="flex-1 h-px bg-white/[0.06]" />
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+                <span className="text-xs" style={{ color: "rgba(107,107,122,0.5)" }}>{t("signup.divider")}</span>
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
               </div>
 
-              {/* Magic link form */}
+              {/* Magic link */}
               <form onSubmit={handleLogin} className="flex flex-col gap-3">
                 <input
                   type="email"
@@ -421,15 +478,32 @@ export default function LandingPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("signup.placeholder")}
-                  className="w-full px-5 py-4 rounded-2xl bg-white/[0.04] border border-white/[0.08] text-ivory placeholder:text-fog/50 focus:border-gold-400/40 focus:outline-none transition-all"
+                  className="w-full px-5 py-4 rounded-2xl text-ivory placeholder:text-fog/40 focus:outline-none transition-all text-sm font-light"
+                  style={{
+                    background: "rgba(255,255,255,0.03)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                  onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.35)"; }}
+                  onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
                 />
-                {error && (
-                  <p className="text-xs text-red-400 text-left">{error}</p>
-                )}
+                {error && <p className="text-xs text-red-400">{error}</p>}
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-2xl font-semibold text-sm border border-white/[0.12] text-mist hover:text-ivory hover:border-white/[0.2] disabled:opacity-50 transition-all"
+                  className="w-full py-4 rounded-2xl text-sm font-light transition-all disabled:opacity-50"
+                  style={{
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "rgba(168,168,179,0.8)",
+                    background: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.18)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "#F5F0E8";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(168,168,179,0.8)";
+                  }}
                 >
                   {loading ? t("signup.sending") : t("signup.button")}
                 </button>
@@ -441,88 +515,54 @@ export default function LandingPage() {
 
       {/* WhatsApp floating button */}
       <a
-        href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ''}`}
+        href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ""}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Contact us on WhatsApp"
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 rounded-full shadow-lg transition-transform hover:scale-110"
-        style={{ background: '#25D366' }}
+        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-transform hover:scale-110"
+        style={{ background: "#25D366" }}
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
         </svg>
       </a>
 
       {/* ────────── FOOTER ────────── */}
-      <footer className="py-16 px-6 border-t border-white/[0.04]">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
-            {/* Brand */}
-            <div className="md:col-span-2 space-y-4">
-              <div className="flex items-center gap-2.5">
-                <span className="text-gold-400 text-lg">&#10022;</span>
-                <span className="font-display text-lg font-semibold">
-                  MonaConcierge
-                </span>
-              </div>
-              <p className="text-sm text-fog/60 max-w-xs leading-relaxed">
-                {t("footer.tagline")}
-              </p>
-            </div>
-
-            {/* Product links */}
-            <div className="space-y-4">
-              <h4 className="text-xs text-fog/40 tracking-widest uppercase">
-                {t("footer.product")}
-              </h4>
-              <div className="space-y-2.5">
-                <button
-                  onClick={() => scrollTo("features")}
-                  className="block text-sm text-fog hover:text-mist transition-colors"
-                >
-                  {t("footer.links.features")}
-                </button>
-                <button
-                  onClick={() => scrollTo("pricing")}
-                  className="block text-sm text-fog hover:text-mist transition-colors"
-                >
-                  {t("footer.links.pricing")}
-                </button>
-                <Link
-                  href="/demo"
-                  className="block text-sm text-fog hover:text-mist transition-colors"
-                >
-                  {t("footer.links.demo")}
-                </Link>
-              </div>
-            </div>
-
-            {/* Company links */}
-            <div className="space-y-4">
-              <h4 className="text-xs text-fog/40 tracking-widest uppercase">
-                {t("footer.company")}
-              </h4>
-              <div className="space-y-2.5">
-                <Link
-                  href="/privacy"
-                  className="block text-sm text-fog hover:text-mist transition-colors"
-                >
-                  {t("footer.links.privacy")}
-                </Link>
-                <button
-                  onClick={() => scrollTo("signup")}
-                  className="block text-sm text-fog hover:text-mist transition-colors"
-                >
-                  {t("footer.links.contact")}
-                </button>
-              </div>
-            </div>
+      <footer
+        className="px-8 py-10"
+        style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+      >
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="text-center sm:text-left space-y-1">
+            <p className="font-display font-light italic text-xs text-fog/50 tracking-wide">
+              {t("footer.tagline")}
+            </p>
+            <p className="text-[11px]" style={{ color: "rgba(107,107,122,0.35)" }}>
+              {t("footer.copy")}
+            </p>
           </div>
 
-          <div className="pt-8 border-t border-white/[0.04] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-fog/30">
-              &copy; {new Date().getFullYear()} MonaConcierge. {t("footer.copy")}
-            </p>
+          <div className="flex items-center gap-6">
+            <Link
+              href={`/${locale}/privacy`}
+              className="text-xs font-light transition-colors"
+              style={{ color: "rgba(107,107,122,0.5)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#A8A8B3"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(107,107,122,0.5)"; }}
+            >
+              {t("footer.links.privacy")}
+            </Link>
+            <button
+              onClick={scrollToSignup}
+              className="text-xs font-light transition-colors"
+              style={{ color: "rgba(107,107,122,0.5)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#A8A8B3"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(107,107,122,0.5)"; }}
+            >
+              {t("footer.links.contact")}
+            </button>
+
+            {/* Language links */}
             <div className="flex gap-1">
               {(["fr", "en", "ru"] as const).map((l) => (
                 <Link
@@ -530,7 +570,7 @@ export default function LandingPage() {
                   href={`/${l}`}
                   className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
                     locale === l
-                      ? "text-gold-400 bg-gold-400/[0.08]"
+                      ? "text-gold-400"
                       : "text-fog/40 hover:text-fog"
                   }`}
                 >

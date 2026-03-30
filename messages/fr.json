@@ -2,67 +2,51 @@
   "nav": {
     "signin": "Connexion",
     "demo": "Voir la démo",
-    "start": "Commencer gratuitement"
+    "start": "Commencer"
   },
   "hero": {
-    "tag": "Monaco & Côte d'Azur",
-    "title": "Le concierge IA\npour votre business",
-    "subtitle": "Automatisez vos réponses clients, gérez les réservations et les avis — avec l'élégance que Monaco mérite.",
-    "cta": "Commencer gratuitement",
-    "demo": "Voir la démo"
+    "headline": "Votre business ne dort jamais.\nVotre concierge non plus.",
+    "subtitle": "IA Concierge pour hôtels, restaurants et boutiques à Monaco",
+    "cta": "Commencer"
   },
-  "social": {
-    "label": "Restaurants et salons de Monaco et de la Côte d'Azur"
+  "problem": {
+    "items": [
+      { "num": "01", "text": "Des clients écrivent à minuit — personne ne répond. Ils partent chez le concurrent." },
+      { "num": "02", "text": "FR / EN / RU — votre équipe ne couvre pas toutes les langues." },
+      { "num": "03", "text": "Des heures perdues à répondre aux mêmes questions : prix, horaires, réservations." }
+    ]
+  },
+  "solution": {
+    "title": "Un concierge qui ne dort jamais",
+    "features": [
+      { "title": "Réponses 24/7", "desc": "Chaque message reçoit une réponse instantanée" },
+      { "title": "FR · EN · RU", "desc": "Dans la langue de votre client" },
+      { "title": "Réservations auto", "desc": "Direct depuis WhatsApp" }
+    ],
+    "chat": {
+      "messages": [
+        { "from": "client", "text": "Bonsoir, une table pour 2 ce soir ?", "time": "21:43" },
+        { "from": "bot", "text": "Bonsoir ! Oui, disponible à 20h30 ou 22h. Laquelle préférez-vous ?", "time": "21:43" },
+        { "from": "client", "text": "20h30 parfait", "time": "21:44" },
+        { "from": "bot", "text": "Confirmé ! Réservé pour 2. Au nom de ?", "time": "21:44" }
+      ]
+    }
   },
   "features": {
     "title": "Tout ce dont vous avez besoin",
-    "subtitle": "Une plateforme complète pour gérer l'expérience client de A à Z.",
     "items": [
-      {
-        "title": "Assistant WhatsApp IA",
-        "desc": "Réponses automatiques en français, anglais et russe. Vos clients obtiennent une réponse instantanée, 24h/24."
-      },
-      {
-        "title": "Google Reviews IA",
-        "desc": "Réponses personnalisées à chaque avis pour protéger et renforcer votre réputation en ligne."
-      },
-      {
-        "title": "Réservations intelligentes",
-        "desc": "Réservations via WhatsApp, synchronisées avec Google Calendar. Confirmations automatiques."
-      },
-      {
-        "title": "Smart Upsell",
-        "desc": "Relances post-visite personnalisées. Augmentez la fréquence de retour et le panier moyen."
-      }
-    ]
-  },
-  "how": {
-    "title": "Comment ça marche",
-    "subtitle": "Trois étapes pour transformer votre service client.",
-    "steps": [
-      {
-        "num": "01",
-        "label": "Connectez vos canaux",
-        "desc": "WhatsApp, Instagram, Google Business — configuration en quelques minutes, sans compétences techniques."
-      },
-      {
-        "num": "02",
-        "label": "L'IA travaille pour vous",
-        "desc": "Réponses naturelles et multilingues, gestion des réservations, suivi des avis — en pilote automatique."
-      },
-      {
-        "num": "03",
-        "label": "Vous gardez le contrôle",
-        "desc": "Dashboard en temps réel, notifications instantanées, possibilité d'intervenir à tout moment."
-      }
+      { "title": "IA Concierge", "desc": "Répond à vos clients 24h/24, 7j/7" },
+      { "title": "Trois langues", "desc": "Français, anglais, russe nativement" },
+      { "title": "Réservations smart", "desc": "Via WhatsApp, synchronisé Calendar" },
+      { "title": "Mémoire VIP", "desc": "Reconnaît vos clients réguliers" },
+      { "title": "Google Reviews", "desc": "Répond aux avis automatiquement" },
+      { "title": "Dashboard", "desc": "Pilotage en temps réel" }
     ]
   },
   "pricing": {
-    "title": "Un tarif simple",
-    "subtitle": "Tout inclus. Sans engagement. 14 jours d'essai gratuit.",
+    "title": "Simple",
     "tier": "Essential",
     "price": "200",
-    "currency": "EUR",
     "period": "/ mois",
     "features": [
       "Assistant WhatsApp IA multilingue",
@@ -72,12 +56,11 @@
       "Dashboard temps réel",
       "Support prioritaire"
     ],
-    "cta": "14 jours gratuits",
-    "guarantee": "Sans engagement. Annulez à tout moment."
+    "cta": "Commencer maintenant",
+    "guarantee": "Sans engagement — annulez à tout moment"
   },
-  "cta": {
-    "title": "Prêt à transformer\nvotre expérience client ?",
-    "subtitle": "Rejoignez les établissements d'exception de Monaco et de la Côte d'Azur."
+  "trust": {
+    "label": "Lancement avec une sélection d'établissements de Monaco"
   },
   "signup": {
     "google": "Continuer avec Google",
@@ -89,17 +72,11 @@
     "sent_desc": "Nous avons envoyé un lien magique à"
   },
   "footer": {
-    "tagline": "L'excellence au service de votre clientèle.",
-    "product": "Produit",
-    "company": "Entreprise",
+    "tagline": "Conçu pour Monaco",
     "links": {
-      "features": "Fonctionnalités",
-      "pricing": "Tarifs",
-      "demo": "Démo",
-      "about": "À propos",
       "privacy": "Confidentialité",
       "contact": "Contact"
     },
-    "copy": "Tous droits réservés."
+    "copy": "© 2026 MonaConcierge. Tous droits réservés."
   }
 }
