@@ -5,85 +5,85 @@
     "start": "Get started free"
   },
   "hero": {
-    "tag": "Monaco & Cote d'Azur",
-    "title": "Your business never sleeps.\nNeither should your concierge.",
-    "subtitle": "MonaConcierge replies to your guests in under 5 seconds, around the clock, in their language.",
+    "tag": "Monaco & Côte d'Azur",
+    "title": "A guest without an answer\nfinds another address.",
+    "subtitle": "MonaConcierge responds to every inquiry in under 5 seconds, day or night, in their language — so no opportunity is ever left unattended.",
     "cta": "Start free pilot",
     "demo": "View demo",
-    "proof": "Launching with select establishments in Monaco"
+    "proof": "Trusted by select establishments in Monaco"
   },
   "social": {
-    "label": "Trusted by venues across Monaco and the Cote d'Azur"
+    "label": "Trusted by venues across Monaco and the Côte d'Azur"
   },
   "problem": {
-    "title": "You're losing clients without knowing it",
+    "title": "Great establishments lose guests quietly",
     "items": [
       {
-        "title": "Missed messages at night = lost clients",
-        "desc": "A guest who doesn't hear back before midnight books your competitor by morning."
+        "title": "The late-night message that goes unanswered",
+        "desc": "A guest who doesn't receive a reply before midnight will have booked your competitor by morning. They won't tell you why."
       },
       {
-        "title": "FR, EN, RU clients are hard to serve",
-        "desc": "Monaco draws the world. Responding in three languages at the same quality is impossible without help."
+        "title": "Three languages, one impossible standard",
+        "desc": "Monaco's clientele is international. Matching the same quality of service in French, English and Russian — without the right tool — is simply not possible."
       },
       {
-        "title": "Staff time wasted on repetitive questions",
-        "desc": "Hours, menu, availability — your team answers the same questions ten times a day."
+        "title": "Your team is too talented for repetitive questions",
+        "desc": "Opening hours, availability, menus — your staff answers the same questions dozens of times a day, on time they could spend with guests in front of them."
       }
     ]
   },
   "solution": {
-    "title": "MonaConcierge solves all of this",
-    "tagline": "Responds in 5 seconds. 24/7. In their language.",
+    "title": "One platform. Every guest. Every hour.",
+    "tagline": "Under 5 seconds. In any language. Every night.",
     "items": [
       {
-        "title": "Zero missed messages",
-        "desc": "Every message gets an instant reply, at any hour. Your establishment never goes dark."
+        "title": "Every message, answered instantly",
+        "desc": "No gap in service, no guest left waiting. Your establishment is always open, even when you are not."
       },
       {
-        "title": "FR, EN, RU — automatic",
-        "desc": "Instant language detection. Your Russian, English and French guests are all served flawlessly."
+        "title": "French, English, Russian — seamless",
+        "desc": "Language is detected automatically. Every guest receives the same quality of reply, in their own language, the moment they write."
       },
       {
-        "title": "Your team freed up",
-        "desc": "AI handles routine questions. Your staff focuses on the in-person experience."
+        "title": "Your team, freed for what matters",
+        "desc": "Routine questions are handled. Your staff is present for the experience — not the administration."
       }
     ],
     "channels_label": "Available on"
   },
   "features": {
-    "title": "Everything you need",
-    "subtitle": "One platform to manage the entire guest experience.",
+    "title": "Crafted for exceptional venues",
+    "subtitle": "Everything a premier establishment requires.",
     "items": [
       {
         "title": "AI Concierge",
-        "desc": "Responds like your best employee — natural, precise, available around the clock."
+        "desc": "Responds with the precision and warmth of your best team member — any hour, any channel."
       },
       {
         "title": "3 Languages",
-        "desc": "Automatic FR/EN/RU detection. Zero setup, zero translation errors."
+        "desc": "Automatic FR/EN/RU detection. No delay, no mistranslation, no dropped nuance."
       },
       {
-        "title": "Smart Booking",
-        "desc": "Guests book directly via chat, synced with Google Calendar."
+        "title": "Smart Reservations",
+        "desc": "Guests book directly through the conversation, synced with your calendar."
       },
       {
         "title": "VIP Memory",
-        "desc": "Recognises and personalises the welcome for every returning guest."
+        "desc": "Every returning guest is recognised and welcomed accordingly."
       },
       {
-        "title": "AI Google Reviews",
-        "desc": "Personalised, professional replies drafted for every online review."
+        "title": "Review Management",
+        "desc": "Personalised, considered responses to every Google review — drafted instantly."
       },
       {
-        "title": "Real-time Dashboard",
-        "desc": "All your messages, bookings and reviews in one place. Step in at any moment."
+        "title": "Live Dashboard",
+        "desc": "All conversations, bookings and reviews in a single view. Step in at any moment."
       }
     ]
   },
   "pricing": {
-    "title": "Simple pricing",
-    "subtitle": "All-inclusive. No commitment. 14-day free trial.",
+    "title": "One clear rate",
+    "subtitle": "Fully inclusive. No contract. 14-day free trial.",
     "tier": "Essential",
     "price": "200",
     "currency": "EUR",
@@ -97,21 +97,21 @@
       "Priority support"
     ],
     "cta": "Start free pilot",
-    "guarantee": "No commitment. Cancel anytime."
+    "guarantee": "No commitment. Cancel whenever you like."
   },
   "trust": {
-    "label": "Launching with select establishments in Monaco",
+    "label": "Launching with selected establishments in Monaco",
     "stats": [
       { "value": "< 5s", "label": "response time" },
       { "value": "24/7", "label": "availability" },
       { "value": "3", "label": "languages" }
     ],
-    "quote": "Exactly what Monaco was missing — a digital concierge worthy of our clientele.",
-    "quote_author": "— Director, Principality Establishment"
+    "quote": "Exactly the level of service our guests have always expected — now available around the clock.",
+    "quote_author": "— General Manager, Monaco"
   },
   "cta": {
-    "title": "Ready to transform\nyour guest experience?",
-    "subtitle": "Join the finest establishments in Monaco and the Cote d'Azur."
+    "title": "Ready to give every guest\nan exceptional response?",
+    "subtitle": "Join Monaco's most discerning establishments."
   },
   "signup": {
     "placeholder": "your@email.com",
@@ -121,8 +121,8 @@
     "sent_desc": "We sent a magic link to"
   },
   "footer": {
-    "tagline": "Excellence in guest engagement.",
-    "made_in": "Made for Monaco. Built on the French Riviera.",
+    "tagline": "Where hospitality never rests.",
+    "made_in": "Built for Monaco. Born on the Côte d'Azur.",
     "product": "Product",
     "company": "Company",
     "links": {

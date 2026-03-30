@@ -6,83 +6,83 @@
   },
   "hero": {
     "tag": "Monaco & Côte d'Azur",
-    "title": "Votre business ne dort jamais.\nVotre concierge non plus.",
-    "subtitle": "MonaConcierge répond à vos clients en moins de 5 secondes, 24h/24, dans leur langue.",
+    "title": "Un client sans réponse\nchoisit une autre adresse.",
+    "subtitle": "MonaConcierge répond à chaque demande en moins de 5 secondes, jour et nuit, dans la langue de vos clients — pour qu'aucune opportunité ne reste sans suite.",
     "cta": "Démarrer le pilote gratuit",
     "demo": "Voir la démo",
-    "proof": "Lancement avec une sélection d'établissements à Monaco"
+    "proof": "En lancement avec des établissements sélectionnés à Monaco"
   },
   "social": {
-    "label": "Restaurants et salons de Monaco et de la Côte d'Azur"
+    "label": "Restaurants, salons et boutiques de Monaco et de la Côte d'Azur"
   },
   "problem": {
-    "title": "Vous perdez des clients sans le savoir",
+    "title": "Les grands établissements perdent leurs clients en silence",
     "items": [
       {
-        "title": "Messages manqués la nuit = clients perdus",
-        "desc": "Un client qui n'obtient pas de réponse avant minuit réserve chez votre concurrent le lendemain matin."
+        "title": "Le message de minuit qui reste sans réponse",
+        "desc": "Un client sans réponse avant minuit aura réservé chez votre concurrent le lendemain matin. Sans jamais vous expliquer pourquoi."
       },
       {
-        "title": "Clients FR, EN, RU difficiles à servir",
-        "desc": "Monaco attire le monde entier. Répondre en trois langues avec la même qualité est impossible sans aide."
+        "title": "Trois langues, un seul niveau d'exigence",
+        "desc": "La clientèle de Monaco est internationale. Maintenir la même qualité de service en français, anglais et russe — sans outil dédié — est simplement impossible."
       },
       {
-        "title": "Temps perdu sur des questions répétitives",
-        "desc": "Horaires, menu, disponibilités — vos équipes répondent dix fois par jour aux mêmes questions."
+        "title": "Votre équipe mérite mieux que les questions répétitives",
+        "desc": "Horaires, disponibilités, menus — vos collaborateurs répondent aux mêmes questions des dizaines de fois par jour, au détriment de l'expérience en salle."
       }
     ]
   },
   "solution": {
-    "title": "MonaConcierge règle tout ça",
-    "tagline": "Répond en 5 secondes. 24h/24. Dans leur langue.",
+    "title": "Une plateforme. Chaque client. À toute heure.",
+    "tagline": "Moins de 5 secondes. Dans leur langue. Chaque nuit.",
     "items": [
       {
-        "title": "Zéro message manqué",
-        "desc": "Chaque message reçoit une réponse instantanée, à toute heure. Votre établissement ne dort jamais."
+        "title": "Chaque message, répondu instantanément",
+        "desc": "Aucune interruption de service, aucun client qui attend. Votre établissement ne ferme jamais, même quand vous vous reposez."
       },
       {
-        "title": "FR, EN, RU en automatique",
-        "desc": "Détection de langue instantanée. Vos clients russes, anglais et français sont tous servis parfaitement."
+        "title": "Français, anglais, russe — en toute fluidité",
+        "desc": "La langue est détectée automatiquement. Chaque client reçoit la même qualité de réponse, dans sa langue, dès qu'il écrit."
       },
       {
-        "title": "Vos équipes libérées",
-        "desc": "L'IA prend en charge les questions courantes. Votre personnel se concentre sur l'expérience en salle."
+        "title": "Vos équipes, libérées pour l'essentiel",
+        "desc": "Les questions de routine sont prises en charge. Votre personnel se consacre à l'expérience — pas à l'administration."
       }
     ],
     "channels_label": "Disponible sur"
   },
   "features": {
-    "title": "Tout ce dont vous avez besoin",
-    "subtitle": "Une plateforme complète pour gérer l'expérience client de A à Z.",
+    "title": "Conçu pour les établissements d'exception",
+    "subtitle": "Tout ce qu'exige un établissement de premier rang.",
     "items": [
       {
         "title": "Concierge IA",
-        "desc": "Répond comme votre meilleur employé — naturel, précis, disponible à toute heure."
+        "desc": "Répond avec la précision et la chaleur de votre meilleur collaborateur — à toute heure, sur chaque canal."
       },
       {
         "title": "3 langues",
-        "desc": "Détection automatique FR/EN/RU. Zéro configuration, zéro erreur de traduction."
+        "desc": "FR/EN/RU automatique. Sans délai, sans contresens, sans nuance perdue."
       },
       {
         "title": "Réservations intelligentes",
-        "desc": "Les clients réservent directement par chat, synchronisé avec Google Calendar."
+        "desc": "Les clients réservent directement dans la conversation, synchronisé avec votre agenda."
       },
       {
         "title": "Mémoire VIP",
-        "desc": "Reconnaît et personnalise l'accueil de chaque client fidèle à son retour."
+        "desc": "Chaque client fidèle est reconnu et accueilli en conséquence."
       },
       {
-        "title": "Google Reviews IA",
-        "desc": "Réponses personnalisées et professionnelles rédigées pour chaque avis en ligne."
+        "title": "Gestion des avis",
+        "desc": "Des réponses personnalisées et réfléchies à chaque avis Google — rédigées instantanément."
       },
       {
-        "title": "Dashboard temps réel",
-        "desc": "Tous vos messages, réservations et avis en un seul endroit. Intervenez à tout moment."
+        "title": "Dashboard en direct",
+        "desc": "Toutes vos conversations, réservations et avis dans une vue unique. Intervenez à tout moment."
       }
     ]
   },
   "pricing": {
-    "title": "Un tarif simple",
+    "title": "Un seul tarif",
     "subtitle": "Tout inclus. Sans engagement. 14 jours d'essai gratuit.",
     "tier": "Essential",
     "price": "200",
@@ -97,7 +97,7 @@
       "Support prioritaire"
     ],
     "cta": "Démarrer le pilote gratuit",
-    "guarantee": "Sans engagement. Annulez à tout moment."
+    "guarantee": "Sans engagement. Résiliez quand vous le souhaitez."
   },
   "trust": {
     "label": "En lancement avec une sélection d'établissements à Monaco",
@@ -106,12 +106,12 @@
       { "value": "24/7", "label": "disponibilité" },
       { "value": "3", "label": "langues" }
     ],
-    "quote": "Exactement ce qu'il manquait à Monaco — un concierge digital à la hauteur de notre clientèle.",
-    "quote_author": "— Directeur, Établissement de la Principauté"
+    "quote": "Exactement le niveau de service que nos clients ont toujours attendu — désormais disponible à toute heure.",
+    "quote_author": "— Directeur général, Monaco"
   },
   "cta": {
-    "title": "Prêt à transformer\nvotre expérience client ?",
-    "subtitle": "Rejoignez les établissements d'exception de Monaco et de la Côte d'Azur."
+    "title": "Prêt à offrir à chaque client\nune réponse exceptionnelle ?",
+    "subtitle": "Rejoignez les établissements les plus exigeants de Monaco."
   },
   "signup": {
     "placeholder": "votre@email.com",
@@ -121,7 +121,7 @@
     "sent_desc": "Nous avons envoyé un lien magique à"
   },
   "footer": {
-    "tagline": "L'excellence au service de votre clientèle.",
+    "tagline": "L'hospitalité qui ne s'arrête jamais.",
     "made_in": "Conçu pour Monaco. Né sur la Côte d'Azur.",
     "product": "Produit",
     "company": "Entreprise",
