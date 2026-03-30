@@ -80,6 +80,8 @@
     "subtitle": "Join the finest establishments in Monaco and the Cote d'Azur."
   },
   "signup": {
+    "google": "Continue with Google",
+    "divider": "or",
     "placeholder": "your@email.com",
     "button": "Sign in with Magic Link",
     "sending": "Sending...",

@@ -80,6 +80,8 @@
     "subtitle": "Присоединяйтесь к лучшим заведениям Монако и Лазурного берега."
   },
   "signup": {
+    "google": "Войти через Google",
+    "divider": "или",
     "placeholder": "ваш@email.com",
     "button": "Войти по magic link",
     "sending": "Отправляем...",

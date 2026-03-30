@@ -80,6 +80,8 @@
     "subtitle": "Rejoignez les établissements d'exception de Monaco et de la Côte d'Azur."
   },
   "signup": {
+    "google": "Continuer avec Google",
+    "divider": "ou",
     "placeholder": "votre@email.com",
     "button": "Accès par lien magique",
     "sending": "Envoi en cours…",
