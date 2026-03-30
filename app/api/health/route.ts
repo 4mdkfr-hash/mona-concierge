@@ -17,7 +17,7 @@ export async function GET() {
   checks.twilio = !!(
     process.env.TWILIO_ACCOUNT_SID &&
     process.env.TWILIO_AUTH_TOKEN &&
-    process.env.TWILIO_WHATSAPP_FROM
+    process.env.TWILIO_WHATSAPP_NUMBER
   );
 
   // AI (env presence)
