@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { generateReviewReply, detectReviewLanguage } from "@/lib/google-reviews";
 import { estimateCostEur, CLAUDE_MODEL } from "@/lib/claude";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const supabase = createServiceClient();
 
   const { data: review } = await supabase
@@ -17,6 +23,11 @@ export async function POST(
 
   if (!review) {
     return NextResponse.json({ error: "Review not found" }, { status: 404 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, review.venue_id as string);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const venue = review.venues as {

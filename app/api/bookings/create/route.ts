@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { createCalendarEvent } from "@/lib/google-calendar";
 import { sendTextMessage } from "@/lib/whatsapp";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 interface CreateBookingBody {
   venueId: string;
@@ -19,6 +20,11 @@ interface CreateBookingBody {
 }
 
 export async function POST(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body: CreateBookingBody = await req.json();
 
   const {
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
       { error: "venueId, customerPhone, and bookedAt are required" },
       { status: 400 }
     );
+  }
+
+  const { authorized } = await authorizeVenue(user.id, venueId);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const supabase = createServiceClient();

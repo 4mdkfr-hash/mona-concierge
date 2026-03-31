@@ -4,6 +4,7 @@ import { generateReply, CLAUDE_MODEL, estimateCostEur } from "@/lib/claude";
 import { sendTextMessage } from "@/lib/whatsapp";
 import { sendDM } from "@/lib/instagram";
 import { sendGbmMessage } from "@/lib/google-bm";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 interface BookingIntent {
   intent: "booking";
@@ -34,6 +35,11 @@ function extractBookingIntent(text: string): BookingIntent | null {
 }
 
 export async function POST(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const {
     conversationId,
     venueId,
@@ -46,6 +52,11 @@ export async function POST(req: NextRequest) {
     // Google BM
     accessToken,
   } = await req.json();
+
+  const { authorized } = await authorizeVenue(user.id, venueId);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const supabase = createServiceClient();
 

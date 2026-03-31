@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const venueId = searchParams.get("venueId");
 
   if (!venueId) {
     return NextResponse.json({ error: "venueId required" }, { status: 400 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, venueId);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const supabase = createServiceClient();
@@ -24,11 +35,21 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { venueId, name, description, price, duration_min, category } = body;
 
   if (!venueId || !name) {
     return NextResponse.json({ error: "venueId and name are required" }, { status: 400 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, venueId);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const supabase = createServiceClient();
@@ -54,6 +75,11 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { id, name, description, price, duration_min, category, active } = body;
 
@@ -62,6 +88,23 @@ export async function PUT(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
+
+  // Look up the service to get venue_id for authorization
+  const { data: service } = await supabase
+    .from("venue_services")
+    .select("venue_id")
+    .eq("id", id)
+    .single();
+
+  if (!service) {
+    return NextResponse.json({ error: "Service not found" }, { status: 404 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, service.venue_id as string);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { data, error } = await supabase
     .from("venue_services")
     .update({ name, description, price, duration_min, category, active })
@@ -77,6 +120,11 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
 
@@ -85,6 +133,23 @@ export async function DELETE(req: NextRequest) {
   }
 
   const supabase = createServiceClient();
+
+  // Look up the service to get venue_id for authorization
+  const { data: service } = await supabase
+    .from("venue_services")
+    .select("venue_id")
+    .eq("id", id)
+    .single();
+
+  if (!service) {
+    return NextResponse.json({ error: "Service not found" }, { status: 404 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, service.venue_id as string);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const { error } = await supabase.from("venue_services").delete().eq("id", id);
 
   if (error) {

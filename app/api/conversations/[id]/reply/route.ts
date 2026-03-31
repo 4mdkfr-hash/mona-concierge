@@ -3,11 +3,17 @@ import { createServiceClient } from "@/lib/supabase";
 import { sendTextMessage } from "@/lib/whatsapp";
 import { sendDM } from "@/lib/instagram";
 import { sendGbmMessage } from "@/lib/google-bm";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const conversationId = params.id;
   const { text } = await req.json();
 
@@ -26,6 +32,11 @@ export async function POST(
 
   if (!conversation) {
     return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, conversation.venue_id as string);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const { data: channel } = await supabase

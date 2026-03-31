@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { stripe } from "@/lib/stripe";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
   }
 
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { venueId } = await req.json();
   if (!venueId) {
     return NextResponse.json({ error: "venueId required" }, { status: 400 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, venueId);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const supabase = createServiceClient();

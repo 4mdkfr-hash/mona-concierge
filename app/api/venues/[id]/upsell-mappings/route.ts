@@ -3,13 +3,24 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { authenticateRequest, authorizeVenue } from '@/lib/auth';
 
 interface RouteContext {
   params: { id: string };
 }
 
 // GET /api/venues/:id/upsell-mappings
-export async function GET(_req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest, { params }: RouteContext) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, params.id);
+  if (!authorized) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const supabase = createServiceClient();
   const { data, error } = await supabase
     .from('upsell_mappings')
@@ -23,6 +34,16 @@ export async function GET(_req: NextRequest, { params }: RouteContext) {
 
 // POST /api/venues/:id/upsell-mappings
 export async function POST(req: NextRequest, { params }: RouteContext) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, params.id);
+  if (!authorized) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const supabase = createServiceClient();
   const body = await req.json();
 
@@ -38,6 +59,16 @@ export async function POST(req: NextRequest, { params }: RouteContext) {
 
 // PATCH /api/venues/:id/upsell-mappings  (bulk update active flag, etc.)
 export async function PATCH(req: NextRequest, { params }: RouteContext) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, params.id);
+  if (!authorized) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const supabase = createServiceClient();
   const body = await req.json();
   const { mappingId, ...updates } = body;
@@ -58,6 +89,16 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
 // DELETE /api/venues/:id/upsell-mappings?mappingId=...
 export async function DELETE(req: NextRequest, { params }: RouteContext) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, params.id);
+  if (!authorized) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const supabase = createServiceClient();
   const mappingId = req.nextUrl.searchParams.get('mappingId');
 

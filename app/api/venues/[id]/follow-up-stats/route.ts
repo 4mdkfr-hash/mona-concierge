@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { authenticateRequest, authorizeVenue } from '@/lib/auth';
 
 interface RouteContext {
   params: { id: string };
@@ -10,7 +11,17 @@ interface RouteContext {
 
 // GET /api/venues/:id/follow-up-stats
 // Returns conversion metrics for the follow-up system
-export async function GET(_req: NextRequest, { params }: RouteContext) {
+export async function GET(req: NextRequest, { params }: RouteContext) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, params.id);
+  if (!authorized) {
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  }
+
   const supabase = createServiceClient();
 
   const [eventsResult, sentResult, failedResult] = await Promise.all([

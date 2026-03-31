@@ -1,12 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { generateReply } from "@/lib/claude";
+import { authenticateRequest, authorizeVenue } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  const { user } = await authenticateRequest(req);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { venueId } = await req.json();
 
   if (!venueId) {
     return NextResponse.json({ error: "venueId required" }, { status: 400 });
+  }
+
+  const { authorized } = await authorizeVenue(user.id, venueId);
+  if (!authorized) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   const supabase = createServiceClient();

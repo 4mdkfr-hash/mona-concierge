@@ -1,22 +1,20 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
-import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { authenticateRequest } from "@/lib/auth";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const { user } = await authenticateRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { name, type, address, tone, languages } = body;
 
     if (!name || !type) {
       return NextResponse.json({ error: "name and type are required" }, { status: 400 });
     }
-
-    // Get authenticated user from session cookie
-    const cookieStore = cookies();
-    const authClient = createRouteHandlerClient({ cookies: () => cookieStore });
-    const { data: { session } } = await authClient.auth.getSession();
-    const userId = session?.user?.id ?? null;
 
     const db = createServiceClient();
 
@@ -34,7 +32,7 @@ export async function POST(request: Request) {
         languages: languages && languages.length > 0 ? languages : ["fr", "en", "ru"],
         subscription_status: "trialing",
         trial_ends_at: trialEndsAt.toISOString(),
-        ...(userId ? { owner_id: userId } : {}),
+        owner_id: user.id,
       })
       .select("id")
       .single();
