@@ -1,15 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
-import { stripe, SUBSCRIPTION_PRICE_ID } from "@/lib/stripe";
+
+const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY ?? "";
+const PRICE_ID = process.env.STRIPE_PRICE_ID ?? "";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
+
+async function stripePost(endpoint: string, params: Record<string, string>) {
+  const res = await fetch(`https://api.stripe.com/v1/${endpoint}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${Buffer.from(STRIPE_SECRET + ":").toString("base64")}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams(params).toString(),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Stripe ${res.status}: ${err}`);
+  }
+  return res.json();
+}
 
 export async function POST(req: NextRequest) {
   try {
-    if (!stripe) {
+    if (!STRIPE_SECRET || !PRICE_ID) {
       return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
-    }
-
-    if (!SUBSCRIPTION_PRICE_ID) {
-      return NextResponse.json({ error: "STRIPE_PRICE_ID not set" }, { status: 503 });
     }
 
     const { venueId } = await req.json();
@@ -20,7 +35,7 @@ export async function POST(req: NextRequest) {
     const supabase = createServiceClient();
     const { data: venue, error } = await supabase
       .from("venues")
-      .select("id, name, stripe_customer_id, subscription_status")
+      .select("id, name, stripe_customer_id")
       .eq("id", venueId)
       .single();
 
@@ -30,9 +45,9 @@ export async function POST(req: NextRequest) {
 
     let customerId = venue.stripe_customer_id as string | null;
     if (!customerId) {
-      const customer = await stripe.customers.create({
+      const customer = await stripePost("customers", {
         name: venue.name,
-        metadata: { venueId: venue.id },
+        "metadata[venueId]": venue.id,
       });
       customerId = customer.id;
       await supabase
@@ -41,15 +56,14 @@ export async function POST(req: NextRequest) {
         .eq("id", venueId);
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
-
-    const session = await stripe.checkout.sessions.create({
-      customer: customerId,
+    const session = await stripePost("checkout/sessions", {
+      customer: customerId!,
       mode: "subscription",
-      line_items: [{ price: SUBSCRIPTION_PRICE_ID, quantity: 1 }],
-      success_url: `${appUrl}/dashboard?billing=success`,
-      cancel_url: `${appUrl}/dashboard?billing=cancelled`,
-      subscription_data: { metadata: { venueId: venue.id } },
+      "line_items[0][price]": PRICE_ID,
+      "line_items[0][quantity]": "1",
+      success_url: `${APP_URL}/dashboard?billing=success`,
+      cancel_url: `${APP_URL}/dashboard?billing=cancelled`,
+      "subscription_data[metadata][venueId]": venue.id,
     });
 
     return NextResponse.json({ url: session.url });
