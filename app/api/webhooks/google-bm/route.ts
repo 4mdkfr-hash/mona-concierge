@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
         ignoreDuplicates: false,
       }
     )
-    .select("id")
+    .select("id, ai_enabled")
     .single();
 
   if (!conversation) {
@@ -67,6 +67,11 @@ export async function POST(req: NextRequest) {
     status: "delivered",
     external_message_id: msg.messageId,
   });
+
+  // Skip AI if disabled for this conversation
+  if (conversation.ai_enabled === false) {
+    return NextResponse.json({ status: "ok" });
+  }
 
   // Trigger AI response
   try {

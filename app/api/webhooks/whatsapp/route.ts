@@ -143,7 +143,7 @@ async function handleTwilioWebhook(req: NextRequest) {
       },
       { onConflict: "venue_id,channel,customer_id", ignoreDuplicates: false }
     )
-    .select("id")
+    .select("id, ai_enabled")
     .single();
 
   if (!conversation) {
@@ -184,6 +184,14 @@ async function handleTwilioWebhook(req: NextRequest) {
   } catch (err) {
     console.error("Email message notification error:", err);
     // Non-fatal
+  }
+
+  // Skip AI generation if AI is disabled for this conversation
+  if (conversation.ai_enabled === false) {
+    return new NextResponse(
+      '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+      { headers: { "Content-Type": "text/xml" } }
+    );
   }
 
   // Generate AI response and send directly

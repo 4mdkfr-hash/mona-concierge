@@ -1,22 +1,29 @@
 /**
  * Google Calendar helper — server-side only.
- * Uses service-account / OAuth2 credentials from env vars:
- *   GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REFRESH_TOKEN
+ *
+ * Supports two auth modes:
+ *   1. Per-venue OAuth2 — pass `refreshToken` explicitly (preferred)
+ *   2. Global service-account fallback — uses env var GOOGLE_REFRESH_TOKEN
+ *
+ * Env vars required: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
+ * Optional fallback: GOOGLE_REFRESH_TOKEN (global)
  */
 
 import { google } from "googleapis";
 
-function getAuth() {
+function getAuth(refreshToken?: string | null) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
-  const refreshToken = process.env.GOOGLE_REFRESH_TOKEN;
+  const globalRefreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 
-  if (!clientId || !clientSecret || !refreshToken) {
+  const token = refreshToken ?? globalRefreshToken;
+
+  if (!clientId || !clientSecret || !token) {
     throw new Error("Google Calendar credentials not configured");
   }
 
   const oauth2 = new google.auth.OAuth2(clientId, clientSecret);
-  oauth2.setCredentials({ refresh_token: refreshToken });
+  oauth2.setCredentials({ refresh_token: token });
   return oauth2;
 }
 
@@ -27,12 +34,14 @@ export interface CalendarEventInput {
   description?: string;
   location?: string;
   calendarId?: string;
+  /** Per-venue OAuth2 refresh token (overrides global env var) */
+  refreshToken?: string | null;
 }
 
 export async function createCalendarEvent(
   input: CalendarEventInput
 ): Promise<string> {
-  const auth = getAuth();
+  const auth = getAuth(input.refreshToken);
   const calendar = google.calendar({ version: "v3", auth });
 
   const res = await calendar.events.insert({
@@ -51,9 +60,10 @@ export async function createCalendarEvent(
 
 export async function deleteCalendarEvent(
   eventId: string,
-  calendarId = "primary"
+  calendarId = "primary",
+  refreshToken?: string | null
 ): Promise<void> {
-  const auth = getAuth();
+  const auth = getAuth(refreshToken);
   const calendar = google.calendar({ version: "v3", auth });
   await calendar.events.delete({ calendarId, eventId });
 }

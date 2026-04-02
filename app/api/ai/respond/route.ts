@@ -60,6 +60,17 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServiceClient();
 
+  // Check if AI is enabled for this conversation
+  const { data: convo } = await supabase
+    .from("conversations")
+    .select("ai_enabled")
+    .eq("id", conversationId)
+    .single();
+
+  if (convo && convo.ai_enabled === false) {
+    return NextResponse.json({ status: "ai_disabled" });
+  }
+
   // Load venue tone and language
   const { data: venue } = await supabase
     .from("venues")
@@ -76,10 +87,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Subscription inactive" }, { status: 402 });
   }
 
-  // Load active services for AI context
+  // Load active services with upsell pairs for AI context
   const { data: services } = await supabase
     .from("venue_services")
-    .select("name, price, duration_minutes, category")
+    .select("id, name, price, duration_minutes, category, upsell_service_id")
     .eq("venue_id", venueId)
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
@@ -91,6 +102,21 @@ export async function POST(req: NextRequest) {
             (s) =>
               `- ${s.name} — €${s.price}, ${s.duration_minutes} min (${s.category})`
           )
+          .join("\n")}`
+      : "";
+
+  // Build upsell suggestion context
+  const upsellPairs = services?.filter((s) => s.upsell_service_id) ?? [];
+  const upsellText =
+    upsellPairs.length > 0
+      ? `\nUpsell pairs (suggest naturally — ONE suggestion max per conversation):\n${upsellPairs
+          .map((s) => {
+            const upsellService = services?.find((o) => o.id === s.upsell_service_id);
+            return upsellService
+              ? `- If customer asks about "${s.name}", suggest "${upsellService.name}" naturally`
+              : null;
+          })
+          .filter(Boolean)
           .join("\n")}`
       : "";
 
@@ -116,7 +142,7 @@ export async function POST(req: NextRequest) {
   const systemPrompt = `You are a friendly AI concierge for ${venue.name}, a ${venue.type} in Monaco.
 ${venue.tone_brief ? `Tone: ${venue.tone_brief}` : "Be warm, professional, and helpful."}
 You respond in the language the customer writes in. You speak: ${langs}.
-Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.${servicesText}
+Keep responses concise (under 200 words). Do not mention you are an AI unless directly asked.${servicesText}${upsellText}
 If the customer asks to book or make a reservation, collect: name, date (YYYY-MM-DD), time (HH:MM), number of guests. When you have ALL four pieces of information, respond with ONLY this JSON (no other text): {"intent":"booking","name":"","date":"YYYY-MM-DD","time":"HH:MM","guests":0}`;
 
   // Build conversation history for Claude

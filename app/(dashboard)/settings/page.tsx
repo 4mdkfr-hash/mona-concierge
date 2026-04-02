@@ -49,6 +49,7 @@ interface VenueService {
   duration_min: number | null;
   category: string | null;
   active: boolean;
+  upsell_service_id: string | null;
 }
 
 interface ServiceForm {
@@ -79,6 +80,10 @@ export default function SettingsPage() {
   const [form, setForm] = useState<ServiceForm>(EMPTY_FORM);
   const [savingService, setSavingService] = useState(false);
 
+  // Upsell pairs editing state: serviceId → upsellServiceId | null
+  const [upsellPairs, setUpsellPairs] = useState<Record<string, string | null>>({});
+  const [savingUpsell, setSavingUpsell] = useState<string | null>(null);
+
   // AI Preview
   const [aiPreview, setAiPreview] = useState<string | null>(null);
   const [aiPreviewLoading, setAiPreviewLoading] = useState(false);
@@ -93,6 +98,10 @@ export default function SettingsPage() {
   const [savingEmail, setSavingEmail] = useState(false);
   const [emailSaved, setEmailSaved] = useState(false);
 
+  // Google Calendar
+  const [calendarConnected, setCalendarConnected] = useState(false);
+  const [calendarLoading, setCalendarLoading] = useState(false);
+
   // Subscription
   const [subscriptionStatus, setSubscriptionStatus] = useState<string | null>(null);
   const [stripeCustomerId, setStripeCustomerId] = useState<string | null>(null);
@@ -101,9 +110,33 @@ export default function SettingsPage() {
   useEffect(() => {
     fetch(`/api/settings/services?venueId=${venueId}`)
       .then((r) => (r.ok ? r.json() : []))
-      .then((data) => setServices(Array.isArray(data) ? data : []))
+      .then((data: VenueService[]) => {
+        setServices(Array.isArray(data) ? data : []);
+        // Populate upsell pairs state from fetched services
+        const pairs: Record<string, string | null> = {};
+        for (const s of data) {
+          pairs[s.id] = s.upsell_service_id ?? null;
+        }
+        setUpsellPairs(pairs);
+      })
       .catch(() => setServices([]));
   }, [venueId]);
+
+  useEffect(() => {
+    fetch(`/api/settings/google-calendar?venueId=${venueId}`)
+      .then((r) => (r.ok ? r.json() : { connected: false }))
+      .then((data: { connected: boolean }) => setCalendarConnected(data.connected))
+      .catch(() => {});
+  }, [venueId]);
+
+  useEffect(() => {
+    // Show calendar connected toast from OAuth callback
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("calendar_connected") === "1") {
+      setCalendarConnected(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     fetch(`/api/settings?venueId=${venueId}`)
@@ -229,6 +262,32 @@ export default function SettingsPage() {
     const res = await fetch(`/api/settings/services?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       setServices((prev) => prev.filter((s) => s.id !== id));
+    }
+  };
+
+  const saveUpsellPair = async (serviceId: string, upsellServiceId: string | null) => {
+    setSavingUpsell(serviceId);
+    try {
+      const res = await fetch("/api/settings/services", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: serviceId, upsell_service_id: upsellServiceId }),
+      });
+      if (res.ok) {
+        setUpsellPairs((prev) => ({ ...prev, [serviceId]: upsellServiceId }));
+      }
+    } finally {
+      setSavingUpsell(null);
+    }
+  };
+
+  const disconnectCalendar = async () => {
+    setCalendarLoading(true);
+    try {
+      const res = await fetch(`/api/settings/google-calendar?venueId=${venueId}`, { method: "DELETE" });
+      if (res.ok) setCalendarConnected(false);
+    } finally {
+      setCalendarLoading(false);
     }
   };
 
@@ -479,6 +538,45 @@ export default function SettingsPage() {
         </div>
       </section>
 
+      {/* Upsell Pairs */}
+      {services.length > 1 && (
+        <section className="bg-carbon border border-graphite rounded-2xl p-6 space-y-4">
+          <div>
+            <h2 className="text-sm font-semibold text-ivory flex items-center gap-2">
+              <Sparkles size={16} className="text-gold-400" />
+              Upsell Pairs
+            </h2>
+            <p className="text-xs text-fog mt-1">When a customer books a service, AI will naturally suggest the paired upsell (one suggestion max).</p>
+          </div>
+          <div className="space-y-2">
+            {services.map((s) => (
+              <div key={s.id} className="flex items-center gap-3 py-2 px-3 rounded-xl border border-graphite/50">
+                <span className="text-sm text-ivory flex-1 min-w-0 truncate">{s.name}</span>
+                <span className="text-xs text-fog shrink-0">→ upsell</span>
+                <select
+                  value={upsellPairs[s.id] ?? ""}
+                  onChange={(e) => {
+                    const val = e.target.value || null;
+                    setUpsellPairs((prev) => ({ ...prev, [s.id]: val }));
+                    saveUpsellPair(s.id, val);
+                  }}
+                  disabled={savingUpsell === s.id}
+                  className="px-2 py-1.5 rounded-lg bg-void border border-graphite text-xs text-ivory focus:border-gold-400/40 focus:outline-none transition-colors min-w-[160px]"
+                >
+                  <option value="">— None —</option>
+                  {services.filter((o) => o.id !== s.id).map((o) => (
+                    <option key={o.id} value={o.id}>{o.name}</option>
+                  ))}
+                </select>
+                {savingUpsell === s.id && (
+                  <span className="text-xs text-fog shrink-0">Saving…</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* AI Tone */}
       <section className="bg-carbon border border-graphite rounded-2xl p-6 space-y-4">
         <h2 className="text-sm font-semibold text-ivory flex items-center gap-2">
@@ -558,6 +656,38 @@ export default function SettingsPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Google Calendar */}
+      <section className="bg-carbon border border-graphite rounded-2xl p-6 space-y-4">
+        <h2 className="text-sm font-semibold text-ivory flex items-center gap-2">
+          <Check size={16} className="text-gold-400" />
+          Google Calendar
+        </h2>
+        <p className="text-xs text-fog">Connect your Google Calendar to automatically create events for new bookings.</p>
+        {calendarConnected ? (
+          <div className="flex items-center justify-between py-3 px-4 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.04]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+              <span className="text-sm text-emerald-400">Connected</span>
+            </div>
+            <button
+              onClick={disconnectCalendar}
+              disabled={calendarLoading}
+              className="text-xs text-fog hover:text-red-400 transition-colors disabled:opacity-50"
+            >
+              {calendarLoading ? "…" : "Disconnect"}
+            </button>
+          </div>
+        ) : (
+          <a
+            href={`/api/settings/google-calendar/connect?venueId=${venueId}`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gold-400/10 text-gold-400 text-xs font-medium hover:bg-gold-400/20 transition-all"
+          >
+            <Plus size={13} />
+            Connect Google Calendar
+          </a>
+        )}
       </section>
 
       {/* Opening Hours */}

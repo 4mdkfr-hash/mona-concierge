@@ -19,6 +19,8 @@ interface Conversation {
   customer_phone: string | null;
   status: string;
   last_message_at: string;
+  ai_enabled: boolean;
+  needs_attention: boolean;
   messages: Message[];
 }
 
@@ -57,7 +59,13 @@ export default function InboxPage() {
     setLoading(true);
     const res = await fetch(`/api/conversations?venueId=${venueId}`);
     if (res.ok) {
-      const data = await res.json();
+      const data: Conversation[] = await res.json();
+      // Sort: needs_attention first, then by last_message_at
+      data.sort((a, b) => {
+        if (a.needs_attention && !b.needs_attention) return -1;
+        if (!a.needs_attention && b.needs_attention) return 1;
+        return new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime();
+      });
       setConversations(data);
     }
     setLoading(false);
@@ -80,6 +88,42 @@ export default function InboxPage() {
     setSending(false);
   }
 
+  async function toggleAI(conversationId: string, currentValue: boolean) {
+    const res = await fetch(`/api/conversations/${conversationId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ai_enabled: !currentValue }),
+    });
+    if (res.ok) {
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conversationId ? { ...c, ai_enabled: !currentValue } : c
+        )
+      );
+      if (selected?.id === conversationId) {
+        setSelected((prev) => prev ? { ...prev, ai_enabled: !currentValue } : prev);
+      }
+    }
+  }
+
+  async function clearAttention(conversationId: string) {
+    const res = await fetch(`/api/conversations/${conversationId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ needs_attention: false }),
+    });
+    if (res.ok) {
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === conversationId ? { ...c, needs_attention: false } : c
+        )
+      );
+      if (selected?.id === conversationId) {
+        setSelected((prev) => prev ? { ...prev, needs_attention: false } : prev);
+      }
+    }
+  }
+
   const displayName = (c: Conversation) =>
     c.customer_name ?? c.customer_phone ?? c.customer_id;
 
@@ -89,6 +133,7 @@ export default function InboxPage() {
 
   const openCount = conversations.filter((c) => c.status === "open").length;
   const resolvedCount = conversations.filter((c) => c.status === "resolved").length;
+  const attentionCount = conversations.filter((c) => c.needs_attention).length;
 
   return (
     <div style={{ display: "flex", height: "100%", background: "#F0F4F8", color: "#0F2B3C" }}>
@@ -117,6 +162,12 @@ export default function InboxPage() {
               <div style={{ fontSize: "1rem", fontWeight: 600, color: "#10B981" }}>{resolvedCount}</div>
               <div style={{ fontSize: "0.6rem", color: "rgba(91,143,168,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Resolved</div>
             </div>
+            {attentionCount > 0 && (
+              <div style={{ flex: 1, textAlign: "center", padding: "0.4rem", background: "rgba(245,158,11,0.07)", borderRadius: "4px", border: "1px solid rgba(245,158,11,0.2)" }}>
+                <div style={{ fontSize: "1rem", fontWeight: 600, color: "#F59E0B" }}>{attentionCount}</div>
+                <div style={{ fontSize: "0.6rem", color: "rgba(91,143,168,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" }}>⚠ Alert</div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -164,18 +215,28 @@ export default function InboxPage() {
                   textAlign: "left",
                   padding: "0.85rem 1rem",
                   borderBottom: "1px solid #F0F4F8",
-                  background: selected?.id === c.id ? "rgba(196,163,90,0.05)" : "transparent",
+                  background: c.needs_attention
+                    ? "rgba(245,158,11,0.04)"
+                    : selected?.id === c.id
+                    ? "rgba(196,163,90,0.05)"
+                    : "transparent",
                   cursor: "pointer",
                   color: "#0F2B3C",
                   border: "none",
-                  borderLeft: selected?.id === c.id ? "2px solid #C4A35A" : "2px solid transparent",
+                  borderLeft: c.needs_attention
+                    ? "2px solid #F59E0B"
+                    : selected?.id === c.id
+                    ? "2px solid #C4A35A"
+                    : "2px solid transparent",
                   display: "block",
                   transition: "background 0.15s",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
-                  <span style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.55)" }}>
+                  <span style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.55)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
                     {CHANNEL_ICONS[c.channel] ?? "📩"} {CHANNEL_LABELS[c.channel] ?? c.channel}
+                    {c.needs_attention && <span style={{ color: "#F59E0B", fontSize: "0.65rem" }}>⚠</span>}
+                    {!c.ai_enabled && <span style={{ color: "rgba(91,143,168,0.45)", fontSize: "0.6rem", background: "rgba(91,143,168,0.08)", borderRadius: "3px", padding: "1px 4px" }}>AI off</span>}
                   </span>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <span style={{
@@ -206,6 +267,28 @@ export default function InboxPage() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#F0F4F8" }}>
         {selected ? (
           <>
+            {/* Attention banner */}
+            {selected.needs_attention && (
+              <div style={{
+                padding: "0.6rem 1.25rem",
+                background: "rgba(245,158,11,0.08)",
+                borderBottom: "1px solid rgba(245,158,11,0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}>
+                <span style={{ fontSize: "0.78rem", color: "#B45309", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  ⚠ AI requires your attention in this conversation
+                </span>
+                <button
+                  onClick={() => clearAttention(selected.id)}
+                  style={{ background: "transparent", border: "1px solid rgba(245,158,11,0.3)", borderRadius: "4px", color: "#B45309", fontSize: "0.7rem", padding: "0.2rem 0.6rem", cursor: "pointer" }}
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
+
             {/* Thread header */}
             <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid #DDE4EB", display: "flex", alignItems: "center", gap: "0.75rem", background: "#FFFFFF" }}>
               <div style={{
@@ -226,8 +309,41 @@ export default function InboxPage() {
                   </span>
                 </div>
               </div>
+
+              {/* AI toggle */}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.55)" }}>AI</span>
+                <button
+                  onClick={() => toggleAI(selected.id, selected.ai_enabled)}
+                  title={selected.ai_enabled ? "AI auto-reply ON — click to disable" : "AI auto-reply OFF — click to enable"}
+                  style={{
+                    width: "36px",
+                    height: "20px",
+                    borderRadius: "10px",
+                    background: selected.ai_enabled ? "#C4A35A" : "rgba(91,143,168,0.2)",
+                    border: "none",
+                    cursor: "pointer",
+                    position: "relative",
+                    transition: "background 0.2s",
+                    flexShrink: 0,
+                  }}
+                >
+                  <span style={{
+                    position: "absolute",
+                    top: "3px",
+                    left: selected.ai_enabled ? "18px" : "3px",
+                    width: "14px",
+                    height: "14px",
+                    borderRadius: "50%",
+                    background: "#FFFFFF",
+                    transition: "left 0.2s",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
+                  }} />
+                </button>
+              </div>
+
               <div style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.45)" }}>
-                {selected.messages.length} messages
+                {selected.messages.length} msgs
               </div>
             </div>
 
@@ -262,6 +378,11 @@ export default function InboxPage() {
 
             {/* Reply input */}
             <div style={{ padding: "1rem 1.25rem", borderTop: "1px solid #DDE4EB", background: "#FFFFFF" }}>
+              {!selected.ai_enabled && (
+                <div style={{ marginBottom: "0.5rem", fontSize: "0.72rem", color: "rgba(91,143,168,0.55)", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                  <span style={{ color: "#C4A35A" }}>●</span> AI auto-reply is disabled — your reply will be sent manually
+                </div>
+              )}
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <input
                   style={{

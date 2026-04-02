@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
 
   const supabase = createServiceClient();
 
-  // Fetch venue to build calendar event title
+  // Fetch venue to build calendar event title + get per-venue calendar token
   const { data: venue } = await supabase
     .from("venues")
-    .select("id, name, timezone")
+    .select("id, name, timezone, google_calendar_refresh_token, google_calendar_id")
     .eq("id", venueId)
     .single();
 
@@ -68,13 +68,15 @@ export async function POST(req: NextRequest) {
   const startDt = new Date(bookedAt);
   const endDt = new Date(startDt.getTime() + durationMinutes * 60_000);
 
-  // Create Google Calendar event
+  // Create Google Calendar event (uses per-venue token if connected, falls back to global env)
   let googleEventId: string | null = null;
   try {
     googleEventId = await createCalendarEvent({
       title: `${serviceType ?? "Booking"} — ${customerName} (${customerPhone})`,
       start: startDt.toISOString(),
       end: endDt.toISOString(),
+      refreshToken: (venue as { google_calendar_refresh_token?: string | null }).google_calendar_refresh_token ?? undefined,
+      calendarId: (venue as { google_calendar_id?: string | null }).google_calendar_id ?? "primary",
       description: [
         `Venue: ${venue.name}`,
         serviceType ? `Service: ${serviceType}` : null,

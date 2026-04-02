@@ -81,7 +81,7 @@ export async function PUT(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { id, name, description, price, duration_min, category, active } = body;
+  const { id, name, description, price, duration_min, category, active, upsell_service_id } = body;
 
   if (!id) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
@@ -105,9 +105,19 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // Build update payload with only defined fields
+  const updatePayload: Record<string, unknown> = {};
+  if (name !== undefined) updatePayload.name = name;
+  if (description !== undefined) updatePayload.description = description;
+  if (price !== undefined) updatePayload.price = price;
+  if (duration_min !== undefined) updatePayload.duration_min = duration_min;
+  if (category !== undefined) updatePayload.category = category;
+  if (active !== undefined) updatePayload.active = active;
+  if ("upsell_service_id" in body) updatePayload.upsell_service_id = upsell_service_id ?? null;
+
   const { data, error } = await supabase
     .from("venue_services")
-    .update({ name, description, price, duration_min, category, active })
+    .update(updatePayload)
     .eq("id", id)
     .select()
     .single();

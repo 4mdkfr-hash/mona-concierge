@@ -81,7 +81,7 @@ async function handleInboundDM(
         ignoreDuplicates: false,
       }
     )
-    .select("id")
+    .select("id, ai_enabled")
     .single();
 
   if (!conversation) return;
@@ -95,6 +95,9 @@ async function handleInboundDM(
     status: "delivered",
     external_message_id: msgId,
   });
+
+  // Skip AI if disabled for this conversation
+  if (conversation.ai_enabled === false) return;
 
   // Trigger AI response
   try {

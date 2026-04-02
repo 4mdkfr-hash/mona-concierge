@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const venueId = searchParams.get("venueId");
-  const status = searchParams.get("status") ?? "open";
+  const status = searchParams.get("status");
 
   if (!venueId) {
     return NextResponse.json({ error: "venueId required" }, { status: 400 });
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 
   const supabase = createServiceClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("conversations")
     .select(
       `
@@ -34,6 +34,8 @@ export async function GET(req: NextRequest) {
       customer_phone,
       status,
       last_message_at,
+      ai_enabled,
+      needs_attention,
       messages (
         id,
         direction,
@@ -44,9 +46,15 @@ export async function GET(req: NextRequest) {
     `
     )
     .eq("venue_id", venueId)
-    .eq("status", status)
+    .order("needs_attention", { ascending: false })
     .order("last_message_at", { ascending: false })
     .limit(50);
+
+  if (status && status !== "all") {
+    query = query.eq("status", status);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
