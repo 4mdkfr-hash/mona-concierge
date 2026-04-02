@@ -13,7 +13,7 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-display",
 });
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://monaconcierge.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mona-concierge.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

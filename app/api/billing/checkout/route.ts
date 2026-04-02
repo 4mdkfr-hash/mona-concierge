@@ -7,6 +7,10 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
 
 export async function POST(req: NextRequest) {
   try {
+    if (!stripe) {
+      return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
+    }
+
     const { user } = await authenticateRequest(req);
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

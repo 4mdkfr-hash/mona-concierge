@@ -4,7 +4,7 @@ import { getMessages } from "next-intl/server";
 import { NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://monaconcierge.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mona-concierge.com";
 
 const META: Record<string, { title: string; description: string; ogLocale: string }> = {
   fr: {
