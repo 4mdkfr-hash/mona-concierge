@@ -57,8 +57,8 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <span className="text-gold-400/50 text-sm tracking-widest">✦</span>
+      <div className="flex h-full items-center justify-center" style={{ background: "#F0F4F8" }}>
+        <div className="spinner-cyan" />
       </div>
     );
   }

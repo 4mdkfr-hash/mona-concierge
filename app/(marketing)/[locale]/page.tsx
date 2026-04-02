@@ -85,17 +85,17 @@ export default function LandingPage() {
 
   return (
     <div
-      className="min-h-screen text-ivory antialiased"
-      style={{ background: "#080B12", fontFamily: "var(--font-body), Inter, system-ui, sans-serif" }}
+      className="min-h-screen antialiased"
+      style={{ background: "#FFFFFF", color: "#0F2B3C", fontFamily: "var(--font-body), Inter, system-ui, sans-serif" }}
     >
 
       {/* ────────── NAVBAR ────────── */}
       <nav
         className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5"
-        style={{ background: "rgba(8,11,18,0.85)", backdropFilter: "blur(16px)" }}
+        style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(15,43,60,0.06)" }}
       >
-        <Link href={`/${locale}`} className="font-display text-base tracking-widest text-ivory/90 font-light">
-          MONA<span className="text-gold-400">·</span>CONCIERGE
+        <Link href={`/${locale}`} className="font-display text-base tracking-widest font-light" style={{ color: "#0F2B3C" }}>
+          MONA<span style={{ color: "#C4A35A" }}>·</span>CONCIERGE
         </Link>
 
         <div className="flex items-center gap-6">
@@ -103,24 +103,24 @@ export default function LandingPage() {
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 text-xs text-fog hover:text-mist transition-colors"
+              className="flex items-center gap-1.5 text-xs transition-colors"
+              style={{ color: "#8AABBC" }}
             >
               <Globe size={13} />
               {LOCALE_LABELS[locale]}
             </button>
             {langOpen && (
               <div
-                className="absolute top-full right-0 mt-2 py-1 rounded-xl border border-white/[0.08] min-w-[64px]"
-                style={{ background: "rgba(20,24,32,0.95)", backdropFilter: "blur(12px)" }}
+                className="absolute top-full right-0 mt-2 py-1 rounded-xl min-w-[64px]"
+                style={{ background: "rgba(255,255,255,0.98)", border: "1px solid rgba(15,43,60,0.1)", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(15,43,60,0.08)" }}
               >
                 {(["fr", "en", "ru"] as const).map((l) => (
                   <Link
                     key={l}
                     href={`/${l}`}
                     onClick={() => setLangOpen(false)}
-                    className={`block px-4 py-1.5 text-xs transition-colors ${
-                      locale === l ? "text-gold-400" : "text-fog hover:text-ivory"
-                    }`}
+                    className="block px-4 py-1.5 text-xs transition-colors"
+                    style={{ color: locale === l ? "#C4A35A" : "#8AABBC" }}
                   >
                     {LOCALE_LABELS[l]}
                   </Link>
@@ -131,7 +131,10 @@ export default function LandingPage() {
 
           <button
             onClick={scrollToSignup}
-            className="text-xs px-5 py-2 border border-gold-400/60 text-gold-400 rounded-full hover:bg-gold-400/[0.08] transition-all tracking-wider"
+            className="text-xs px-5 py-2 rounded-full transition-all tracking-wider"
+            style={{ border: "1px solid rgba(196,163,90,0.6)", color: "#C4A35A", background: "transparent" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.06)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
           >
             {t("nav.start")}
           </button>
@@ -141,13 +144,13 @@ export default function LandingPage() {
       {/* ────────── HERO (100vh) ────────── */}
       <section
         className="relative flex flex-col items-center justify-center text-center px-6"
-        style={{ minHeight: "100vh", paddingTop: "80px" }}
+        style={{ minHeight: "100vh", paddingTop: "80px", background: "#FFFFFF" }}
       >
         {/* Subtle gold radial glow */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "radial-gradient(ellipse 50% 35% at 50% 30%, rgba(212,175,55,0.06) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 60% 40% at 50% 30%, rgba(196,163,90,0.07) 0%, transparent 70%)",
           }}
         />
 
@@ -156,7 +159,7 @@ export default function LandingPage() {
             className="font-display font-light leading-[1.15] tracking-tight"
             style={{
               fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
-              color: "#F5F0E8",
+              color: "#0F2B3C",
               letterSpacing: "-0.01em",
               whiteSpace: "pre-line",
             }}
@@ -168,15 +171,18 @@ export default function LandingPage() {
           <span className="gold-line" />
 
           <p
-            className="text-mist/60 font-light tracking-wide"
-            style={{ fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)", fontWeight: 300 }}
+            className="font-light tracking-wide"
+            style={{ fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)", fontWeight: 300, color: "#5B8FA8" }}
           >
             {t("hero.subtitle")}
           </p>
 
           <button
             onClick={scrollToSignup}
-            className="inline-flex items-center gap-2 px-8 py-3.5 border border-gold-400/60 text-gold-400 text-sm font-light tracking-widest rounded-full hover:bg-gold-400/[0.06] transition-all uppercase"
+            className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-light tracking-widest rounded-full transition-all uppercase"
+            style={{ border: "1px solid rgba(196,163,90,0.6)", color: "#C4A35A", background: "transparent" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.06)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
           >
             {t("hero.cta")}
           </button>
@@ -187,20 +193,20 @@ export default function LandingPage() {
       <section
         ref={fade}
         className="fade-section px-6"
-        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#F0F4F8" }}
       >
         <div className="max-w-2xl mx-auto space-y-14">
           {problemItems.map((item) => (
             <div key={item.num} className="stagger-child flex items-start gap-8">
               <span
                 className="font-display font-light flex-shrink-0 leading-none"
-                style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: "rgba(212,175,55,0.25)", letterSpacing: "-0.02em" }}
+                style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: "rgba(196,163,90,0.35)", letterSpacing: "-0.02em" }}
               >
                 {item.num}
               </span>
               <p
                 className="font-light leading-relaxed"
-                style={{ fontSize: "clamp(1rem, 1.8vw, 1.25rem)", color: "#A8A8B3", fontWeight: 300, paddingTop: "0.3em" }}
+                style={{ fontSize: "clamp(1rem, 1.8vw, 1.25rem)", color: "#5B8FA8", fontWeight: 300, paddingTop: "0.3em" }}
               >
                 {item.text}
               </p>
@@ -213,18 +219,18 @@ export default function LandingPage() {
       <section
         ref={fade}
         className="fade-section px-6"
-        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#FFFFFF" }}
       >
         <div className="max-w-5xl mx-auto">
           <h2
             className="font-display font-light text-center mb-16 tracking-tight"
-            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#F5F0E8" }}
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#0F2B3C" }}
           >
             {t("solution.title")}
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-            {/* WhatsApp chat mockup — custom CSS, no screenshot */}
+            {/* WhatsApp chat mockup — keep dark (authentic WhatsApp look) */}
             <div className="stagger-child order-2 md:order-1">
               <div
                 className="rounded-2xl overflow-hidden"
@@ -236,13 +242,13 @@ export default function LandingPage() {
                   style={{ background: "#111b21", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
                 >
                   <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold text-void"
-                    style={{ background: "#D4AF37" }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
+                    style={{ background: "#C4A35A", color: "#0F2B3C" }}
                   >
                     ✦
                   </div>
                   <div>
-                    <div className="text-xs text-ivory font-medium">MonaConcierge</div>
+                    <div className="text-xs font-medium" style={{ color: "#F5F0E8" }}>MonaConcierge</div>
                     <div className="text-[10px]" style={{ color: "#25D366" }}>en ligne</div>
                   </div>
                 </div>
@@ -251,8 +257,9 @@ export default function LandingPage() {
                   {chatMessages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.from === "client" ? "justify-end" : "justify-start"}`}>
                       <div
-                        className="max-w-[78%] px-3 py-2 text-xs text-ivory leading-relaxed"
+                        className="max-w-[78%] px-3 py-2 text-xs leading-relaxed"
                         style={{
+                          color: "#F5F0E8",
                           background: msg.from === "client" ? "#005c4b" : "#1e2d31",
                           borderRadius: msg.from === "client"
                             ? "16px 4px 16px 16px"
@@ -280,13 +287,13 @@ export default function LandingPage() {
                 <div key={f.title} className="flex items-start gap-4">
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: "rgba(212,175,55,0.08)", border: "1px solid rgba(212,175,55,0.15)" }}
+                    style={{ background: "rgba(196,163,90,0.1)", border: "1px solid rgba(196,163,90,0.2)" }}
                   >
-                    <span className="text-gold-400 text-sm">✦</span>
+                    <span style={{ color: "#C4A35A" }} className="text-sm">✦</span>
                   </div>
                   <div>
-                    <div className="text-ivory text-sm font-medium">{f.title}</div>
-                    <div className="text-fog text-sm font-light mt-0.5">{f.desc}</div>
+                    <div className="text-sm font-medium" style={{ color: "#0F2B3C" }}>{f.title}</div>
+                    <div className="text-sm font-light mt-0.5" style={{ color: "#5B8FA8" }}>{f.desc}</div>
                   </div>
                 </div>
               ))}
@@ -299,12 +306,12 @@ export default function LandingPage() {
       <section
         ref={fade}
         className="fade-section px-6"
-        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#F0F4F8" }}
       >
         <div className="max-w-4xl mx-auto">
           <h2
             className="font-display font-light text-center mb-16 tracking-tight"
-            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#F5F0E8" }}
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#0F2B3C" }}
           >
             {t("features.title")}
           </h2>
@@ -317,20 +324,22 @@ export default function LandingPage() {
                   key={f.title}
                   className="stagger-child group p-6 rounded-2xl transition-all duration-500"
                   style={{
-                    background: "transparent",
-                    border: "1px solid rgba(255,255,255,0.05)",
+                    background: "#FFFFFF",
+                    border: "1px solid rgba(15,43,60,0.08)",
                     cursor: "default",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(212,175,55,0.3)";
+                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(196,163,90,0.35)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "0 4px 20px rgba(196,163,90,0.08)";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(255,255,255,0.05)";
+                    (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(15,43,60,0.08)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
                   }}
                 >
-                  <Icon size={20} className="text-gold-400 mb-4 opacity-70 group-hover:opacity-100 transition-opacity" />
-                  <div className="text-ivory text-sm font-medium mb-1">{f.title}</div>
-                  <div className="text-fog text-xs font-light leading-relaxed">{f.desc}</div>
+                  <Icon size={20} style={{ color: "#C4A35A" }} className="mb-4 opacity-70 group-hover:opacity-100 transition-opacity" />
+                  <div className="text-sm font-medium mb-1" style={{ color: "#0F2B3C" }}>{f.title}</div>
+                  <div className="text-xs font-light leading-relaxed" style={{ color: "#8AABBC" }}>{f.desc}</div>
                 </div>
               );
             })}
@@ -342,53 +351,53 @@ export default function LandingPage() {
       <section
         ref={fade}
         className="fade-section px-6"
-        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#FFFFFF" }}
       >
         <div className="max-w-md mx-auto text-center">
           <h2
             className="font-display font-light mb-12 tracking-tight"
-            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#F5F0E8" }}
+            style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)", color: "#0F2B3C" }}
           >
             {t("pricing.title")}
           </h2>
 
           <div
             className="rounded-3xl p-10 relative overflow-hidden"
-            style={{ border: "1px solid rgba(212,175,55,0.15)", background: "rgba(20,24,32,0.6)" }}
+            style={{ border: "1px solid rgba(196,163,90,0.2)", background: "#FFFFFF", boxShadow: "0 8px 40px rgba(15,43,60,0.06)" }}
           >
             {/* Corner glow */}
             <div
               className="absolute -top-24 -right-24 w-64 h-64 pointer-events-none"
-              style={{ background: "radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%)" }}
+              style={{ background: "radial-gradient(circle, rgba(196,163,90,0.08) 0%, transparent 70%)" }}
             />
 
             <div className="relative space-y-8">
               <div
                 className="inline-block px-3 py-1 text-[10px] tracking-[0.2em] uppercase"
-                style={{ border: "1px solid rgba(212,175,55,0.3)", borderRadius: "6px", color: "#D4AF37" }}
+                style={{ border: "1px solid rgba(196,163,90,0.3)", borderRadius: "6px", color: "#C4A35A" }}
               >
                 {t("pricing.tier")}
               </div>
 
               <div className="flex items-baseline justify-center gap-1">
-                <span className="text-xl" style={{ color: "rgba(245,240,232,0.4)" }}>€</span>
+                <span className="text-xl" style={{ color: "rgba(15,43,60,0.35)" }}>€</span>
                 <span
                   className="font-display font-light"
-                  style={{ fontSize: "clamp(3rem, 8vw, 4.5rem)", color: "#D4AF37", lineHeight: 1 }}
+                  style={{ fontSize: "clamp(3rem, 8vw, 4.5rem)", color: "#C4A35A", lineHeight: 1 }}
                 >
                   {t("pricing.price")}
                 </span>
-                <span className="text-sm ml-1" style={{ color: "rgba(168,168,179,0.5)" }}>
+                <span className="text-sm ml-1" style={{ color: "rgba(91,143,168,0.6)" }}>
                   {t("pricing.period")}
                 </span>
               </div>
 
-              <div style={{ height: "1px", background: "linear-gradient(to right, transparent, rgba(255,255,255,0.06), transparent)" }} />
+              <div style={{ height: "1px", background: "linear-gradient(to right, transparent, rgba(15,43,60,0.08), transparent)" }} />
 
               <ul className="space-y-3 text-left">
                 {pricingFeatures.map((f, i) => (
-                  <li key={i} className="flex items-center gap-3 text-sm font-light" style={{ color: "#A8A8B3" }}>
-                    <Check size={14} className="text-gold-400 flex-shrink-0" />
+                  <li key={i} className="flex items-center gap-3 text-sm font-light" style={{ color: "#5B8FA8" }}>
+                    <Check size={14} style={{ color: "#C4A35A" }} className="flex-shrink-0" />
                     {f}
                   </li>
                 ))}
@@ -397,13 +406,13 @@ export default function LandingPage() {
               {/* ONLY filled gold CTA button on the page */}
               <button
                 onClick={scrollToSignup}
-                className="w-full py-4 rounded-2xl font-semibold text-sm text-void transition-all hover:opacity-90"
-                style={{ background: "#D4AF37" }}
+                className="w-full py-4 rounded-2xl font-semibold text-sm transition-all hover:opacity-90"
+                style={{ background: "#C4A35A", color: "#FFFFFF" }}
               >
                 {t("pricing.cta")}
               </button>
 
-              <p className="text-xs font-light" style={{ color: "rgba(107,107,122,0.7)" }}>
+              <p className="text-xs font-light" style={{ color: "rgba(138,171,188,0.8)" }}>
                 {t("pricing.guarantee")}
               </p>
             </div>
@@ -414,15 +423,15 @@ export default function LandingPage() {
       {/* ────────── TRUST ────────── */}
       <section
         className="px-6 py-16 text-center"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.04)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
+        style={{ borderTop: "1px solid rgba(15,43,60,0.06)", borderBottom: "1px solid rgba(15,43,60,0.06)", background: "#F0F4F8" }}
       >
-        <p className="text-xs tracking-widest uppercase" style={{ color: "rgba(107,107,122,0.5)" }}>
+        <p className="text-xs tracking-widest uppercase" style={{ color: "rgba(91,143,168,0.5)" }}>
           {t("trust.label")}
         </p>
         {/* Channel logos — muted placeholders */}
         <div className="flex items-center justify-center gap-10 mt-6 flex-wrap">
           {["WhatsApp", "Google", "Instagram"].map((ch) => (
-            <span key={ch} className="text-sm font-light" style={{ color: "rgba(107,107,122,0.25)", letterSpacing: "0.05em" }}>
+            <span key={ch} className="text-sm font-light" style={{ color: "rgba(91,143,168,0.3)", letterSpacing: "0.05em" }}>
               {ch}
             </span>
           ))}
@@ -434,17 +443,17 @@ export default function LandingPage() {
         id="signup"
         ref={fade}
         className="fade-section px-6"
-        style={{ paddingTop: "120px", paddingBottom: "120px" }}
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#FFFFFF" }}
       >
         <div className="max-w-sm mx-auto">
           {sent ? (
             <div
               className="rounded-2xl p-8 text-center space-y-2"
-              style={{ background: "rgba(20,24,32,0.6)", border: "1px solid rgba(212,175,55,0.2)" }}
+              style={{ background: "#FFFFFF", border: "1px solid rgba(196,163,90,0.25)", boxShadow: "0 4px 20px rgba(15,43,60,0.06)" }}
             >
-              <p className="font-semibold text-gold-400">{t("signup.sent_title")}</p>
-              <p className="text-sm font-light" style={{ color: "rgba(168,168,179,0.7)" }}>
-                {t("signup.sent_desc")} <strong className="text-ivory">{email}</strong>
+              <p className="font-semibold" style={{ color: "#C4A35A" }}>{t("signup.sent_title")}</p>
+              <p className="text-sm font-light" style={{ color: "rgba(91,143,168,0.8)" }}>
+                {t("signup.sent_desc")} <strong style={{ color: "#0F2B3C" }}>{email}</strong>
               </p>
             </div>
           ) : (
@@ -452,7 +461,10 @@ export default function LandingPage() {
               {/* Google OAuth — primary button */}
               <button
                 onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl bg-white text-[#1a1a1a] font-semibold text-sm hover:bg-gray-50 transition-all shadow-sm"
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-semibold text-sm transition-all shadow-sm"
+                style={{ background: "#FFFFFF", color: "#0F2B3C", border: "1px solid rgba(15,43,60,0.12)" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F0F4F8"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF"; }}
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -465,9 +477,9 @@ export default function LandingPage() {
 
               {/* Divider */}
               <div className="flex items-center gap-3">
-                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
-                <span className="text-xs" style={{ color: "rgba(107,107,122,0.5)" }}>{t("signup.divider")}</span>
-                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+                <div className="flex-1 h-px" style={{ background: "rgba(15,43,60,0.08)" }} />
+                <span className="text-xs" style={{ color: "rgba(91,143,168,0.5)" }}>{t("signup.divider")}</span>
+                <div className="flex-1 h-px" style={{ background: "rgba(15,43,60,0.08)" }} />
               </div>
 
               {/* Magic link */}
@@ -478,31 +490,32 @@ export default function LandingPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("signup.placeholder")}
-                  className="w-full px-5 py-4 rounded-2xl text-ivory placeholder:text-fog/40 focus:outline-none transition-all text-sm font-light"
+                  className="w-full px-5 py-4 rounded-2xl focus:outline-none transition-all text-sm font-light"
                   style={{
-                    background: "rgba(255,255,255,0.03)",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "#F0F4F8",
+                    border: "1px solid rgba(15,43,60,0.1)",
+                    color: "#0F2B3C",
                   }}
-                  onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(212,175,55,0.35)"; }}
-                  onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(196,163,90,0.4)"; }}
+                  onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(15,43,60,0.1)"; }}
                 />
-                {error && <p className="text-xs text-red-400">{error}</p>}
+                {error && <p className="text-xs text-red-500">{error}</p>}
                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full py-4 rounded-2xl text-sm font-light transition-all disabled:opacity-50"
                   style={{
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "rgba(168,168,179,0.8)",
+                    border: "1px solid rgba(15,43,60,0.12)",
+                    color: "#5B8FA8",
                     background: "transparent",
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.18)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "#F5F0E8";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(15,43,60,0.2)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "#0F2B3C";
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
-                    (e.currentTarget as HTMLButtonElement).style.color = "rgba(168,168,179,0.8)";
+                    (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(15,43,60,0.12)";
+                    (e.currentTarget as HTMLButtonElement).style.color = "#5B8FA8";
                   }}
                 >
                   {loading ? t("signup.sending") : t("signup.button")}
@@ -530,14 +543,14 @@ export default function LandingPage() {
       {/* ────────── FOOTER ────────── */}
       <footer
         className="px-8 py-10"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+        style={{ borderTop: "1px solid rgba(15,43,60,0.07)", background: "#F0F4F8" }}
       >
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="text-center sm:text-left space-y-1">
-            <p className="font-display font-light italic text-xs text-fog/50 tracking-wide">
+            <p className="font-display font-light italic text-xs tracking-wide" style={{ color: "rgba(91,143,168,0.6)" }}>
               {t("footer.tagline")}
             </p>
-            <p className="text-[11px]" style={{ color: "rgba(107,107,122,0.35)" }}>
+            <p className="text-[11px]" style={{ color: "rgba(91,143,168,0.4)" }}>
               {t("footer.copy")}
             </p>
           </div>
@@ -546,18 +559,18 @@ export default function LandingPage() {
             <Link
               href={`/${locale}/privacy`}
               className="text-xs font-light transition-colors"
-              style={{ color: "rgba(107,107,122,0.5)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#A8A8B3"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(107,107,122,0.5)"; }}
+              style={{ color: "rgba(91,143,168,0.5)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#5B8FA8"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(91,143,168,0.5)"; }}
             >
               {t("footer.links.privacy")}
             </Link>
             <button
               onClick={scrollToSignup}
               className="text-xs font-light transition-colors"
-              style={{ color: "rgba(107,107,122,0.5)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#A8A8B3"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(107,107,122,0.5)"; }}
+              style={{ color: "rgba(91,143,168,0.5)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#5B8FA8"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(91,143,168,0.5)"; }}
             >
               {t("footer.links.contact")}
             </button>
@@ -568,11 +581,8 @@ export default function LandingPage() {
                 <Link
                   key={l}
                   href={`/${l}`}
-                  className={`text-xs px-2.5 py-1 rounded-lg transition-colors ${
-                    locale === l
-                      ? "text-gold-400"
-                      : "text-fog/40 hover:text-fog"
-                  }`}
+                  className="text-xs px-2.5 py-1 rounded-lg transition-colors"
+                  style={{ color: locale === l ? "#C4A35A" : "rgba(91,143,168,0.4)" }}
                 >
                   {LOCALE_LABELS[l]}
                 </Link>

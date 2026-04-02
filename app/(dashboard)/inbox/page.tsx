@@ -35,7 +35,7 @@ const CHANNEL_LABELS: Record<string, string> = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  open: "#C9A84C",
+  open: "#C4A35A",
   resolved: "#10B981",
   pending: "#F59E0B",
 };
@@ -91,16 +91,16 @@ export default function InboxPage() {
   const resolvedCount = conversations.filter((c) => c.status === "resolved").length;
 
   return (
-    <div style={{ display: "flex", height: "100%", background: "#0A0A0F", color: "#F5F0E8" }}>
+    <div style={{ display: "flex", height: "100%", background: "#F0F4F8", color: "#0F2B3C" }}>
       {/* Sidebar */}
-      <div style={{ width: "300px", flexShrink: 0, borderRight: "1px solid rgba(201,168,76,0.1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={{ width: "300px", flexShrink: 0, borderRight: "1px solid #DDE4EB", display: "flex", flexDirection: "column", overflow: "hidden", background: "#FFFFFF" }}>
         {/* Header */}
-        <div style={{ padding: "1.25rem 1rem", borderBottom: "1px solid rgba(201,168,76,0.08)" }}>
+        <div style={{ padding: "1.25rem 1rem", borderBottom: "1px solid #DDE4EB" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-            <h1 style={{ fontSize: "0.95rem", fontWeight: 500, color: "#F5F0E8" }}>Inbox</h1>
+            <h1 style={{ fontSize: "0.95rem", fontWeight: 500, color: "#0F2B3C" }}>Inbox</h1>
             <button
               onClick={fetchConversations}
-              style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(245,240,232,0.4)", fontSize: "0.8rem", padding: "0.25rem" }}
+              style={{ background: "transparent", border: "none", cursor: "pointer", color: "rgba(15,43,60,0.35)", fontSize: "0.8rem", padding: "0.25rem" }}
               title="Refresh"
             >
               ↻
@@ -109,19 +109,19 @@ export default function InboxPage() {
 
           {/* Stats mini */}
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <div style={{ flex: 1, textAlign: "center", padding: "0.4rem", background: "rgba(201,168,76,0.06)", borderRadius: "4px", border: "1px solid rgba(201,168,76,0.1)" }}>
-              <div style={{ fontSize: "1rem", fontWeight: 600, color: "#C9A84C" }}>{openCount}</div>
-              <div style={{ fontSize: "0.6rem", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Open</div>
+            <div style={{ flex: 1, textAlign: "center", padding: "0.4rem", background: "rgba(196,163,90,0.07)", borderRadius: "4px", border: "1px solid rgba(196,163,90,0.15)" }}>
+              <div style={{ fontSize: "1rem", fontWeight: 600, color: "#C4A35A" }}>{openCount}</div>
+              <div style={{ fontSize: "0.6rem", color: "rgba(91,143,168,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Open</div>
             </div>
-            <div style={{ flex: 1, textAlign: "center", padding: "0.4rem", background: "rgba(16,185,129,0.05)", borderRadius: "4px", border: "1px solid rgba(16,185,129,0.1)" }}>
+            <div style={{ flex: 1, textAlign: "center", padding: "0.4rem", background: "rgba(16,185,129,0.06)", borderRadius: "4px", border: "1px solid rgba(16,185,129,0.12)" }}>
               <div style={{ fontSize: "1rem", fontWeight: 600, color: "#10B981" }}>{resolvedCount}</div>
-              <div style={{ fontSize: "0.6rem", color: "rgba(245,240,232,0.35)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Resolved</div>
+              <div style={{ fontSize: "0.6rem", color: "rgba(91,143,168,0.6)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Resolved</div>
             </div>
           </div>
         </div>
 
         {/* Filter tabs */}
-        <div style={{ display: "flex", borderBottom: "1px solid rgba(201,168,76,0.08)", padding: "0 1rem" }}>
+        <div style={{ display: "flex", borderBottom: "1px solid #DDE4EB", padding: "0 1rem" }}>
           {(["all", "open", "resolved"] as const).map((f) => (
             <button
               key={f}
@@ -131,8 +131,8 @@ export default function InboxPage() {
                 padding: "0.6rem 0",
                 background: "transparent",
                 border: "none",
-                borderBottom: filter === f ? "2px solid #C9A84C" : "2px solid transparent",
-                color: filter === f ? "#C9A84C" : "rgba(245,240,232,0.4)",
+                borderBottom: filter === f ? "2px solid #C4A35A" : "2px solid transparent",
+                color: filter === f ? "#C4A35A" : "rgba(91,143,168,0.55)",
                 fontSize: "0.72rem",
                 textTransform: "capitalize",
                 cursor: "pointer",
@@ -145,13 +145,13 @@ export default function InboxPage() {
         </div>
 
         {/* List */}
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ flex: 1, overflowY: "auto", background: "#FFFFFF" }}>
           {loading ? (
-            <div style={{ padding: "2rem", textAlign: "center", color: "rgba(245,240,232,0.3)", fontSize: "0.8rem" }}>
+            <div style={{ padding: "2rem", textAlign: "center", color: "rgba(91,143,168,0.4)", fontSize: "0.8rem" }}>
               Loading…
             </div>
           ) : filtered.length === 0 ? (
-            <div style={{ padding: "2rem", textAlign: "center", color: "rgba(245,240,232,0.25)", fontSize: "0.8rem" }}>
+            <div style={{ padding: "2rem", textAlign: "center", color: "rgba(91,143,168,0.3)", fontSize: "0.8rem" }}>
               No conversations
             </div>
           ) : (
@@ -163,36 +163,36 @@ export default function InboxPage() {
                   width: "100%",
                   textAlign: "left",
                   padding: "0.85rem 1rem",
-                  borderBottom: "1px solid rgba(201,168,76,0.06)",
-                  background: selected?.id === c.id ? "rgba(201,168,76,0.05)" : "transparent",
+                  borderBottom: "1px solid #F0F4F8",
+                  background: selected?.id === c.id ? "rgba(196,163,90,0.05)" : "transparent",
                   cursor: "pointer",
-                  color: "#F5F0E8",
+                  color: "#0F2B3C",
                   border: "none",
-                  borderLeft: selected?.id === c.id ? "2px solid #C9A84C" : "2px solid transparent",
+                  borderLeft: selected?.id === c.id ? "2px solid #C4A35A" : "2px solid transparent",
                   display: "block",
                   transition: "background 0.15s",
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
-                  <span style={{ fontSize: "0.7rem", color: "rgba(245,240,232,0.4)" }}>
+                  <span style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.55)" }}>
                     {CHANNEL_ICONS[c.channel] ?? "📩"} {CHANNEL_LABELS[c.channel] ?? c.channel}
                   </span>
                   <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <span style={{
                       display: "inline-block",
                       width: "6px", height: "6px", borderRadius: "50%",
-                      background: STATUS_COLORS[c.status] ?? "rgba(245,240,232,0.2)",
+                      background: STATUS_COLORS[c.status] ?? "rgba(15,43,60,0.2)",
                     }} />
-                    <span style={{ fontSize: "0.65rem", color: "rgba(245,240,232,0.3)" }}>
+                    <span style={{ fontSize: "0.65rem", color: "rgba(91,143,168,0.4)" }}>
                       {new Date(c.last_message_at).toLocaleDateString("fr-FR")}
                     </span>
                   </div>
                 </div>
-                <div style={{ fontWeight: 500, fontSize: "0.82rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div style={{ fontWeight: 500, fontSize: "0.82rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "#0F2B3C" }}>
                   {displayName(c)}
                 </div>
                 {c.messages.length > 0 && (
-                  <div style={{ fontSize: "0.72rem", color: "rgba(245,240,232,0.35)", marginTop: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ fontSize: "0.72rem", color: "rgba(91,143,168,0.5)", marginTop: "0.2rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {c.messages[c.messages.length - 1].content}
                   </div>
                 )}
@@ -203,30 +203,30 @@ export default function InboxPage() {
       </div>
 
       {/* Thread view */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "#F0F4F8" }}>
         {selected ? (
           <>
             {/* Thread header */}
-            <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid rgba(201,168,76,0.08)", display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ padding: "1rem 1.25rem", borderBottom: "1px solid #DDE4EB", display: "flex", alignItems: "center", gap: "0.75rem", background: "#FFFFFF" }}>
               <div style={{
                 width: "38px", height: "38px", borderRadius: "50%",
-                background: "rgba(201,168,76,0.1)",
-                border: "1px solid rgba(201,168,76,0.2)",
+                background: "rgba(196,163,90,0.1)",
+                border: "1px solid rgba(196,163,90,0.2)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "0.9rem", color: "#C9A84C", fontWeight: 600,
+                fontSize: "0.9rem", color: "#C4A35A", fontWeight: 600,
               }}>
                 {displayName(selected).charAt(0).toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500, fontSize: "0.9rem" }}>{displayName(selected)}</div>
-                <div style={{ fontSize: "0.7rem", color: "rgba(245,240,232,0.4)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div style={{ fontWeight: 500, fontSize: "0.9rem", color: "#0F2B3C" }}>{displayName(selected)}</div>
+                <div style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.6)", display: "flex", alignItems: "center", gap: "0.5rem" }}>
                   {CHANNEL_ICONS[selected.channel]} {CHANNEL_LABELS[selected.channel] ?? selected.channel}
-                  <span style={{ color: STATUS_COLORS[selected.status] ?? "rgba(245,240,232,0.3)" }}>
+                  <span style={{ color: STATUS_COLORS[selected.status] ?? "rgba(91,143,168,0.4)" }}>
                     · {selected.status}
                   </span>
                 </div>
               </div>
-              <div style={{ fontSize: "0.7rem", color: "rgba(245,240,232,0.3)" }}>
+              <div style={{ fontSize: "0.7rem", color: "rgba(91,143,168,0.45)" }}>
                 {selected.messages.length} messages
               </div>
             </div>
@@ -243,10 +243,10 @@ export default function InboxPage() {
                     padding: "0.65rem 0.9rem",
                     borderRadius: m.direction === "outbound" ? "12px 12px 2px 12px" : "12px 12px 12px 2px",
                     background: m.direction === "outbound"
-                      ? "linear-gradient(135deg, #C9A84C, #E8CC7A)"
-                      : "rgba(245,240,232,0.06)",
-                    border: m.direction === "inbound" ? "1px solid rgba(201,168,76,0.1)" : "none",
-                    color: m.direction === "outbound" ? "#0A0A0F" : "#F5F0E8",
+                      ? "linear-gradient(135deg, #C4A35A, #D4B870)"
+                      : "#FFFFFF",
+                    border: m.direction === "inbound" ? "1px solid #DDE4EB" : "none",
+                    color: m.direction === "outbound" ? "#FFFFFF" : "#0F2B3C",
                     fontSize: "0.84rem",
                     lineHeight: 1.55,
                   }}>
@@ -261,16 +261,16 @@ export default function InboxPage() {
             </div>
 
             {/* Reply input */}
-            <div style={{ padding: "1rem 1.25rem", borderTop: "1px solid rgba(201,168,76,0.08)" }}>
+            <div style={{ padding: "1rem 1.25rem", borderTop: "1px solid #DDE4EB", background: "#FFFFFF" }}>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <input
                   style={{
                     flex: 1,
                     padding: "0.65rem 0.9rem",
-                    background: "rgba(245,240,232,0.04)",
-                    border: "1px solid rgba(201,168,76,0.15)",
+                    background: "#F0F4F8",
+                    border: "1px solid #DDE4EB",
                     borderRadius: "6px",
-                    color: "#F5F0E8",
+                    color: "#0F2B3C",
                     fontSize: "0.84rem",
                     outline: "none",
                   }}
@@ -283,18 +283,18 @@ export default function InboxPage() {
                       sendReply();
                     }
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = "rgba(201,168,76,0.4)"; }}
-                  onBlur={(e) => { e.target.style.borderColor = "rgba(201,168,76,0.15)"; }}
+                  onFocus={(e) => { e.target.style.borderColor = "rgba(196,163,90,0.4)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "#DDE4EB"; }}
                 />
                 <button
                   onClick={sendReply}
                   disabled={sending || !replyText.trim()}
                   style={{
                     padding: "0.65rem 1.1rem",
-                    background: sending || !replyText.trim() ? "rgba(201,168,76,0.15)" : "linear-gradient(135deg, #C9A84C, #E8CC7A)",
+                    background: sending || !replyText.trim() ? "rgba(196,163,90,0.15)" : "#C4A35A",
                     border: "none",
                     borderRadius: "6px",
-                    color: sending || !replyText.trim() ? "rgba(245,240,232,0.3)" : "#0A0A0F",
+                    color: sending || !replyText.trim() ? "rgba(91,143,168,0.5)" : "#FFFFFF",
                     fontSize: "0.82rem",
                     fontWeight: 500,
                     cursor: sending || !replyText.trim() ? "not-allowed" : "pointer",
@@ -307,7 +307,7 @@ export default function InboxPage() {
             </div>
           </>
         ) : (
-          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", color: "rgba(245,240,232,0.2)" }}>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "0.5rem", color: "rgba(91,143,168,0.35)" }}>
             <div style={{ fontSize: "2.5rem" }}>💬</div>
             <div style={{ fontSize: "0.82rem" }}>Select a conversation</div>
           </div>

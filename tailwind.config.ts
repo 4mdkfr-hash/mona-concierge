@@ -9,17 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: "#080B12",
-        obsidian: "#0D1117",
-        carbon: "#141820",
-        graphite: "#1E2330",
-        ivory: "#F5F0E8",
-        mist: "#A8A8B3",
-        fog: "#6B6B7A",
+        // Côte d'Azur light marine palette
+        void: "#F0F4F8",       // primary page background (soft blue-grey)
+        obsidian: "#FFFFFF",   // white surface
+        carbon: "#FFFFFF",     // card background
+        graphite: "#DDE4EB",   // border / divider
+        ivory: "#0F2B3C",      // primary text (dark navy)
+        mist: "#5B8FA8",       // secondary text (sea blue)
+        fog: "#8AABBC",        // muted text (lighter sea blue)
+        navy: "#0F2B3C",       // sidebar / dark accent
+        // Monaco gold — Côte d'Azur variant
         gold: {
-          400: "#D4AF37",
-          500: "#B8960C",
-          600: "#9A7D0A",
+          400: "#C4A35A",
+          500: "#B0924E",
+          600: "#9C8044",
         },
       },
       fontFamily: {
