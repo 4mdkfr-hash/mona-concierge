@@ -88,16 +88,27 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
       setReady(true);
     };
 
-    // onAuthStateChange handles both existing sessions and magic link redirects
-    // INITIAL_SESSION fires immediately with current session (or null)
+    // Detect if this is an OAuth redirect (hash fragment contains access_token)
+    // In that case, INITIAL_SESSION fires with null before Supabase processes the token.
+    // We must wait for the SIGNED_IN event instead of redirecting away.
+    const isOAuthRedirect = typeof window !== "undefined" && window.location.hash.includes("access_token");
+    let waitingForOAuth = isOAuthRedirect;
+
     const { data: { subscription } } = sb.auth.onAuthStateChange(
       async (event, session) => {
-        if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
-          if (!session) {
-            if (event === "INITIAL_SESSION") router.replace("/");
-            return;
+        if (event === "INITIAL_SESSION") {
+          if (session) {
+            await handleSession(session.user.id, session.user.email);
+          } else if (!waitingForOAuth) {
+            // No session and not an OAuth redirect — go to landing
+            router.replace("/");
           }
-          await handleSession(session.user.id, session.user.email);
+          // If waitingForOAuth, do nothing — SIGNED_IN will fire next
+        } else if (event === "SIGNED_IN") {
+          waitingForOAuth = false;
+          if (session) {
+            await handleSession(session.user.id, session.user.email);
+          }
         } else if (event === "SIGNED_OUT") {
           router.replace("/");
         }
