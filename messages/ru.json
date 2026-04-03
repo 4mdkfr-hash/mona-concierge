@@ -35,6 +35,29 @@
       ]
     }
   },
+  "before_after": {
+    "label": "Разница",
+    "before_title": "Без MonaConcierge",
+    "after_title": "С MonaConcierge",
+    "before_items": [
+      "3 пропущенных сообщения",
+      "Клиент ушёл к конкуренту",
+      "Администратор перегружен"
+    ],
+    "after_items": [
+      "Ответ за 5 секунд",
+      "Клиент записан автоматически",
+      "Администратор занят важным"
+    ]
+  },
+  "metrics": {
+    "stat_time": "5 сек",
+    "stat_time_label": "среднее время ответа",
+    "stat_uptime": "24/7",
+    "stat_uptime_label": "всегда доступен",
+    "stat_lang": "3",
+    "stat_lang_label": "языка"
+  },
   "features": {
     "title": "Всё что нужно вашему бизнесу",
     "items": [

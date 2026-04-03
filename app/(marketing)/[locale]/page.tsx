@@ -15,6 +15,8 @@ import {
   Menu,
   X,
   ChevronDown,
+  PhoneMissed,
+  PhoneCall,
 } from "lucide-react";
 
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
@@ -174,6 +176,8 @@ export default function LandingPage() {
   const problemItems = t.raw("problem.items") as { num: string; text: string }[];
   const solutionFeatures = t.raw("solution.features") as { title: string; desc: string }[];
   const chatMessages = t.raw("solution.chat.messages") as { from: string; text: string; time: string }[];
+  const beforeItems = t.raw("before_after.before_items") as string[];
+  const afterItems = t.raw("before_after.after_items") as string[];
   const featureItems = t.raw("features.items") as { title: string; desc: string }[];
   const pricingFeatures = t.raw("pricing.features") as string[];
 
@@ -444,6 +448,90 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ────────── BEFORE / AFTER ────────── */}
+      <section
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#FFFFFF" }}
+      >
+        <div className="max-w-4xl mx-auto">
+          <p
+            className="text-center text-[10px] tracking-[0.25em] uppercase mb-10"
+            style={{ color: "#8AABBC" }}
+          >
+            {t("before_after.label")}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Before */}
+            <div
+              className="stagger-child rounded-2xl p-7 space-y-5"
+              style={{
+                background: "rgba(220,50,50,0.03)",
+                border: "1px solid rgba(220,50,50,0.12)",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: "rgba(220,50,50,0.08)", border: "1px solid rgba(220,50,50,0.15)" }}
+                >
+                  <PhoneMissed size={16} style={{ color: "rgba(200,60,60,0.7)" }} />
+                </div>
+                <p className="text-sm font-medium" style={{ color: "rgba(15,43,60,0.55)" }}>
+                  {t("before_after.before_title")}
+                </p>
+              </div>
+              <ul className="space-y-3">
+                {beforeItems.map((item, i) => (
+                  <li
+                    key={i}
+                    className="stagger-child flex items-center gap-3 text-sm font-light"
+                    style={{ color: "rgba(91,143,168,0.7)" }}
+                  >
+                    <span style={{ color: "rgba(200,60,60,0.5)", fontSize: "1.1em" }}>✕</span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* After */}
+            <div
+              className="stagger-child rounded-2xl p-7 space-y-5"
+              style={{
+                background: "rgba(196,163,90,0.04)",
+                border: "1px solid rgba(196,163,90,0.2)",
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                  style={{ background: "rgba(196,163,90,0.1)", border: "1px solid rgba(196,163,90,0.2)" }}
+                >
+                  <PhoneCall size={16} style={{ color: "#C4A35A" }} />
+                </div>
+                <p className="text-sm font-medium" style={{ color: "#0F2B3C" }}>
+                  {t("before_after.after_title")}
+                </p>
+              </div>
+              <ul className="space-y-3">
+                {afterItems.map((item, i) => (
+                  <li
+                    key={i}
+                    className="stagger-child flex items-center gap-3 text-sm font-light"
+                    style={{ color: "#5B8FA8" }}
+                  >
+                    <Check size={13} style={{ color: "#C4A35A", flexShrink: 0 }} />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ────────── SOLUTION ────────── */}
       <section
         id="solution"
@@ -480,6 +568,38 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ────────── KEY METRICS ────────── */}
+      <section
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "100px", paddingBottom: "100px", background: "#F0F4F8" }}
+      >
+        <div className="max-w-3xl mx-auto">
+          <div className="grid grid-cols-3 gap-6 text-center">
+            {[
+              { value: t("metrics.stat_time"), label: t("metrics.stat_time_label") },
+              { value: t("metrics.stat_uptime"), label: t("metrics.stat_uptime_label") },
+              { value: t("metrics.stat_lang"), label: t("metrics.stat_lang_label") },
+            ].map((stat, i) => (
+              <div key={i} className="stagger-child space-y-2">
+                <div
+                  className="font-display font-light leading-none"
+                  style={{ fontSize: "clamp(2.4rem, 6vw, 4rem)", color: "#C4A35A", letterSpacing: "-0.02em" }}
+                >
+                  {stat.value}
+                </div>
+                <div
+                  className="text-xs font-light tracking-wide"
+                  style={{ color: "#5B8FA8" }}
+                >
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>

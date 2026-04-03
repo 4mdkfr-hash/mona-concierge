@@ -35,6 +35,29 @@
       ]
     }
   },
+  "before_after": {
+    "label": "La différence",
+    "before_title": "Sans MonaConcierge",
+    "after_title": "Avec MonaConcierge",
+    "before_items": [
+      "3 messages manqués",
+      "Le client est parti chez le concurrent",
+      "L'administrateur est débordé"
+    ],
+    "after_items": [
+      "Réponse en 5 secondes",
+      "Client réservé automatiquement",
+      "L'administrateur fait l'essentiel"
+    ]
+  },
+  "metrics": {
+    "stat_time": "5 sec",
+    "stat_time_label": "temps de réponse moyen",
+    "stat_uptime": "24/7",
+    "stat_uptime_label": "toujours disponible",
+    "stat_lang": "3",
+    "stat_lang_label": "langues"
+  },
   "features": {
     "title": "Tout ce dont vous avez besoin",
     "items": [
