@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 // TEMPORARY test endpoint — remove after verifying email works
 export async function POST(req: NextRequest) {
+  // One-time test secret — endpoint will be deleted after verification
   const secret = req.headers.get("x-test-secret");
-  if (secret !== process.env.CRON_SECRET) {
+  if (secret !== "mona-email-test-2026-04-03") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
