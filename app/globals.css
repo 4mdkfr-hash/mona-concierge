@@ -105,3 +105,35 @@ html, body {
 .mobile-cta-bar {
   animation: slide-up-cta 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* ROI Calculator sliders */
+.roi-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: #D6DEE5;
+  outline: none;
+  cursor: pointer;
+}
+.roi-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0F2B3C;
+  border: 2px solid #C4A35A;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.roi-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+.roi-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #0F2B3C;
+  border: 2px solid #C4A35A;
+  cursor: pointer;
+}

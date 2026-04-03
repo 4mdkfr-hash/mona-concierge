@@ -105,6 +105,23 @@
     },
     "copy": "© 2026 MonaConcierge. Tous droits réservés."
   },
+  "trust": {
+    "gdpr": "RGPD",
+    "eu": "Données UE",
+    "encrypted": "Chiffré",
+    "support": "24/7"
+  },
+  "roi": {
+    "title": "Combien perdez-vous à cause des messages manqués ?",
+    "label_messages": "Messages par jour",
+    "label_price": "Prix moyen du service",
+    "label_afterhours": "Messages hors heures de travail",
+    "stat_clients": "Clients potentiels perdus par mois",
+    "stat_revenue": "Chiffre d'affaires perdu par mois",
+    "stat_payback": "MonaConcierge s'amortit en",
+    "stat_payback_unit": "jours",
+    "cta": "Commencer à économiser — 14 jours gratuits"
+  },
   "demo_chat": {
     "placeholder": "Écrivez un message...",
     "cta": "Vous avez aimé ? Inscrivez-vous pour un accès complet",

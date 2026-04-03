@@ -105,6 +105,23 @@
     },
     "copy": "© 2026 MonaConcierge. All rights reserved."
   },
+  "trust": {
+    "gdpr": "GDPR Compliant",
+    "eu": "EU Data Storage",
+    "encrypted": "Encrypted",
+    "support": "24/7 Support"
+  },
+  "roi": {
+    "title": "How much are you losing from missed messages?",
+    "label_messages": "Messages per day",
+    "label_price": "Average service price",
+    "label_afterhours": "Messages outside work hours",
+    "stat_clients": "Potential clients lost per month",
+    "stat_revenue": "Revenue lost per month",
+    "stat_payback": "MonaConcierge pays off in",
+    "stat_payback_unit": "days",
+    "cta": "Start saving — 14 days free"
+  },
   "demo_chat": {
     "placeholder": "Type a message...",
     "cta": "Liked it? Sign up for full access",

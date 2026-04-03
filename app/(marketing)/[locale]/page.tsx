@@ -18,6 +18,9 @@ import {
   PhoneMissed,
   PhoneCall,
   SendHorizonal,
+  ShieldCheck,
+  Lock,
+  Clock,
 } from "lucide-react";
 
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
@@ -310,6 +313,16 @@ export default function LandingPage() {
   const featureItems = t.raw("features.items") as { title: string; desc: string }[];
   const pricingFeatures = t.raw("pricing.features") as string[];
 
+  // ROI Calculator state
+  const [roiMessages, setRoiMessages] = useState(50);
+  const [roiPrice, setRoiPrice] = useState(100);
+  const [roiAfterHours, setRoiAfterHours] = useState(40);
+
+  const lostPerDay = roiMessages * (roiAfterHours / 100) * 0.3;
+  const lostPerMonth = Math.round(lostPerDay * 30);
+  const revenueLost = Math.round(lostPerMonth * roiPrice);
+  const paybackDays = Math.max(1, Math.ceil(200 / (revenueLost / 30)));
+
   const handleGoogleLogin = async () => {
     const sb = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -515,6 +528,7 @@ export default function LandingPage() {
               alt="Monaco aerial view"
               loading="eager"
               decoding="async"
+              fetchPriority="high"
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </picture>
@@ -830,6 +844,133 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ────────── ROI CALCULATOR ────────── */}
+      <section
+        id="roi"
+        ref={fade}
+        className="fade-section px-6"
+        style={{ paddingTop: "120px", paddingBottom: "120px", background: "#F0F4F8" }}
+      >
+        <div className="max-w-2xl mx-auto">
+          <h2
+            className="font-display font-light text-center mb-12 tracking-tight"
+            style={{ fontSize: "clamp(1.6rem, 3vw, 2.4rem)", color: "#0F2B3C" }}
+          >
+            {t("roi.title")}
+          </h2>
+
+          {/* Sliders */}
+          <div className="space-y-8 mb-12">
+            {/* Slider 1: Messages per day */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-light" style={{ color: "#5B8FA8" }}>{t("roi.label_messages")}</span>
+                <span className="text-sm font-medium tabular-nums" style={{ color: "#0F2B3C" }}>{roiMessages}</span>
+              </div>
+              <input
+                type="range" min={10} max={200} step={5}
+                value={roiMessages}
+                onChange={(e) => setRoiMessages(Number(e.target.value))}
+                className="roi-slider"
+                style={{ background: `linear-gradient(to right, #C4A35A ${((roiMessages - 10) / 190) * 100}%, #D6DEE5 ${((roiMessages - 10) / 190) * 100}%)` }}
+              />
+              <div className="flex justify-between text-[10px]" style={{ color: "#8AABBC" }}>
+                <span>10</span><span>200</span>
+              </div>
+            </div>
+
+            {/* Slider 2: Average service price */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-light" style={{ color: "#5B8FA8" }}>{t("roi.label_price")}</span>
+                <span className="text-sm font-medium tabular-nums" style={{ color: "#0F2B3C" }}>€{roiPrice}</span>
+              </div>
+              <input
+                type="range" min={30} max={500} step={10}
+                value={roiPrice}
+                onChange={(e) => setRoiPrice(Number(e.target.value))}
+                className="roi-slider"
+                style={{ background: `linear-gradient(to right, #C4A35A ${((roiPrice - 30) / 470) * 100}%, #D6DEE5 ${((roiPrice - 30) / 470) * 100}%)` }}
+              />
+              <div className="flex justify-between text-[10px]" style={{ color: "#8AABBC" }}>
+                <span>€30</span><span>€500</span>
+              </div>
+            </div>
+
+            {/* Slider 3: After hours % */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-light" style={{ color: "#5B8FA8" }}>{t("roi.label_afterhours")}</span>
+                <span className="text-sm font-medium tabular-nums" style={{ color: "#0F2B3C" }}>{roiAfterHours}%</span>
+              </div>
+              <input
+                type="range" min={20} max={80} step={5}
+                value={roiAfterHours}
+                onChange={(e) => setRoiAfterHours(Number(e.target.value))}
+                className="roi-slider"
+                style={{ background: `linear-gradient(to right, #C4A35A ${((roiAfterHours - 20) / 60) * 100}%, #D6DEE5 ${((roiAfterHours - 20) / 60) * 100}%)` }}
+              />
+              <div className="flex justify-between text-[10px]" style={{ color: "#8AABBC" }}>
+                <span>20%</span><span>80%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Output */}
+          <div
+            className="rounded-2xl p-6 md:p-8 mb-8 space-y-6"
+            style={{ background: "#FFFFFF", border: "1px solid rgba(196,163,90,0.15)", boxShadow: "0 4px 24px rgba(15,43,60,0.06)" }}
+          >
+            <div className="grid grid-cols-3 gap-4 text-center">
+              <div className="space-y-1.5">
+                <div
+                  className="font-display font-light tabular-nums"
+                  style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", color: "#C4A35A", lineHeight: 1 }}
+                >
+                  {lostPerMonth}
+                </div>
+                <div className="text-[11px] font-light leading-snug" style={{ color: "#5B8FA8" }}>
+                  {t("roi.stat_clients")}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div
+                  className="font-display font-light tabular-nums"
+                  style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", color: "#C4A35A", lineHeight: 1 }}
+                >
+                  €{revenueLost.toLocaleString()}
+                </div>
+                <div className="text-[11px] font-light leading-snug" style={{ color: "#5B8FA8" }}>
+                  {t("roi.stat_revenue")}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div
+                  className="font-display font-light tabular-nums"
+                  style={{ fontSize: "clamp(1.8rem, 4vw, 2.8rem)", color: "#C4A35A", lineHeight: 1 }}
+                >
+                  {paybackDays}
+                </div>
+                <div className="text-[11px] font-light leading-snug" style={{ color: "#5B8FA8" }}>
+                  {t("roi.stat_payback")} {t("roi.stat_payback_unit")}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="text-center">
+            <button
+              onClick={scrollToSignup}
+              className="inline-block text-sm px-8 py-3.5 rounded-full font-light tracking-wider transition-all hover:opacity-90"
+              style={{ background: "#C4A35A", color: "#FFFFFF", minHeight: "44px" }}
+            >
+              {t("roi.cta")}
+            </button>
+          </div>
+        </div>
+      </section>
+
       {/* ────────── PRICING ────────── */}
       <section
         id="pricing"
@@ -990,6 +1131,28 @@ export default function LandingPage() {
               </form>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* ────────── TRUST BADGES ────────── */}
+      <section
+        className="px-6 py-10"
+        style={{ background: "#FFFFFF", borderTop: "1px solid rgba(15,43,60,0.06)" }}
+      >
+        <div className="max-w-2xl mx-auto">
+          <div className="grid grid-cols-2 md:flex md:flex-row md:justify-center gap-6 md:gap-12">
+            {[
+              { Icon: ShieldCheck, label: t("trust.gdpr") },
+              { Icon: Globe, label: t("trust.eu") },
+              { Icon: Lock, label: t("trust.encrypted") },
+              { Icon: Clock, label: t("trust.support") },
+            ].map(({ Icon, label }) => (
+              <div key={label} className="flex flex-col items-center gap-2 opacity-50">
+                <Icon size={20} style={{ color: "#8AABBC" }} />
+                <span className="text-[11px] font-light tracking-wide text-center" style={{ color: "#8AABBC" }}>{label}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
