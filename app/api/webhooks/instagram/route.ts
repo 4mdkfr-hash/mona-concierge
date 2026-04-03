@@ -101,8 +101,7 @@ async function handleInboundDM(
 
   // Trigger AI response
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-      ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001");
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
 
     await fetch(`${baseUrl}/api/ai/respond`, {
       method: "POST",

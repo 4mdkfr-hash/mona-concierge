@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No Stripe customer linked to this venue" }, { status: 400 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
 
   const session = await stripe.billingPortal.sessions.create({
     customer: venue.stripe_customer_id,

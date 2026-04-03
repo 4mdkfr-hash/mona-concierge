@@ -11,8 +11,7 @@ export async function GET(req: NextRequest) {
   const venueId = searchParams.get("state");
   const error = searchParams.get("error");
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
 
   const settingsUrl = `${appUrl}/dashboard/settings`;
 

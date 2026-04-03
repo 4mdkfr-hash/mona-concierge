@@ -22,8 +22,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Google OAuth not configured" }, { status: 503 });
   }
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL
-    ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3001");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://mona-concierge.com";
 
   const redirectUri = `${appUrl}/api/settings/google-calendar/callback`;
 
