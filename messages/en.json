@@ -2,7 +2,11 @@
   "nav": {
     "signin": "Sign In",
     "demo": "View demo",
-    "start": "Get started"
+    "start": "Get started",
+    "how": "How it works",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "mobile_cta": "Try for free"
   },
   "hero": {
     "headline": "Your best employee is already working.",

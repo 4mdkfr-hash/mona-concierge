@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 
@@ -14,6 +14,12 @@ const cormorant = Cormorant_Garamond({
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://mona-concierge.com";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal scroll on all screen sizes */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 /* Scroll-triggered fade-in animations */
 .fade-section {
   opacity: 0;
@@ -89,4 +95,13 @@
 @keyframes typing-bounce {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* Mobile sticky CTA slide-up */
+@keyframes slide-up-cta {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.mobile-cta-bar {
+  animation: slide-up-cta 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
 }

@@ -2,7 +2,11 @@
   "nav": {
     "signin": "Connexion",
     "demo": "Voir la démo",
-    "start": "Commencer"
+    "start": "Commencer",
+    "how": "Comment ça marche",
+    "pricing": "Tarifs",
+    "contact": "Contact",
+    "mobile_cta": "Essayer gratuitement"
   },
   "hero": {
     "headline": "Votre meilleur employé est déjà au travail.",

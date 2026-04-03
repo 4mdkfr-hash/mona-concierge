@@ -12,6 +12,9 @@ import {
   Star,
   LayoutDashboard,
   Check,
+  Menu,
+  X,
+  ChevronDown,
 } from "lucide-react";
 
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
@@ -41,14 +44,12 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
 
   useEffect(() => {
     if (visibleCount >= messages.length) {
-      // Reset after a pause and loop
       const timer = setTimeout(() => setVisibleCount(0), 4000);
       return () => clearTimeout(timer);
     }
 
     const nextMsg = messages[visibleCount];
     if (nextMsg?.from === "bot") {
-      // Show typing indicator before bot messages
       setTyping(true);
       const typingTimer = setTimeout(() => {
         setTyping(false);
@@ -57,7 +58,6 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
       return () => clearTimeout(typingTimer);
     }
 
-    // Client messages appear after a short delay
     const timer = setTimeout(() => setVisibleCount((c) => c + 1), 800);
     return () => clearTimeout(timer);
   }, [visibleCount, messages]);
@@ -71,7 +71,6 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
       className="rounded-2xl overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6DEE5", boxShadow: "0 4px 24px rgba(15,43,60,0.08)" }}
     >
-      {/* Chat header — light */}
       <div
         className="flex items-center gap-3 px-4 py-3"
         style={{ background: "#F0F4F8", borderBottom: "1px solid #D6DEE5" }}
@@ -87,7 +86,6 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
           <div className="text-[10px]" style={{ color: "#5B8FA8" }}>en ligne</div>
         </div>
       </div>
-      {/* Messages */}
       <div ref={containerRef} className="px-4 py-4 space-y-3 overflow-y-auto" style={{ minHeight: "220px", maxHeight: "320px" }}>
         {messages.slice(0, visibleCount).map((msg, i) => (
           <div
@@ -120,7 +118,6 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
             </div>
           </div>
         ))}
-        {/* Typing indicator */}
         {typing && (
           <div className="flex justify-start">
             <div
@@ -150,6 +147,29 @@ export default function LandingPage() {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [langOpen, setLangOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(true);
+  const [openAccordion, setOpenAccordion] = useState<number | null>(null);
+  const heroRef = useRef<HTMLElement>(null);
+
+  // Show sticky CTA once hero scrolls out of view
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setHeroVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    io.observe(hero);
+    return () => io.disconnect();
+  }, []);
+
+  // Close menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const problemItems = t.raw("problem.items") as { num: string; text: string }[];
   const solutionFeatures = t.raw("solution.features") as { title: string; desc: string }[];
@@ -189,6 +209,18 @@ export default function LandingPage() {
     document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    setMenuOpen(false);
+    setLangOpen(false);
+  };
+
+  const NAV_LINKS = [
+    { id: "solution", label: t("nav.how") },
+    { id: "pricing", label: t("nav.pricing") },
+    { id: "signup", label: t("nav.contact") },
+  ];
+
   return (
     <div
       className="min-h-screen antialiased"
@@ -197,20 +229,34 @@ export default function LandingPage() {
 
       {/* ────────── NAVBAR ────────── */}
       <nav
-        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-5"
+        className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-5 md:px-8 py-4 md:py-5"
         style={{ background: "rgba(255,255,255,0.92)", backdropFilter: "blur(16px)", borderBottom: "1px solid rgba(15,43,60,0.06)" }}
       >
         <Link href={`/${locale}`} className="font-display text-base tracking-widest font-light" style={{ color: "#0F2B3C" }}>
           MONA<span style={{ color: "#C4A35A" }}>·</span>CONCIERGE
         </Link>
 
-        <div className="flex items-center gap-6">
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-6">
+          {NAV_LINKS.map((link) => (
+            <button
+              key={link.id}
+              onClick={() => scrollToSection(link.id)}
+              className="text-xs transition-colors"
+              style={{ color: "#8AABBC", minHeight: "44px", padding: "0 4px" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#0F2B3C"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#8AABBC"; }}
+            >
+              {link.label}
+            </button>
+          ))}
+
           {/* Language switcher */}
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
               className="flex items-center gap-1.5 text-xs transition-colors"
-              style={{ color: "#8AABBC" }}
+              style={{ color: "#8AABBC", minHeight: "44px", padding: "0 4px" }}
             >
               <Globe size={13} />
               {LOCALE_LABELS[locale]}
@@ -218,15 +264,15 @@ export default function LandingPage() {
             {langOpen && (
               <div
                 className="absolute top-full right-0 mt-2 py-1 rounded-xl min-w-[64px]"
-                style={{ background: "rgba(255,255,255,0.98)", border: "1px solid rgba(15,43,60,0.1)", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(15,43,60,0.08)" }}
+                style={{ background: "rgba(255,255,255,0.98)", border: "1px solid rgba(15,43,60,0.1)", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(15,43,60,0.08)", zIndex: 60 }}
               >
                 {(["fr", "en", "ru"] as const).map((l) => (
                   <Link
                     key={l}
                     href={`/${l}`}
                     onClick={() => setLangOpen(false)}
-                    className="block px-4 py-1.5 text-xs transition-colors"
-                    style={{ color: locale === l ? "#C4A35A" : "#8AABBC" }}
+                    className="block px-4 py-2 text-xs transition-colors"
+                    style={{ color: locale === l ? "#C4A35A" : "#8AABBC", minHeight: "44px", display: "flex", alignItems: "center" }}
                   >
                     {LOCALE_LABELS[l]}
                   </Link>
@@ -237,18 +283,89 @@ export default function LandingPage() {
 
           <button
             onClick={scrollToSignup}
-            className="text-xs px-5 py-2 rounded-full transition-all tracking-wider"
-            style={{ border: "1px solid rgba(196,163,90,0.6)", color: "#C4A35A", background: "transparent" }}
+            className="text-xs px-5 rounded-full transition-all tracking-wider"
+            style={{ border: "1px solid rgba(196,163,90,0.6)", color: "#C4A35A", background: "transparent", minHeight: "44px" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.06)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
           >
             {t("nav.start")}
           </button>
         </div>
+
+        {/* Mobile: language + hamburger */}
+        <div className="flex md:hidden items-center gap-3">
+          <div className="relative">
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="flex items-center gap-1 text-xs"
+              style={{ color: "#8AABBC", minWidth: "44px", minHeight: "44px", justifyContent: "center" }}
+            >
+              <Globe size={13} />
+              {LOCALE_LABELS[locale]}
+            </button>
+            {langOpen && (
+              <div
+                className="absolute top-full right-0 mt-2 py-1 rounded-xl min-w-[64px]"
+                style={{ background: "rgba(255,255,255,0.98)", border: "1px solid rgba(15,43,60,0.1)", backdropFilter: "blur(12px)", boxShadow: "0 4px 20px rgba(15,43,60,0.08)", zIndex: 60 }}
+              >
+                {(["fr", "en", "ru"] as const).map((l) => (
+                  <Link
+                    key={l}
+                    href={`/${l}`}
+                    onClick={() => setLangOpen(false)}
+                    className="block px-4 text-xs transition-colors"
+                    style={{ color: locale === l ? "#C4A35A" : "#8AABBC", minHeight: "44px", display: "flex", alignItems: "center" }}
+                  >
+                    {LOCALE_LABELS[l]}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex items-center justify-center"
+            style={{ color: "#0F2B3C", minWidth: "44px", minHeight: "44px" }}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+          >
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </nav>
+
+      {/* Mobile menu drawer */}
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 flex flex-col md:hidden"
+          style={{ background: "rgba(255,255,255,0.98)", paddingTop: "72px" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setMenuOpen(false); }}
+        >
+          <div className="flex flex-col px-6 py-6 gap-2">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link.id}
+                onClick={() => scrollToSection(link.id)}
+                className="text-left text-base font-light transition-colors rounded-xl px-4"
+                style={{ color: "#0F2B3C", minHeight: "56px", display: "flex", alignItems: "center", borderBottom: "1px solid rgba(15,43,60,0.05)" }}
+              >
+                {link.label}
+              </button>
+            ))}
+            <button
+              onClick={() => { scrollToSignup(); setMenuOpen(false); }}
+              className="mt-4 rounded-2xl font-light text-sm tracking-wider transition-all"
+              style={{ background: "#C4A35A", color: "#FFFFFF", minHeight: "56px" }}
+            >
+              {t("nav.start")}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ────────── HERO (100vh) ────────── */}
       <section
+        ref={heroRef}
         className="relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
         style={{ minHeight: "100vh", paddingTop: "80px" }}
       >
@@ -268,7 +385,6 @@ export default function LandingPage() {
               className="absolute inset-0 w-full h-full object-cover object-center"
             />
           </picture>
-          {/* Dark overlay */}
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0, 0, 0, 0.3)" }}
@@ -288,13 +404,12 @@ export default function LandingPage() {
             {t("hero.headline")}
           </h1>
 
-          {/* Thin gold line */}
           <span className="gold-line" />
 
           <button
             onClick={scrollToSignup}
-            className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-light tracking-widest rounded-full transition-all uppercase"
-            style={{ border: "1px solid rgba(196,163,90,0.8)", color: "#C4A35A", background: "rgba(0,0,0,0.2)" }}
+            className="inline-flex items-center gap-2 px-8 rounded-full transition-all uppercase"
+            style={{ border: "1px solid rgba(196,163,90,0.8)", color: "#C4A35A", background: "rgba(0,0,0,0.2)", minHeight: "52px", fontSize: "0.875rem", fontWeight: 300, letterSpacing: "0.1em" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.15)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.2)"; }}
           >
@@ -331,6 +446,7 @@ export default function LandingPage() {
 
       {/* ────────── SOLUTION ────────── */}
       <section
+        id="solution"
         ref={fade}
         className="fade-section px-6"
         style={{ paddingTop: "120px", paddingBottom: "120px", background: "#FFFFFF" }}
@@ -344,12 +460,10 @@ export default function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-            {/* Animated chat demo — light Côte d'Azur palette */}
             <div className="stagger-child order-2 md:order-1">
               <AnimatedChat messages={chatMessages} />
             </div>
 
-            {/* Features list */}
             <div className="stagger-child order-1 md:order-2 space-y-8">
               {solutionFeatures.map((f) => (
                 <div key={f.title} className="flex items-start gap-4">
@@ -370,8 +484,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ────────── FEATURES (6 cards, 2×3) ────────── */}
+      {/* ────────── FEATURES ────────── */}
       <section
+        id="features"
         ref={fade}
         className="fade-section px-6"
         style={{ paddingTop: "120px", paddingBottom: "120px", background: "#F0F4F8" }}
@@ -384,7 +499,52 @@ export default function LandingPage() {
             {t("features.title")}
           </h2>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+          {/* Mobile: accordion */}
+          <div className="md:hidden flex flex-col gap-2">
+            {featureItems.map((f, i) => {
+              const Icon = FEATURE_ICONS[i];
+              const isOpen = openAccordion === i;
+              return (
+                <div
+                  key={f.title}
+                  className="rounded-2xl overflow-hidden transition-all duration-300"
+                  style={{
+                    background: "#FFFFFF",
+                    border: isOpen ? "1px solid rgba(196,163,90,0.35)" : "1px solid rgba(15,43,60,0.08)",
+                    boxShadow: isOpen ? "0 4px 20px rgba(196,163,90,0.08)" : "none",
+                  }}
+                >
+                  <button
+                    onClick={() => setOpenAccordion(isOpen ? null : i)}
+                    className="w-full flex items-center justify-between px-5 gap-4"
+                    style={{ minHeight: "56px", textAlign: "left" }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon size={18} style={{ color: "#C4A35A", flexShrink: 0 }} />
+                      <span className="text-sm font-medium" style={{ color: "#0F2B3C" }}>{f.title}</span>
+                    </div>
+                    <ChevronDown
+                      size={16}
+                      style={{
+                        color: "#8AABBC",
+                        flexShrink: 0,
+                        transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        transition: "transform 0.25s ease",
+                      }}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-4">
+                      <p className="text-xs font-light leading-relaxed" style={{ color: "#8AABBC" }}>{f.desc}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop: 2×3 grid with hover */}
+          <div className="hidden md:grid grid-cols-3 gap-5">
             {featureItems.map((f, i) => {
               const Icon = FEATURE_ICONS[i];
               return (
@@ -417,6 +577,7 @@ export default function LandingPage() {
 
       {/* ────────── PRICING ────────── */}
       <section
+        id="pricing"
         ref={fade}
         className="fade-section px-6"
         style={{ paddingTop: "120px", paddingBottom: "120px", background: "#FFFFFF" }}
@@ -430,10 +591,9 @@ export default function LandingPage() {
           </h2>
 
           <div
-            className="rounded-3xl p-10 relative overflow-hidden"
+            className="rounded-3xl p-8 md:p-10 relative overflow-hidden"
             style={{ border: "1px solid rgba(196,163,90,0.2)", background: "#FFFFFF", boxShadow: "0 8px 40px rgba(15,43,60,0.06)" }}
           >
-            {/* Corner glow */}
             <div
               className="absolute -top-24 -right-24 w-64 h-64 pointer-events-none"
               style={{ background: "radial-gradient(circle, rgba(196,163,90,0.08) 0%, transparent 70%)" }}
@@ -471,11 +631,10 @@ export default function LandingPage() {
                 ))}
               </ul>
 
-              {/* ONLY filled gold CTA button on the page */}
               <button
                 onClick={scrollToSignup}
-                className="w-full py-4 rounded-2xl font-semibold text-sm transition-all hover:opacity-90"
-                style={{ background: "#C4A35A", color: "#FFFFFF" }}
+                className="w-full rounded-2xl font-semibold text-sm transition-all hover:opacity-90"
+                style={{ background: "#C4A35A", color: "#FFFFFF", minHeight: "52px" }}
               >
                 {t("pricing.cta")}
               </button>
@@ -508,11 +667,11 @@ export default function LandingPage() {
             </div>
           ) : (
             <div className="flex flex-col gap-3">
-              {/* Google OAuth — primary button */}
+              {/* Google OAuth */}
               <button
                 onClick={handleGoogleLogin}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-semibold text-sm transition-all shadow-sm"
-                style={{ background: "#FFFFFF", color: "#0F2B3C", border: "1px solid rgba(15,43,60,0.12)" }}
+                className="w-full flex items-center justify-center gap-3 rounded-2xl font-semibold text-sm transition-all shadow-sm"
+                style={{ background: "#FFFFFF", color: "#0F2B3C", border: "1px solid rgba(15,43,60,0.12)", minHeight: "52px" }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#F0F4F8"; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "#FFFFFF"; }}
               >
@@ -540,11 +699,13 @@ export default function LandingPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder={t("signup.placeholder")}
-                  className="w-full px-5 py-4 rounded-2xl focus:outline-none transition-all text-sm font-light"
+                  className="w-full px-5 rounded-2xl focus:outline-none transition-all font-light"
                   style={{
                     background: "#F0F4F8",
                     border: "1px solid rgba(15,43,60,0.1)",
                     color: "#0F2B3C",
+                    fontSize: "16px",
+                    minHeight: "52px",
                   }}
                   onFocus={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(196,163,90,0.4)"; }}
                   onBlur={(e) => { (e.target as HTMLInputElement).style.borderColor = "rgba(15,43,60,0.1)"; }}
@@ -553,11 +714,12 @@ export default function LandingPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-4 rounded-2xl text-sm font-light transition-all disabled:opacity-50"
+                  className="w-full rounded-2xl text-sm font-light transition-all disabled:opacity-50"
                   style={{
                     border: "1px solid rgba(15,43,60,0.12)",
                     color: "#5B8FA8",
                     background: "transparent",
+                    minHeight: "52px",
                   }}
                   onMouseEnter={(e) => {
                     (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(15,43,60,0.2)";
@@ -595,7 +757,7 @@ export default function LandingPage() {
             <Link
               href={`/${locale}/privacy`}
               className="text-xs font-light transition-colors"
-              style={{ color: "rgba(91,143,168,0.5)" }}
+              style={{ color: "rgba(91,143,168,0.5)", minHeight: "44px", display: "inline-flex", alignItems: "center" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#5B8FA8"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(91,143,168,0.5)"; }}
             >
@@ -604,21 +766,20 @@ export default function LandingPage() {
             <button
               onClick={scrollToSignup}
               className="text-xs font-light transition-colors"
-              style={{ color: "rgba(91,143,168,0.5)" }}
+              style={{ color: "rgba(91,143,168,0.5)", minHeight: "44px" }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#5B8FA8"; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "rgba(91,143,168,0.5)"; }}
             >
               {t("footer.links.contact")}
             </button>
 
-            {/* Language links */}
             <div className="flex gap-1">
               {(["fr", "en", "ru"] as const).map((l) => (
                 <Link
                   key={l}
                   href={`/${l}`}
-                  className="text-xs px-2.5 py-1 rounded-lg transition-colors"
-                  style={{ color: locale === l ? "#C4A35A" : "rgba(91,143,168,0.4)" }}
+                  className="text-xs px-2.5 rounded-lg transition-colors"
+                  style={{ color: locale === l ? "#C4A35A" : "rgba(91,143,168,0.4)", minHeight: "44px", display: "inline-flex", alignItems: "center" }}
                 >
                   {LOCALE_LABELS[l]}
                 </Link>
@@ -627,6 +788,22 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* ────────── MOBILE STICKY CTA ────────── */}
+      {!heroVisible && (
+        <div
+          className="mobile-cta-bar fixed bottom-0 left-0 right-0 z-40 md:hidden"
+          style={{ background: "#C4A35A", boxShadow: "0 -4px 24px rgba(15,43,60,0.12)" }}
+        >
+          <button
+            onClick={scrollToSignup}
+            className="w-full flex items-center justify-center font-semibold text-sm tracking-wider uppercase"
+            style={{ color: "#FFFFFF", minHeight: "56px" }}
+          >
+            {t("nav.mobile_cta")}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
