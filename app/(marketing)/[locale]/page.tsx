@@ -264,10 +264,10 @@ export default function LandingPage() {
             style={{ filter: "blur(2px)" }}
             sizes="100vw"
           />
-          {/* White veil overlay */}
+          {/* White veil overlay — light enough to see Monaco panorama */}
           <div
             className="absolute inset-0"
-            style={{ background: "rgba(255, 255, 255, 0.85)" }}
+            style={{ background: "rgba(255, 255, 255, 0.55)" }}
           />
         </div>
 
@@ -279,6 +279,7 @@ export default function LandingPage() {
               color: "#0F2B3C",
               letterSpacing: "-0.01em",
               whiteSpace: "pre-line",
+              textShadow: "0 1px 3px rgba(255,255,255,0.8)",
             }}
           >
             {t("hero.headline")}
@@ -289,7 +290,12 @@ export default function LandingPage() {
 
           <p
             className="font-light tracking-wide"
-            style={{ fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)", fontWeight: 300, color: "#5B8FA8" }}
+            style={{
+              fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)",
+              fontWeight: 300,
+              color: "#5B8FA8",
+              textShadow: "0 1px 3px rgba(255,255,255,0.8)",
+            }}
           >
             {t("hero.subtitle")}
           </p>
