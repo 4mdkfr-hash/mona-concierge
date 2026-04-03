@@ -252,7 +252,7 @@ export default function LandingPage() {
         className="relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
         style={{ minHeight: "100vh", paddingTop: "80px" }}
       >
-        {/* Monaco night panorama background — high resolution */}
+        {/* Monaco aerial panorama background */}
         <div className="absolute inset-0">
           <picture>
             <source
@@ -262,14 +262,13 @@ export default function LandingPage() {
             />
             <img
               src="/hero-monaco-2560.webp"
-              alt="Monaco harbor panorama at night"
+              alt="Monaco aerial view"
               loading="eager"
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover object-center"
-              style={{ filter: "blur(1.5px)" }}
             />
           </picture>
-          {/* Light dark overlay — panorama fully visible, text readable */}
+          {/* Dark overlay */}
           <div
             className="absolute inset-0"
             style={{ background: "rgba(0, 0, 0, 0.3)" }}
@@ -283,8 +282,7 @@ export default function LandingPage() {
               fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
               color: "#FFFFFF",
               letterSpacing: "-0.01em",
-              whiteSpace: "pre-line",
-              textShadow: "0 2px 8px rgba(0,0,0,0.4)",
+              textShadow: "0 2px 16px rgba(0,0,0,0.4)",
             }}
           >
             {t("hero.headline")}
@@ -293,24 +291,12 @@ export default function LandingPage() {
           {/* Thin gold line */}
           <span className="gold-line" />
 
-          <p
-            className="font-light tracking-wide"
-            style={{
-              fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)",
-              fontWeight: 300,
-              color: "rgba(255, 255, 255, 0.85)",
-              textShadow: "0 1px 4px rgba(0,0,0,0.3)",
-            }}
-          >
-            {t("hero.subtitle")}
-          </p>
-
           <button
             onClick={scrollToSignup}
             className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-light tracking-widest rounded-full transition-all uppercase"
-            style={{ border: "1px solid rgba(255,255,255,0.7)", color: "#FFFFFF", background: "transparent" }}
-            onMouseEnter={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "#FFFFFF"; b.style.color = "#0F2B3C"; }}
-            onMouseLeave={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "transparent"; b.style.color = "#FFFFFF"; }}
+            style={{ border: "1px solid rgba(196,163,90,0.8)", color: "#C4A35A", background: "rgba(0,0,0,0.2)" }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.15)"; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.2)"; }}
           >
             {t("hero.cta")}
           </button>
