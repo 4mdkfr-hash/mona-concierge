@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
-import Image from "next/image";
 import {
   MessageSquare,
   Globe,
@@ -253,17 +252,23 @@ export default function LandingPage() {
         className="relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
         style={{ minHeight: "100vh", paddingTop: "80px" }}
       >
-        {/* Monaco panorama background */}
+        {/* Monaco night panorama background — high resolution */}
         <div className="absolute inset-0">
-          <Image
-            src="/hero-monaco.webp"
-            alt="Monaco harbor panorama at dusk"
-            fill
-            priority
-            className="object-cover object-center"
-            style={{ filter: "blur(2px)" }}
-            sizes="100vw"
-          />
+          <picture>
+            <source
+              srcSet="/hero-monaco-1280.webp 1280w, /hero-monaco-2560.webp 2560w"
+              sizes="100vw"
+              type="image/webp"
+            />
+            <img
+              src="/hero-monaco-2560.webp"
+              alt="Monaco harbor panorama at night"
+              loading="eager"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover object-center"
+              style={{ filter: "blur(1.5px)" }}
+            />
+          </picture>
           {/* Light dark overlay — panorama fully visible, text readable */}
           <div
             className="absolute inset-0"
