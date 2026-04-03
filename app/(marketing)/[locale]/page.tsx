@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
+import Image from "next/image";
 import {
   MessageSquare,
   Globe,
@@ -32,6 +33,112 @@ function useFadeIn() {
     io.observe(node);
   }, []);
   return observe;
+}
+
+function AnimatedChat({ messages }: { messages: { from: string; text: string; time: string }[] }) {
+  const [visibleCount, setVisibleCount] = useState(0);
+  const [typing, setTyping] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (visibleCount >= messages.length) {
+      // Reset after a pause and loop
+      const timer = setTimeout(() => setVisibleCount(0), 4000);
+      return () => clearTimeout(timer);
+    }
+
+    const nextMsg = messages[visibleCount];
+    if (nextMsg?.from === "bot") {
+      // Show typing indicator before bot messages
+      setTyping(true);
+      const typingTimer = setTimeout(() => {
+        setTyping(false);
+        setVisibleCount((c) => c + 1);
+      }, 1200);
+      return () => clearTimeout(typingTimer);
+    }
+
+    // Client messages appear after a short delay
+    const timer = setTimeout(() => setVisibleCount((c) => c + 1), 800);
+    return () => clearTimeout(timer);
+  }, [visibleCount, messages]);
+
+  useEffect(() => {
+    containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: "smooth" });
+  }, [visibleCount, typing]);
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden"
+      style={{ background: "#FFFFFF", border: "1px solid #D6DEE5", boxShadow: "0 4px 24px rgba(15,43,60,0.08)" }}
+    >
+      {/* Chat header — light */}
+      <div
+        className="flex items-center gap-3 px-4 py-3"
+        style={{ background: "#F0F4F8", borderBottom: "1px solid #D6DEE5" }}
+      >
+        <div
+          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
+          style={{ background: "#C4A35A", color: "#FFFFFF" }}
+        >
+          ✦
+        </div>
+        <div>
+          <div className="text-xs font-medium" style={{ color: "#0F2B3C" }}>MonaConcierge</div>
+          <div className="text-[10px]" style={{ color: "#5B8FA8" }}>en ligne</div>
+        </div>
+      </div>
+      {/* Messages */}
+      <div ref={containerRef} className="px-4 py-4 space-y-3 overflow-y-auto" style={{ minHeight: "220px", maxHeight: "320px" }}>
+        {messages.slice(0, visibleCount).map((msg, i) => (
+          <div
+            key={i}
+            className={`flex ${msg.from === "client" ? "justify-end" : "justify-start"}`}
+            style={{ animation: "chat-pop 0.3s ease-out" }}
+          >
+            <div
+              className="max-w-[78%] px-3 py-2 text-xs leading-relaxed"
+              style={{
+                color: msg.from === "client" ? "#FFFFFF" : "#0F2B3C",
+                background: msg.from === "client" ? "#C4A35A" : "#F0F4F8",
+                border: msg.from === "client" ? "none" : "1px solid #D6DEE5",
+                borderRadius: msg.from === "client"
+                  ? "16px 4px 16px 16px"
+                  : "4px 16px 16px 16px",
+              }}
+            >
+              {msg.text}
+              <span
+                className="ml-2 text-[10px]"
+                style={{
+                  color: msg.from === "client" ? "rgba(255,255,255,0.6)" : "rgba(91,143,168,0.5)",
+                  fontVariantNumeric: "tabular-nums",
+                }}
+              >
+                {msg.time}
+                {msg.from === "bot" && " ✓✓"}
+              </span>
+            </div>
+          </div>
+        ))}
+        {/* Typing indicator */}
+        {typing && (
+          <div className="flex justify-start">
+            <div
+              className="px-4 py-2.5 text-xs"
+              style={{ background: "#F0F4F8", border: "1px solid #D6DEE5", borderRadius: "4px 16px 16px 16px" }}
+            >
+              <span className="typing-dots">
+                <span style={{ background: "#5B8FA8" }} />
+                <span style={{ background: "#5B8FA8" }} />
+                <span style={{ background: "#5B8FA8" }} />
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function LandingPage() {
@@ -143,16 +250,26 @@ export default function LandingPage() {
 
       {/* ────────── HERO (100vh) ────────── */}
       <section
-        className="relative flex flex-col items-center justify-center text-center px-6"
-        style={{ minHeight: "100vh", paddingTop: "80px", background: "#FFFFFF" }}
+        className="relative flex flex-col items-center justify-center text-center px-6 overflow-hidden"
+        style={{ minHeight: "100vh", paddingTop: "80px" }}
       >
-        {/* Subtle gold radial glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 60% 40% at 50% 30%, rgba(196,163,90,0.07) 0%, transparent 70%)",
-          }}
-        />
+        {/* Monaco panorama background */}
+        <div className="absolute inset-0">
+          <Image
+            src="/hero-monaco.webp"
+            alt="Monaco harbor panorama at dusk"
+            fill
+            priority
+            className="object-cover object-center"
+            style={{ filter: "blur(2px)" }}
+            sizes="100vw"
+          />
+          {/* White veil overlay */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "rgba(255, 255, 255, 0.85)" }}
+          />
+        </div>
 
         <div className="relative max-w-3xl mx-auto space-y-8">
           <h1
@@ -230,55 +347,9 @@ export default function LandingPage() {
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-            {/* WhatsApp chat mockup — keep dark (authentic WhatsApp look) */}
+            {/* Animated chat demo — light Côte d'Azur palette */}
             <div className="stagger-child order-2 md:order-1">
-              <div
-                className="rounded-2xl overflow-hidden"
-                style={{ background: "#0d1117", border: "1px solid rgba(255,255,255,0.06)" }}
-              >
-                {/* Chat header */}
-                <div
-                  className="flex items-center gap-3 px-4 py-3"
-                  style={{ background: "#111b21", borderBottom: "1px solid rgba(255,255,255,0.04)" }}
-                >
-                  <div
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold"
-                    style={{ background: "#C4A35A", color: "#0F2B3C" }}
-                  >
-                    ✦
-                  </div>
-                  <div>
-                    <div className="text-xs font-medium" style={{ color: "#F5F0E8" }}>MonaConcierge</div>
-                    <div className="text-[10px]" style={{ color: "#25D366" }}>en ligne</div>
-                  </div>
-                </div>
-                {/* Messages */}
-                <div className="px-4 py-4 space-y-3" style={{ minHeight: "220px" }}>
-                  {chatMessages.map((msg, i) => (
-                    <div key={i} className={`flex ${msg.from === "client" ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className="max-w-[78%] px-3 py-2 text-xs leading-relaxed"
-                        style={{
-                          color: "#F5F0E8",
-                          background: msg.from === "client" ? "#005c4b" : "#1e2d31",
-                          borderRadius: msg.from === "client"
-                            ? "16px 4px 16px 16px"
-                            : "4px 16px 16px 16px",
-                        }}
-                      >
-                        {msg.text}
-                        <span
-                          className="ml-2 text-[10px]"
-                          style={{ color: "rgba(255,255,255,0.35)", fontVariantNumeric: "tabular-nums" }}
-                        >
-                          {msg.time}
-                          {msg.from === "bot" && " ✓✓"}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <AnimatedChat messages={chatMessages} />
             </div>
 
             {/* Features list */}
@@ -420,24 +491,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ────────── TRUST ────────── */}
-      <section
-        className="px-6 py-16 text-center"
-        style={{ borderTop: "1px solid rgba(15,43,60,0.06)", borderBottom: "1px solid rgba(15,43,60,0.06)", background: "#F0F4F8" }}
-      >
-        <p className="text-xs tracking-widest uppercase" style={{ color: "rgba(91,143,168,0.5)" }}>
-          {t("trust.label")}
-        </p>
-        {/* Channel logos — muted placeholders */}
-        <div className="flex items-center justify-center gap-10 mt-6 flex-wrap">
-          {["WhatsApp", "Google", "Instagram"].map((ch) => (
-            <span key={ch} className="text-sm font-light" style={{ color: "rgba(91,143,168,0.3)", letterSpacing: "0.05em" }}>
-              {ch}
-            </span>
-          ))}
-        </div>
-      </section>
-
       {/* ────────── SIGNUP CTA ────────── */}
       <section
         id="signup"
@@ -525,20 +578,6 @@ export default function LandingPage() {
           )}
         </div>
       </section>
-
-      {/* WhatsApp floating button */}
-      <a
-        href={`https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? ""}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Contact us on WhatsApp"
-        className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full shadow-lg transition-transform hover:scale-110"
-        style={{ background: "#25D366" }}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
-      </a>
 
       {/* ────────── FOOTER ────────── */}
       <footer
