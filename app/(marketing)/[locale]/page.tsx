@@ -264,10 +264,10 @@ export default function LandingPage() {
             style={{ filter: "blur(2px)" }}
             sizes="100vw"
           />
-          {/* White veil overlay — light enough to see Monaco panorama */}
+          {/* Light dark overlay — panorama fully visible, text readable */}
           <div
             className="absolute inset-0"
-            style={{ background: "rgba(255, 255, 255, 0.55)" }}
+            style={{ background: "rgba(0, 0, 0, 0.3)" }}
           />
         </div>
 
@@ -276,10 +276,10 @@ export default function LandingPage() {
             className="font-display font-light leading-[1.15] tracking-tight"
             style={{
               fontSize: "clamp(2.6rem, 6vw, 4.5rem)",
-              color: "#0F2B3C",
+              color: "#FFFFFF",
               letterSpacing: "-0.01em",
               whiteSpace: "pre-line",
-              textShadow: "0 1px 3px rgba(255,255,255,0.8)",
+              textShadow: "0 2px 8px rgba(0,0,0,0.4)",
             }}
           >
             {t("hero.headline")}
@@ -293,8 +293,8 @@ export default function LandingPage() {
             style={{
               fontSize: "clamp(0.875rem, 1.5vw, 1.0625rem)",
               fontWeight: 300,
-              color: "#5B8FA8",
-              textShadow: "0 1px 3px rgba(255,255,255,0.8)",
+              color: "rgba(255, 255, 255, 0.85)",
+              textShadow: "0 1px 4px rgba(0,0,0,0.3)",
             }}
           >
             {t("hero.subtitle")}
@@ -303,9 +303,9 @@ export default function LandingPage() {
           <button
             onClick={scrollToSignup}
             className="inline-flex items-center gap-2 px-8 py-3.5 text-sm font-light tracking-widest rounded-full transition-all uppercase"
-            style={{ border: "1px solid rgba(196,163,90,0.6)", color: "#C4A35A", background: "transparent" }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.06)"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}
+            style={{ border: "1px solid rgba(255,255,255,0.7)", color: "#FFFFFF", background: "transparent" }}
+            onMouseEnter={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "#FFFFFF"; b.style.color = "#0F2B3C"; }}
+            onMouseLeave={(e) => { const b = e.currentTarget as HTMLButtonElement; b.style.background = "transparent"; b.style.color = "#FFFFFF"; }}
           >
             {t("hero.cta")}
           </button>
