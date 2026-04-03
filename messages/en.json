@@ -104,5 +104,11 @@
       "contact": "Contact"
     },
     "copy": "© 2026 MonaConcierge. All rights reserved."
+  },
+  "demo_chat": {
+    "placeholder": "Type a message...",
+    "cta": "Liked it? Sign up for full access",
+    "cta_button": "Get started free",
+    "try": "Try it yourself →"
   }
 }

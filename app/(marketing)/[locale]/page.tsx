@@ -17,6 +17,7 @@ import {
   ChevronDown,
   PhoneMissed,
   PhoneCall,
+  SendHorizonal,
 } from "lucide-react";
 
 const LOCALE_LABELS: Record<string, string> = { fr: "FR", en: "EN", ru: "RU" };
@@ -39,40 +40,155 @@ function useFadeIn() {
   return observe;
 }
 
-function AnimatedChat({ messages }: { messages: { from: string; text: string; time: string }[] }) {
+function ChatBubble({ msg }: { msg: { from: string; text: string; time: string } }) {
+  return (
+    <div
+      className={`flex ${msg.from === "client" ? "justify-end" : "justify-start"}`}
+      style={{ animation: "chat-pop 0.3s ease-out" }}
+    >
+      <div
+        className="max-w-[78%] px-3 py-2 text-xs leading-relaxed"
+        style={{
+          color: msg.from === "client" ? "#FFFFFF" : "#0F2B3C",
+          background: msg.from === "client" ? "#C4A35A" : "#F0F4F8",
+          border: msg.from === "client" ? "none" : "1px solid #D6DEE5",
+          borderRadius: msg.from === "client" ? "16px 4px 16px 16px" : "4px 16px 16px 16px",
+        }}
+      >
+        {msg.text}
+        <span
+          className="ml-2 text-[10px]"
+          style={{
+            color: msg.from === "client" ? "rgba(255,255,255,0.6)" : "rgba(91,143,168,0.5)",
+            fontVariantNumeric: "tabular-nums",
+          }}
+        >
+          {msg.time}
+          {msg.from === "bot" && " ✓✓"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+function AnimatedChat({
+  messages,
+  placeholder,
+  ctaText,
+  ctaButton,
+  onCtaClick,
+}: {
+  messages: { from: string; text: string; time: string }[];
+  placeholder: string;
+  ctaText: string;
+  ctaButton: string;
+  onCtaClick: () => void;
+}) {
   const [visibleCount, setVisibleCount] = useState(0);
-  const [typing, setTyping] = useState(false);
+  const [animTyping, setAnimTyping] = useState(false);
+  const [interactive, setInteractive] = useState(false);
+  const [displayMessages, setDisplayMessages] = useState<{ from: string; text: string; time: string }[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [msgCount, setMsgCount] = useState(0);
+  const [showCTA, setShowCTA] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const stored = sessionStorage.getItem("demo_chat_count");
+    if (stored) {
+      const count = parseInt(stored, 10);
+      setMsgCount(count);
+      if (count >= 3) setShowCTA(true);
+    }
+  }, []);
+
+  // Run animation once, then switch to interactive
+  useEffect(() => {
+    if (interactive) return;
+
     if (visibleCount >= messages.length) {
-      const timer = setTimeout(() => setVisibleCount(0), 4000);
+      const timer = setTimeout(() => {
+        setInteractive(true);
+        setDisplayMessages([...messages]);
+      }, 1200);
       return () => clearTimeout(timer);
     }
 
     const nextMsg = messages[visibleCount];
     if (nextMsg?.from === "bot") {
-      setTyping(true);
-      const typingTimer = setTimeout(() => {
-        setTyping(false);
+      setAnimTyping(true);
+      const t = setTimeout(() => {
+        setAnimTyping(false);
         setVisibleCount((c) => c + 1);
       }, 1200);
-      return () => clearTimeout(typingTimer);
+      return () => clearTimeout(t);
     }
 
-    const timer = setTimeout(() => setVisibleCount((c) => c + 1), 800);
-    return () => clearTimeout(timer);
-  }, [visibleCount, messages]);
+    const t = setTimeout(() => setVisibleCount((c) => c + 1), 800);
+    return () => clearTimeout(t);
+  }, [visibleCount, messages, interactive]);
 
   useEffect(() => {
     containerRef.current?.scrollTo({ top: containerRef.current.scrollHeight, behavior: "smooth" });
-  }, [visibleCount, typing]);
+  }, [visibleCount, animTyping, displayMessages, isLoading]);
+
+  const getTime = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  };
+
+  const handleSend = async () => {
+    if (!inputValue.trim() || isLoading || showCTA) return;
+
+    const userText = inputValue.trim();
+    setInputValue("");
+    const time = getTime();
+
+    setDisplayMessages((prev) => [...prev, { from: "client", text: userText, time }]);
+    const newHistory: { role: "user" | "assistant"; content: string }[] = [
+      ...chatHistory,
+      { role: "user", content: userText },
+    ];
+    setChatHistory(newHistory);
+
+    const newCount = msgCount + 1;
+    setMsgCount(newCount);
+    sessionStorage.setItem("demo_chat_count", String(newCount));
+
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/chat/demo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: newHistory }),
+      });
+      const data = await res.json();
+      const botText = data.text || "...";
+      const botTime = getTime();
+      setDisplayMessages((prev) => [...prev, { from: "bot", text: botText, time: botTime }]);
+      setChatHistory((prev) => [...prev, { role: "assistant", content: botText }]);
+    } catch {
+      setDisplayMessages((prev) => [...prev, { from: "bot", text: "...", time }]);
+    } finally {
+      setIsLoading(false);
+      if (newCount >= 3) {
+        setTimeout(() => setShowCTA(true), 400);
+      }
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") handleSend();
+  };
 
   return (
     <div
       className="rounded-2xl overflow-hidden"
       style={{ background: "#FFFFFF", border: "1px solid #D6DEE5", boxShadow: "0 4px 24px rgba(15,43,60,0.08)" }}
     >
+      {/* Header */}
       <div
         className="flex items-center gap-3 px-4 py-3"
         style={{ background: "#F0F4F8", borderBottom: "1px solid #D6DEE5" }}
@@ -88,39 +204,13 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
           <div className="text-[10px]" style={{ color: "#5B8FA8" }}>en ligne</div>
         </div>
       </div>
+
+      {/* Messages */}
       <div ref={containerRef} className="px-4 py-4 space-y-3 overflow-y-auto" style={{ minHeight: "220px", maxHeight: "320px" }}>
-        {messages.slice(0, visibleCount).map((msg, i) => (
-          <div
-            key={i}
-            className={`flex ${msg.from === "client" ? "justify-end" : "justify-start"}`}
-            style={{ animation: "chat-pop 0.3s ease-out" }}
-          >
-            <div
-              className="max-w-[78%] px-3 py-2 text-xs leading-relaxed"
-              style={{
-                color: msg.from === "client" ? "#FFFFFF" : "#0F2B3C",
-                background: msg.from === "client" ? "#C4A35A" : "#F0F4F8",
-                border: msg.from === "client" ? "none" : "1px solid #D6DEE5",
-                borderRadius: msg.from === "client"
-                  ? "16px 4px 16px 16px"
-                  : "4px 16px 16px 16px",
-              }}
-            >
-              {msg.text}
-              <span
-                className="ml-2 text-[10px]"
-                style={{
-                  color: msg.from === "client" ? "rgba(255,255,255,0.6)" : "rgba(91,143,168,0.5)",
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              >
-                {msg.time}
-                {msg.from === "bot" && " ✓✓"}
-              </span>
-            </div>
-          </div>
-        ))}
-        {typing && (
+        {interactive
+          ? displayMessages.map((msg, i) => <ChatBubble key={i} msg={msg} />)
+          : messages.slice(0, visibleCount).map((msg, i) => <ChatBubble key={i} msg={msg} />)}
+        {(animTyping || isLoading) && (
           <div className="flex justify-start">
             <div
               className="px-4 py-2.5 text-xs"
@@ -135,6 +225,45 @@ function AnimatedChat({ messages }: { messages: { from: string; text: string; ti
           </div>
         )}
       </div>
+
+      {/* Interactive input or CTA */}
+      {interactive && (
+        <div style={{ borderTop: "1px solid #D6DEE5" }}>
+          {showCTA ? (
+            <div className="px-4 py-4 text-center space-y-3">
+              <p className="text-xs font-light" style={{ color: "#5B8FA8" }}>{ctaText}</p>
+              <button
+                onClick={onCtaClick}
+                className="w-full text-xs py-2.5 rounded-xl font-medium tracking-wide transition-opacity hover:opacity-80"
+                style={{ background: "#C4A35A", color: "#FFFFFF" }}
+              >
+                {ctaButton}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 py-2.5">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={placeholder}
+                disabled={isLoading}
+                className="flex-1 text-xs bg-transparent outline-none placeholder:opacity-50"
+                style={{ color: "#0F2B3C", minHeight: "36px" }}
+              />
+              <button
+                onClick={handleSend}
+                disabled={!inputValue.trim() || isLoading}
+                className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-opacity disabled:opacity-30"
+                style={{ background: "#C4A35A" }}
+              >
+                <SendHorizonal size={13} color="#FFFFFF" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -549,7 +678,13 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
             <div className="stagger-child order-2 md:order-1">
-              <AnimatedChat messages={chatMessages} />
+              <AnimatedChat
+                messages={chatMessages}
+                placeholder={t("demo_chat.placeholder")}
+                ctaText={t("demo_chat.cta")}
+                ctaButton={t("demo_chat.cta_button")}
+                onCtaClick={scrollToSignup}
+              />
             </div>
 
             <div className="stagger-child order-1 md:order-2 space-y-8">
