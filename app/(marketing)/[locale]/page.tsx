@@ -525,7 +525,7 @@ export default function LandingPage() {
             />
             <img
               src="/hero-monaco-2560.webp"
-              alt="Monaco aerial view"
+              alt="Monaco night aerial panorama from Tête de Chien"
               loading="eager"
               decoding="async"
               fetchPriority="high"
