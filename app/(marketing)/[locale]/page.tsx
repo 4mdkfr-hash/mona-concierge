@@ -555,7 +555,7 @@ export default function LandingPage() {
 
           <button
             onClick={scrollToSignup}
-            className="inline-flex items-center gap-2 px-8 rounded-full transition-all uppercase"
+            className="inline-flex items-center gap-2 px-8 rounded-full transition-all uppercase mt-10"
             style={{ border: "1px solid rgba(196,163,90,0.8)", color: "#C4A35A", background: "rgba(0,0,0,0.2)", minHeight: "52px", fontSize: "0.875rem", fontWeight: 300, letterSpacing: "0.1em" }}
             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(196,163,90,0.15)"; }}
             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(0,0,0,0.2)"; }}
