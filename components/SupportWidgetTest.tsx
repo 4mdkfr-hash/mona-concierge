@@ -6,11 +6,10 @@ import { useEffect } from "react";
  * Тестовый стенд чат-виджета поддержки (проект cashman-support-widget).
  *
  * Виджет грузится ТОЛЬКО если в адресе есть ?chat=test — обычные посетители
- * mona-concierge.com и поисковики его не видят. Скрипт тянется с тестового
- * маршрута /widget-test.js, боевой cashman.casino при этом продолжает
- * использовать стабильный /widget.js на том же бэкенде.
+ * mona-concierge.com и поисковики его не видят. Пока виджет снят с
+ * cashman.casino, здесь тестируется та же самая версия, что лежит на сервере.
  */
-const WIDGET_SRC = "https://cashman-support-api.online/widget-test.js";
+const WIDGET_SRC = "https://cashman-support-api.online/widget.js";
 const API_URL = "https://cashman-support-api.online/api/chat";
 
 export default function SupportWidgetTest() {
