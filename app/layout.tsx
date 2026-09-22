@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import SupportWidgetTest from "@/components/SupportWidgetTest";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -55,7 +56,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fr">
-      <body className={`${inter.variable} ${cormorant.variable} ${inter.className}`}>{children}</body>
+      <body className={`${inter.variable} ${cormorant.variable} ${inter.className}`}>
+        {children}
+        <SupportWidgetTest />
+      </body>
     </html>
   );
 }
